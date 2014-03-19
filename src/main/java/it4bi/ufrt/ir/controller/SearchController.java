@@ -31,6 +31,4 @@ public class SearchController {
 		LOGGER.debug("document search query: {}", query);
 		return documents.find(query);
 	}
-	
-	
 }

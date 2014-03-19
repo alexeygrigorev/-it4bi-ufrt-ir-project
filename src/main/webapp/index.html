@@ -1,4 +1,30 @@
-<html>
-	<head><title>Title</title></head>
-	<body><h1>Hello World</h1></body>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Football Search Engine</title>
+    <script src="Vendor/knockout-3.1.0.js"></script>
+    <script src="Vendor/jquery-2.1.0.js"></script>
+    <script src="JS/DataService.js"></script>
+    <script src="JS/SearchEngine.js"></script>
+    <script type="text/javascript">
+
+        var searchEngine;
+
+        $(document).ready(function () {
+            searchEngine = searchEngineViewModel();          
+            ko.applyBindings(searchEngine);
+
+            // TODO: Delete this
+            searchEngine.searchDoc("qwerty");
+        });
+        
+    </script>
+</head>
+<body>
+    <h1>Hello World</h1>
+    <label data-bind="text: description"> </label>
+
+    <div data-bind="foreach: resultsDoc">
+        <label data-bind="text: docName"></label><br />
+    </div>
+</body>
 </html>
