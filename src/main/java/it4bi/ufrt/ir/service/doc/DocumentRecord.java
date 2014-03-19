@@ -4,6 +4,7 @@ public class DocumentRecord {
 
 	private String docName;
 	private String docPath;
+	private String docId;
 
 	public DocumentRecord() {
 	}
@@ -15,6 +16,14 @@ public class DocumentRecord {
 
 	public String getDocName() {
 		return docName;
+	}
+
+	public String getDocId() {
+		return docId;
+	}
+
+	public void setDocId(String docId) {
+		this.docId = docId;
 	}
 
 	public void setDocName(String docName) {
