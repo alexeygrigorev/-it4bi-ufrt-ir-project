@@ -11,8 +11,10 @@ public class JerseyApp extends ResourceConfig {
 	public JerseyApp() {
 		register(RequestContextFilter.class);
 		register(SearchController.class);
+		register(InfoController.class);
 		
 		// http://localhost:8080/it4bi-ufrt-ir-project 
 		// http://localhost:8080/it4bi-ufrt-ir-project/rest/search/doc?q=qwerty
+		// http://localhost:8080/it4bi-ufrt-ir-project/rest/info/users
 	}
 }
