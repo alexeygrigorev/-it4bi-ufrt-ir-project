@@ -24,8 +24,8 @@ public class SearchController {
 	@GET
 	@Path("/doc")
 	@Produces("application/json; charset=UTF-8")
-	public List<DocumentRecord> documents(@QueryParam("q") String query) {
-		LOGGER.debug("document search query: {}", query);
+	public List<DocumentRecord> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {				
+		LOGGER.debug("document search. UserID {}; Query: {}", userID, query);
 		return documents.find(query);
 	}	
 }

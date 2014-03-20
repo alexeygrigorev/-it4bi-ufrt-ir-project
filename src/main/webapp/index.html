@@ -1,8 +1,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Football Search Engine</title>
+    <link href="CSS/Styles.css" rel="stylesheet" />
     <script src="Vendor/knockout-3.1.0.js"></script>
     <script src="Vendor/jquery-2.1.0.js"></script>
+    <script src="JS/ObjectDefinitions.js"></script>
     <script src="JS/DataService.js"></script>
     <script src="JS/SearchEngine.js"></script>
     <script type="text/javascript">
@@ -10,21 +12,38 @@
         var searchEngine;
 
         $(document).ready(function () {
-            searchEngine = searchEngineViewModel();          
-            ko.applyBindings(searchEngine);
+            searchEngine = searchEngineViewModel();
+            searchEngine.initialize();
 
-            // TODO: Delete this
-            searchEngine.searchDoc("qwerty");
+            ko.applyBindings(searchEngine);
         });
-        
+
     </script>
 </head>
 <body>
-    <h1>Hello World</h1>
-    <label data-bind="text: description"> </label>
-
-    <div data-bind="foreach: resultsDoc">
-        <label data-bind="text: docName"></label><br/>
+    <div id="menuBorder">
+        <a class="menuBorderButtonLeft" href="javascript:void(0)">Football Search Engine</a>
+        <select class="menuBorderUserList" data-bind="options: users, value: loggedUser, optionsText: function(item) { return item.userFullName() }"></select>
+        <a class="menuBorderButtonRight" href="javascript:void(0)">My Profile</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)">My Files</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)">Upload File</a>
     </div>
+    <br />
+
+    <h1>Hello World</h1>
+
+    <div data-bind="foreach: resultsDOC">
+        <label data-bind="text: docName"></label><br />
+    </div>
+    <br />
+    <br />
+    <br />
+    <a href="#" data-bind="click: performSearch">Search</a>
+    <br />
+    <br />
+    Binded description: <label data-bind="text: description"> </label><br />
+    Logged user ID: <label data-bind="text: loggedUser() ? loggedUser().id : -1"></label><br />
+    Logged user name: <label data-bind="text: loggedUser() ? loggedUser().name : 'unknown'"></label><br />
+    <br />
 </body>
 </html>
