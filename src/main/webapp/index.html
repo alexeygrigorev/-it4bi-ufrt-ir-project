@@ -22,28 +22,53 @@
 </head>
 <body>
     <div id="menuBorder">
-        <a class="menuBorderButtonLeft" href="javascript:void(0)">Football Search Engine</a>
+        <a class="menuBorderButtonLeft" href="javascript:void(0)" data-bind="click: showSearchPage">Football Search Engine</a>
         <select class="menuBorderUserList" data-bind="options: users, value: loggedUser, optionsText: function(item) { return item.userFullName() }"></select>
-        <a class="menuBorderButtonRight" href="javascript:void(0)">My Profile</a>
-        <a class="menuBorderButtonRight" href="javascript:void(0)">My Files</a>
-        <a class="menuBorderButtonRight" href="javascript:void(0)">Upload File</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyProfile">My Profile</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyFiles">My Files</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showUploadFile">Upload File</a>
     </div>
-    <br />
+    <div style="height: 40px;"></div>
 
-    <h1>Hello World</h1>
-
-    <div data-bind="foreach: resultsDOC">
-        <label data-bind="text: docName"></label><br />
+    <!-- ko if: mode() == 'MyProfile'-->
+    <div>
+        My Profile
     </div>
-    <br />
-    <br />
-    <br />
-    <a href="#" data-bind="click: performSearch">Search</a>
-    <br />
-    <br />
-    Binded description: <label data-bind="text: description"> </label><br />
-    Logged user ID: <label data-bind="text: loggedUser() ? loggedUser().id : -1"></label><br />
-    Logged user name: <label data-bind="text: loggedUser() ? loggedUser().name : 'unknown'"></label><br />
-    <br />
+    <!-- /ko -->
+    <!-- ko if: mode() == 'MyFiles' -->
+    <div>
+        My Files
+    </div>
+    <!-- /ko -->
+    <!-- ko if: mode() == 'UploadFile' -->
+    <div>
+        Upload File
+    </div>
+    <!-- /ko -->
+    <!-- ko if: mode() == 'Search' -->
+    <div style="text-align: center;">
+        <table id="searchTable">
+            <tr>
+                <td id="searchLabel">Search Query:</td>
+                <td><input id="searchTextBox" type="text" data-bind="value: searchQuery, valueUpdate: 'afterkeydown'" /></td>
+                <td><input id="goButton" type="button" value="GO" data-bind="click: performSearch"></td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div data-bind="foreach: resultsDOC">
+                        <label data-bind="text: docName"></label><br />
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <!-- /ko -->
+
+    <div style="visibility: collapse">
+        <h3>Debug Information:</h3>
+        Logged user ID: <label data-bind="text: loggedUser() ? loggedUser().id : -1"></label><br />
+        Logged user name: <label data-bind="text: loggedUser() ? loggedUser().userFullName() : 'unknown'"></label><br />
+        Search Query: <label data-bind="text: searchQuery"></label><br />
+    </div>
 </body>
 </html>

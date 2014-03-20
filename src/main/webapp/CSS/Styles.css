@@ -1,5 +1,5 @@
 ﻿html, body {
-    margin: 0px;
+    margin: 0px 0px 0px 5px;
     padding: 0px;
     height: 100%;
 }
@@ -54,4 +54,53 @@
     color: gold;
     background-color: #333;
     padding-top: 4px;
+}
+
+#searchTextBox {
+    width: 500px;
+    height: 30px;
+    border: 1px solid #C1C1C1;
+    border-top: 2px solid #C1C1C1;
+    background: white;
+    font-family: arial;
+    font-size: 16px;
+    padding-left: 8px;
+    color: #333;
+}
+
+    #searchTextBox:hover {
+        box-shadow: 0 0 0 2px rgba(70,169,232,0.3),0 1px 0 #fff inset;
+    }
+
+    #searchTextBox:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(70,169,232,0.3),0 1px 0 #fff inset;
+    }
+
+#goButton {
+    width: 100px;
+    height: 30px;
+    cursor: pointer;
+    font-family: Arial;
+    font-size: 13px;
+    font-weight: bold;
+    color: #333;
+    border: 1px solid #C1C1C1;
+    border-radius: 0px 3px 3px 0px;
+}
+
+    #goButton:hover {
+        box-shadow: 0 0 0 2px rgba(70,169,232,0.3),0 1px 0 #fff inset;
+    }
+
+#searchLabel {
+    width: 130px;
+    font-family: Arial;
+    font-size: 18px;
+}
+
+#searchTable {
+    margin: 0 auto;
+    text-align: left;
+    border-spacing: 0px;
 }
