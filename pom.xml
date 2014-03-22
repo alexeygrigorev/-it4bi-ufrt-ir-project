@@ -17,6 +17,13 @@
 
 	<dependencies>
 
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-app</artifactId>
+			<version>1.5</version>
+		</dependency>
+            
+
 		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
