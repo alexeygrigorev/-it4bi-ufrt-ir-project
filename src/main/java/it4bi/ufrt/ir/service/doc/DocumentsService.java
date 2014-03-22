@@ -10,7 +10,8 @@ public class DocumentsService {
 
 	public List<DocumentRecord> find(String query) {
 		// here we implement everything
-		return Arrays.asList(new DocumentRecord("Report A", "Disk D"), new DocumentRecord("Football Magazine", "Disk C"));
+		return Arrays.asList(new DocumentRecord("England's harsh decline"), new DocumentRecord("Coaches matter much"));
 	}
-
+	
+	
 }
