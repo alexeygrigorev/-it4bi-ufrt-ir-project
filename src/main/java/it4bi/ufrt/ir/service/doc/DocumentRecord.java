@@ -12,7 +12,8 @@ public class DocumentRecord {
 
 	private String docTitle;
 	private String docPath;
-	private static int docId = 100000;
+	private int docId;
+	private static int docIdCounter = 100000;
 
 	public DocumentRecord() {
 	}
@@ -22,12 +23,12 @@ public class DocumentRecord {
 	}
 	
 	public DocumentRecord(String docTitle) {
-		this.docId = docId++;
+		this.docId = docIdCounter++;
 		this.docTitle = docTitle;
 	}
 	
 	public DocumentRecord(String docTitle, String docPath) {
-		this.docId = docId++;
+		this.docId = docIdCounter++;
 		this.docPath = docPath;
 		this.docTitle = docTitle;
 	}
@@ -50,26 +51,6 @@ public class DocumentRecord {
         
         indexer.indexDocument(this);
 		
-	}
-	
-	public static void rebuildDocsIndex() throws Exception {
-
-		// configure index properties
-        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41);  
-      	Directory indexDir = new RAMDirectory();
-      	
-        DocumentIndexer indexer = new DocumentIndexer(indexDir, analyzer);
-        
-        indexer.deleteIndex();
-        
-        Vector<DocumentRecord> allDocumentRecords = DocumentsDAO.getAllDocuments();
-        
-        for(DocumentRecord documentRecord : allDocumentRecords) {
-			documentRecord.setDocPath();
-			documentRecord.indexDocument();
-		}
-        
-        
 	}
 	
 	public void setDocTitle(String docTitle) {
