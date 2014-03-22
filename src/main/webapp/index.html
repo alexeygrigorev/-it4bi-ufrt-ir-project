@@ -31,9 +31,41 @@
     <div style="height: 40px;"></div>
 
     <!-- ko if: mode() == 'MyProfile'-->
-    <div>
-        My Profile
-    </div>
+    <table id="profileTable">
+        <thead>
+            <tr>
+                <th colspan="2">My Profile</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="alignRight">Name:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().name : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Surname:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().surname : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Country:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().country : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Sex:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().sexFormatted() : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Birthday:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().birthday : 'unknown'" /></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th><a href="javascript:void(0)" data-bind="click: showUploadFile">Upload File</a></th>
+                <th><a href="javascript:void(0)" data-bind="click: showMyFiles">My Files</a></th>
+            </tr>
+        </tfoot>
+    </table>
     <!-- /ko -->
     <!-- ko if: mode() == 'MyFiles' -->
     <div>
@@ -46,8 +78,7 @@
     </div>
     <!-- /ko -->
     <!-- ko if: mode() == 'Search' -->
-
-    <form data-bind="submit: performSearch" style="text-align: center;">
+    <form style="alignCenter" data-bind="submit: performSearch">
         <table id="searchTable">
             <tr>
                 <td id="searchLabel"><img id="searchLogo" data-bind="attr: { src: logo }, click: initializeLogo" /></td>
