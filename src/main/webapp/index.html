@@ -46,10 +46,11 @@
     </div>
     <!-- /ko -->
     <!-- ko if: mode() == 'Search' -->
-    <div style="text-align: center;">
+
+    <form data-bind="submit: performSearch" style="text-align: center;">
         <table id="searchTable">
             <tr>
-                <td id="searchLabel">Search Query:</td>
+                <td id="searchLabel"><img id="searchLogo" data-bind="attr: { src: logo }, click: initializeLogo" /></td>
                 <td><input id="searchTextBox" type="text" data-bind="value: searchQuery, valueUpdate: 'afterkeydown'" /></td>
                 <td><input id="goButton" type="button" value="GO" data-bind="click: performSearch"></td>
             </tr>
@@ -61,7 +62,7 @@
                 </td>
             </tr>
         </table>
-    </div>
+    </form>
     <!-- /ko -->
 
     <div style="visibility: collapse">
