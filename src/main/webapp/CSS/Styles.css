@@ -1,4 +1,4 @@
-﻿html, body {
+html, body {
     margin: 0px 0px 0px 5px;
     padding: 0px;
     height: 100%;
@@ -35,10 +35,6 @@
     color: white;
 }
 
-    .menuBorderButtonRight:hover {
-        text-decoration: underline;
-    }
-
 .menuBorderButtonLeft {
     padding-top: 7px;
     margin-left: 28px;
@@ -49,10 +45,8 @@
     color: white;
 }
 
-    .menuBorderButtonLeft:hover {
-        display: inline-block;
+    .menuBorderButtonRight:hover, .menuBorderButtonLeft:hover {
         text-decoration: underline;
-        color: white;
     }
 
 .menuBorderUserList {
@@ -64,8 +58,7 @@
     padding-top: 4px;
 }
 
-#searchTextBox {
-    width: 500px;
+.highlightedTextBox {
     height: 30px;
     border: 1px solid #C1C1C1;
     border-top: 2px solid #C1C1C1;
@@ -76,17 +69,16 @@
     color: #333;
 }
 
-    #searchTextBox:hover {
+    .highlightedTextBox:hover, .highlightedButton:hover {
         box-shadow: 0 0 0 2px rgba(70,169,232,0.3),0 1px 0 #fff inset;
     }
 
-    #searchTextBox:focus {
+    .highlightedTextBox:focus {
         outline: none;
         box-shadow: 0 0 0 2px rgba(70,169,232,0.3),0 1px 0 #fff inset;
     }
 
-#goButton {
-    width: 100px;
+.highlightedButton {
     height: 30px;
     cursor: pointer;
     font-family: Arial;
@@ -96,10 +88,6 @@
     border: 1px solid #C1C1C1;
     border-radius: 0px 3px 3px 0px;
 }
-
-    #goButton:hover {
-        box-shadow: 0 0 0 2px rgba(70,169,232,0.3),0 1px 0 #fff inset;
-    }
 
 #searchLabel {
     width: 130px;
@@ -122,7 +110,7 @@
     margin: 0px auto;
     font-family: "Lucida Sans Unicode";
     font-size: 14px;
-    width: 350px;
+    width: 450px;
     border-collapse: collapse;
 }
 

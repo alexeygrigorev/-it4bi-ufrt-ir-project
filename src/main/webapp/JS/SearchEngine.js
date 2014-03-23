@@ -8,6 +8,7 @@ function searchEngineViewModel() {
     self.logo = ko.observable();
     self.loggedUser = ko.observable();
     self.searchQuery = ko.observable('');
+    self.uploadDocumentTitle = ko.observable('');
     self.users = ko.observableArray([]);
     self.resultsDOC = ko.observableArray([]);
 
@@ -43,7 +44,35 @@ function searchEngineViewModel() {
 
     // Show page to upload document by logged-in user
     self.showUploadFile = function () {
-        self.mode('UploadFile');
+        if (self.mode() != 'UploadFile') {
+            self.mode('UploadFile');
+            self.uploadDocumentTitle('');
+
+            // Bind file uploader only once
+            $("#fileUploader").uploadFile({
+                url: "http://localhost:8080/it4bi-ufrt-ir-project/rest/upload/doc",
+                autoSubmit: true,
+                multiple: false,
+                showDone: true,
+                showStatusAfterSuccess: true,
+                fileCounterStyle: ") ",
+                dragDropStr: "<span><b>Drag &amp; Drop a Single File Here</b></span>",
+                dynamicFormData: function () {
+                    return {
+                        userID: self.loggedUser() ? self.loggedUser().id : -1,
+                        docTitle: self.uploadDocumentTitle()
+                    }
+                },
+                onSelect: function (files) {
+                    if (self.uploadDocumentTitle() == '') {
+                        self.uploadDocumentTitle(files[0].name);
+                    }
+                },
+                onSuccess: function () {
+                    self.uploadDocumentTitle('');
+                }
+            });
+        }
     };
 
     // Show search page
