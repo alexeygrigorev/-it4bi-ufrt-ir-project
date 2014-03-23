@@ -3,10 +3,11 @@
 function dataService() {
 
     var self = {};
+    self.serverURL = window.location.href;
 
     // Get all registered USERS
     self.getUsers = function (callback) {
-        var URL = "http://localhost:8080/it4bi-ufrt-ir-project/rest/info/users";
+        var URL = self.serverURL + "/rest/info/users";
 
         $.get(URL, function (data) {
 
@@ -29,7 +30,7 @@ function dataService() {
 
     // Perform search on DOCUMENTS
     self.searchDOC = function (query, userID, callback) {
-        var URL = "http://localhost:8080/it4bi-ufrt-ir-project/rest/search/doc?q=" + query + "&u=" + userID;
+        var URL = self.serverURL + "/rest/search/doc?q=" + query + "&u=" + userID;
 
         $.get(URL, function (data) {
             // Return results back to the caller
