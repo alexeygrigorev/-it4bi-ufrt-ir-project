@@ -2,7 +2,8 @@ package it4bi.ufrt.ir.service.users;
 
 public class User {
 	
-	private int ID;
+	private static int idCounter = 10000;
+	private int id;
 	private String name;
 	private String surname;
 	private String country;
@@ -12,8 +13,8 @@ public class User {
 	public User() {
 	}
 
-	public User(int ID, String name, String surname, String country, UserSex sex, String birthday) {
-		this.ID = ID;
+	public User(String name, String surname, String country, UserSex sex, String birthday) {
+		this.id = idCounter++;
 		this.name = name;
 		this.surname = surname;
 		this.country = country;
@@ -22,11 +23,11 @@ public class User {
 	}
 	
 	public int getID() {
-		return ID;
+		return id;
 	}
 	
 	public void setID(int iD) {
-		ID = iD;
+		this.id = iD;
 	}
 	
 	public String getName() {

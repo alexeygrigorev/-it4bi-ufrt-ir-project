@@ -2,8 +2,10 @@
 <head>
     <title>Football Search Engine</title>
     <link href="CSS/Styles.css" rel="stylesheet" />
+    <link href="CSS/uploadfile.css" rel="stylesheet" />
     <script src="Vendor/knockout-3.1.0.js"></script>
     <script src="Vendor/jquery-2.1.0.js"></script>
+    <script src="Vendor/jquery.uploadfile.js"></script>
     <script src="JS/ObjectDefinitions.js"></script>
     <script src="JS/DataService.js"></script>
     <script src="JS/SearchEngine.js"></script>
@@ -31,9 +33,41 @@
     <div style="height: 40px;"></div>
 
     <!-- ko if: mode() == 'MyProfile'-->
-    <div>
-        My Profile
-    </div>
+    <table id="profileTable">
+        <thead>
+            <tr>
+                <th colspan="2">My Profile</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="alignRight">Name:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().name : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Surname:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().surname : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Country:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().country : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Sex:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().sexFormatted() : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Birthday:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().birthday : 'unknown'" /></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th><a href="javascript:void(0)" data-bind="click: showUploadFile">Upload File</a></th>
+                <th><a href="javascript:void(0)" data-bind="click: showMyFiles">My Files</a></th>
+            </tr>
+        </tfoot>
+    </table>
     <!-- /ko -->
     <!-- ko if: mode() == 'MyFiles' -->
     <div>
@@ -41,27 +75,41 @@
     </div>
     <!-- /ko -->
     <!-- ko if: mode() == 'UploadFile' -->
-    <div>
-        Upload File
-    </div>
+    <table id="profileTable">
+        <thead>
+            <tr>
+                <th colspan="2">Upload File</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="alignRight" width="120px">Document Title:</td>
+                <td><input class="highlightedTextBox" style="width: 100%" type="text" data-bind="value: uploadDocumentTitle, valueUpdate: 'afterkeydown'" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><div id="fileUploader">Upload</div></td>
+            </tr>
+        </tbody>        
+    </table>
     <!-- /ko -->
     <!-- ko if: mode() == 'Search' -->
-    <div style="text-align: center;">
+    <form class="alignCenter" data-bind="submit: performSearch">
         <table id="searchTable">
             <tr>
-                <td id="searchLabel">Search Query:</td>
-                <td><input id="searchTextBox" type="text" data-bind="value: searchQuery, valueUpdate: 'afterkeydown'" /></td>
-                <td><input id="goButton" type="button" value="GO" data-bind="click: performSearch"></td>
+                <td id="searchLabel"><img id="searchLogo" data-bind="attr: { src: logo }, click: initializeLogo" /></td>
+                <td><input class="highlightedTextBox" style="width: 500px" type="text" data-bind="value: searchQuery, valueUpdate: 'afterkeydown'" /></td>
+                <td><input class="highlightedButton" style="width: 100px" type="button" value="GO" data-bind="click: performSearch"></td>
             </tr>
             <tr>
                 <td colspan="3">
                     <div data-bind="foreach: resultsDOC">
-                        <label data-bind="text: docName"></label><br />
+                        <!--<label data-bind="text: docName"></label><br />-->
+                        DocName
                     </div>
                 </td>
             </tr>
         </table>
-    </div>
+    </form>
     <!-- /ko -->
 
     <div style="visibility: collapse">

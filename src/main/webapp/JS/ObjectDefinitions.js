@@ -13,6 +13,13 @@ function userInfo(spec) {
     self.userFullName = function () {
         return self.name + ' ' + self.surname;
     }
+
+    self.sexFormatted = function () {
+        switch (self.sex) {
+            case 'MALE': return 'Male'; break;
+            case 'FEMALE': return 'Female'; break;
+        }
+    };
     
     return self;
 }
