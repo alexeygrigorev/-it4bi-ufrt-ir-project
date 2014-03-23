@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
-           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-       ">
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<bean id="appDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="${app.config.jdbc.driver}" />
-		<property name="url" value="${app.config.jdbc.url}" />
-		<property name="username" value="${auth.config.jdbc.user}" />
-		<property name="password" value="${auth.config.jdbc.password}" />
+		<property name="driverClassName" value="#{db['app.jdbc.driver']}" />
+		<property name="url" value="#{db['app.jdbc.url']}" />
+		<property name="username" value="#{db['app.jdbc.user']}" />
+		<property name="password" value="#{db['app.jdbc.password']}" />
 	</bean>
 
 	<bean id="appJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
 		<constructor-arg name="dataSource" ref="appDataSource" />
 	</bean>
 
-	<context:property-placeholder location="dataSources.properties" />
+	<util:properties id="db" location="classpath:dataSources.properties" />
 
 </beans>
