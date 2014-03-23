@@ -1,53 +1,36 @@
 package it4bi.ufrt.ir.controller;
 
-import java.io.File;
-
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
-import it4bi.ufrt.ir.service.doc.DocumentsService;
-import it4bi.ufrt.ir.service.users.UsersService;
 
-import javax.servlet.ServletInputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.xml.ws.spi.http.HttpContext;
-
-import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
-import org.glassfish.jersey.media.multipart.FormDataParam;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Enumeration;
 
-import org.apache.commons.fileupload.FileItemIterator;
-import org.apache.commons.fileupload.FileItemStream;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.apache.commons.io.FilenameUtils;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 @Path("/upload")
 public class UploadController {
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(InfoController.class);
-	private static final String UPLOAD_LOCATION = "C://IRDocs/";
+	private static final Logger LOGGER = LoggerFactory.getLogger(InfoController.class);
 
+	@Value("${documents.upload.folder}")
+	private String uploadLocation;
+	
 	@POST
 	@Path("/doc")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -57,7 +40,7 @@ public class UploadController {
 			@FormDataParam("userID") int userID) {
 
 		LOGGER.debug("uploading file. UserID {}; Doc Title: {}", userID, documentTitle);
-		createDirectory(UPLOAD_LOCATION);
+		createDirectory(uploadLocation);
 		
 		String clientFilePath = fileInfo.getFileName();
 		String serverFilePath = createServerFilePath(clientFilePath);
@@ -75,13 +58,12 @@ public class UploadController {
 
 		// if the directory does not exist, create it
 		if (!folder.exists()) {
-			LOGGER.debug("creating directory: " + directory);
+			LOGGER.debug("creating directory: {}", directory);
 			
 			boolean result = folder.mkdir();
 			if (result) {
 				LOGGER.debug("directory is created");
-			}
-			else {
+			} else {
 				LOGGER.debug("directory creation failed");
 			}
 		}
@@ -93,14 +75,13 @@ public class UploadController {
 		String extension = FilenameUtils.getExtension(serverFileName);
 		String baseName = FilenameUtils.getBaseName(serverFileName);		
 		
-		File document = new File(UPLOAD_LOCATION + serverFileName);
-		if (document.exists()){
+		File document = new File(uploadLocation, serverFileName);
+		if (document.exists()) {
 			int i = 0;
-			do
-			{				
-				document = new File(UPLOAD_LOCATION + baseName + "_" + ++i + "." + extension);
-			}
-			while (document.exists());			
+			do {
+				i++;
+				document = new File(uploadLocation, baseName + "_" + i + "." + extension);
+			} while (document.exists());			
 		}
 		return document.getAbsolutePath();		
 	}

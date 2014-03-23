@@ -1,9 +1,8 @@
 package it4bi.ufrt.ir.controller;
 
-import javax.ws.rs.ApplicationPath;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.spring.scope.RequestContextFilter;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 public class JerseyApp extends ResourceConfig {
 
