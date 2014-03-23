@@ -38,7 +38,7 @@ public class DocumentRecord {
 		return docText;
 	}
 	
-	public void indexDocument() throws Exception {  // Custom Exception Classes can be introduced
+	public void index() throws Exception {  // Custom Exception Classes can be introduced
 		
 		if(docPath == null) throw new Exception();
 		
@@ -62,7 +62,10 @@ public class DocumentRecord {
 	}
 
 	public void setDocPath() {
-		this.docPath = DocumentsDAO.getDocPath(this.docId);
+		
+		DocumentsDAO docDAO = new DocumentsDAO();
+		
+		this.docPath = docDAO.getDocPath(this.docId);
 	}
 
 	public int getDocId() {

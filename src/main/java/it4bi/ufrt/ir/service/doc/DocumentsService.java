@@ -8,17 +8,21 @@ import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DocumentsService {
 
+	
+	@Autowired
+	private static DocumentsDAO docDAO;
+	
 	public List<DocumentRecord> find(String query) {
-		
-		
 		
 		// here we implement everything
 		return Arrays.asList(new DocumentRecord("England's harsh decline"), new DocumentRecord("Coaches matter much"));
+		
 	}
 	
 	public static void rebuildDocsIndex() throws Exception {
@@ -31,11 +35,11 @@ public class DocumentsService {
         
         indexer.deleteIndex();
         
-        Vector<DocumentRecord> allDocumentRecords = DocumentsDAO.getAllDocuments();
+        List<DocumentRecord> allDocumentRecords = docDAO.getAllDocuments();
         
         for(DocumentRecord documentRecord : allDocumentRecords) {
 			documentRecord.setDocPath();
-			documentRecord.indexDocument();
+			documentRecord.index();
 		}
         
         

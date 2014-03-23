@@ -2,6 +2,7 @@ package it4bi.ufrt.ir.controller;
 
 import java.io.File;
 
+import it4bi.ufrt.ir.service.doc.DocumentIndexer;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
@@ -41,13 +42,17 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 
+
 @Component
 @Path("/upload")
 public class UploadController {
 	private static final Logger LOGGER = LoggerFactory
 			.getLogger(InfoController.class);
 	private static final String UPLOAD_LOCATION = "C://IRDocs/";
-
+	
+	@Autowired
+	private DocumentsDAO docDAO;
+	
 	@POST
 	@Path("/doc")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -64,7 +69,11 @@ public class UploadController {
 		saveFile(fileStream, serverFilePath);
 
 		// TODO: Alexey, is there any way to start indexing after returning the response?
-		indexFile(userID, documentTitle, serverFilePath);
+		
+		
+		DocumentRecord docRecord = new DocumentRecord(documentTitle, serverFilePath);
+		indexFile(docRecord);
+		docDAO.insertDocumentRecord(userID, docRecord);
 
 		String output = "File saved to location: " + serverFilePath;
 		return Response.status(200).entity(output).build();
@@ -121,16 +130,13 @@ public class UploadController {
 		}
 	}
 	
-	private void indexFile(int userID, String documentTitle, String filePath){
-		// TODO: Anil, its your turn.
-		
-		DocumentRecord documentRecord = new DocumentRecord(documentTitle, filePath);
-		DocumentsDAO.insertDocumentRecord(documentRecord);
+	private void indexFile(DocumentRecord documentRecord){
 		
 		try {
-			// documentRecord.indexDocument();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}	
+			documentRecord.index();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		
 	}
 }
