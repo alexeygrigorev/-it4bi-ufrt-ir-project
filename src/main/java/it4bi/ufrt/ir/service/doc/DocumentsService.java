@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
+import javax.ws.rs.Path;
+
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
@@ -15,8 +17,13 @@ import org.springframework.stereotype.Component;
 public class DocumentsService {
 
 	
-	@Autowired
-	private static DocumentsDAO docDAO;
+	public DocumentsDAO docDAO;
+	
+	 @Autowired
+     public DocumentsService(DocumentsDAO docDAO) {
+             this.docDAO = docDAO;
+             
+     }
 	
 	public List<DocumentRecord> find(String query) {
 		
@@ -35,7 +42,12 @@ public class DocumentsService {
         
         indexer.deleteIndex();
         
-        List<DocumentRecord> allDocumentRecords = docDAO.getAllDocuments();
+        List<DocumentRecord> allDocumentRecords = null;
+        //List<DocumentRecord> allDocumentRecords = docDAO.getAllDocuments();
+        
+        // TODO: Alexey, why can't I use autowired DAO here?
+        
+        
         
         for(DocumentRecord documentRecord : allDocumentRecords) {
 			documentRecord.setDocPath();

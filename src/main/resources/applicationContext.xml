@@ -7,6 +7,9 @@
            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
        ">
 
-     <context:component-scan base-package="it4bi.ufrt.ir" /> 
+	<context:component-scan base-package="it4bi.ufrt.ir" /> 
+	<context:property-placeholder location="classpath:custom.properties"  />
 
-</beans>
+	<import resource="classpath:dataSources.xml" />
+
+ </beans>
