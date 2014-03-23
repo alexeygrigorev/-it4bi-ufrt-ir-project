@@ -4,6 +4,7 @@ function searchEngineViewModel() {
 
     var self = {};
 
+    self.serverURL = '';
     self.mode = ko.observable('Search');
     self.logo = ko.observable();
     self.loggedUser = ko.observable();
@@ -13,6 +14,9 @@ function searchEngineViewModel() {
     self.resultsDOC = ko.observableArray([]);
 
     self.initialize = function () {
+
+        // Setting up correct serverURL
+        self.serverURL = dataServiceProvider.serverURL;
 
         // Initialize logo with random image
         self.initializeLogo();
@@ -50,7 +54,7 @@ function searchEngineViewModel() {
 
             // Bind file uploader only once
             $("#fileUploader").uploadFile({
-                url: "http://localhost:8080/it4bi-ufrt-ir-project/rest/upload/doc",
+                url: self.serverURL + "/rest/upload/doc",
                 autoSubmit: true,
                 multiple: false,
                 showDone: true,
