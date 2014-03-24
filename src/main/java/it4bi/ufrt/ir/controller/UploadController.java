@@ -10,8 +10,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -26,7 +28,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Path("/upload")
+// TODO: needs renaming
 public class UploadController {
+	private static final int NOT_FOUND_STATUS = 404;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(InfoController.class);
 
 	@Autowired
@@ -34,7 +39,20 @@ public class UploadController {
 	
 	@Value("${documents.upload.folder}")
 	private String uploadLocation;
+
+	@GET
+	@Path("/get/{file}")
+	public Response getFile(@PathParam("file") String file) {
+		LOGGER.debug("file download requerst for {}", file);
+		File fileToSend = new File(uploadLocation, file);
+		if (fileToSend.exists()) {
+			return Response.ok(fileToSend, MediaType.APPLICATION_OCTET_STREAM).build();
+		} else {
+			return Response.status(NOT_FOUND_STATUS).build();
+		}
+	}
 	
+
 	@POST
 	@Path("/doc")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
