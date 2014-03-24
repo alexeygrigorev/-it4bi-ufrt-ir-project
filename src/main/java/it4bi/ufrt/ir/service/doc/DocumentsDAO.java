@@ -3,6 +3,9 @@ package it4bi.ufrt.ir.service.doc;
 import java.util.List;
 import java.util.Vector;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class DocumentsDAO {
 
 	public List<DocumentRecord> getDocumentList(int userId) {
