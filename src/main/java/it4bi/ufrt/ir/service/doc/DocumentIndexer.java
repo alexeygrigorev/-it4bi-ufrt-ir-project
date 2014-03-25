@@ -66,8 +66,11 @@ public class DocumentIndexer {
          IndexWriter writer = getIndexWriter();
          Document doc = new Document();
          doc.add(new StoredField("id", documentRecord.getDocId()));
+         doc.add(new StoredField("uploaderId", documentRecord.getUploaderId()));
          doc.add(new TextField("title", documentRecord.getDocTitle(), Field.Store.YES));
          doc.add(new TextField("content", documentRecord.getFullText() , Field.Store.NO));
-         writer.addDocument(doc);   
+         writer.addDocument(doc);
+         writer.commit();
+         writer.close();
      }
 }
