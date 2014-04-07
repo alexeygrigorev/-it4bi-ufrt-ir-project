@@ -1,5 +1,7 @@
 package it4bi.ufrt.ir.service.doc;
 
+import it4bi.ufrt.ir.business.DocumentDatabase;
+
 import java.util.List;
 import java.util.Vector;
 
@@ -35,11 +37,15 @@ public class DocumentsDAO {
 		return filePath;
 	}
 
-	public void insertDocumentRecord(int userID, DocumentRecord documentRecord) {
+	public void insertDocumentRecord(DocumentRecord documentRecord) {
 
 		// Implement logic for document insertion to database. Careful: new
 		// document entry in DB should be associated with the user who uploaded
 		// it.
+		
+		// Temproary implementation for mock-up DB
+		DocumentDatabase.insertDoc(documentRecord);
+		
 
 	}
 

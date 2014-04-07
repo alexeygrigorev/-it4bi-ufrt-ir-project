@@ -1,10 +1,12 @@
 package it4bi.ufrt.ir.service.doc;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Vector;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
@@ -13,7 +15,12 @@ public class DocumentRecord {
 	private String docTitle;
 	private String docPath;
 	private int docId;
+	private int uploaderId;
 	private static int docIdCounter = 100000;
+
+	public int getUploaderId() {
+		return uploaderId;
+	}
 
 	public DocumentRecord() {
 	}
@@ -22,15 +29,23 @@ public class DocumentRecord {
 		return docTitle;
 	}
 	
-	public DocumentRecord(String docTitle) {
-		this.docId = docIdCounter++;
+	public DocumentRecord(int docId, String docTitle, int uploderId) {
+		this.docId = docId;
 		this.docTitle = docTitle;
+		this.uploaderId = uploaderId;
 	}
 	
-	public DocumentRecord(String docTitle, String docPath) {
+	public DocumentRecord(String docTitle, int uploderId) {
+		this.docId = docIdCounter++;
+		this.docTitle = docTitle;
+		this.uploaderId = uploaderId;
+	}
+	
+	public DocumentRecord(String docTitle, String docPath, int uploaderId) {
 		this.docId = docIdCounter++;
 		this.docPath = docPath;
 		this.docTitle = docTitle;
+		this.uploaderId = uploaderId;
 	}
 	
 	public String getFullText() {
@@ -44,7 +59,7 @@ public class DocumentRecord {
 		
 		// configure index properties
         EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41);  
-      	Directory indexDir = new RAMDirectory();
+        Directory indexDir = new MMapDirectory(new File("./luceneIndex"));
       	
       	
         DocumentIndexer indexer = new DocumentIndexer(indexDir, analyzer);

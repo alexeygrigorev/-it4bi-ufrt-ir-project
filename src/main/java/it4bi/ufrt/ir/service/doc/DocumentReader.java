@@ -27,7 +27,7 @@ public class DocumentReader {
 			e.printStackTrace();
 		}
 	    
-	    System.out.println(text);
+	    //System.out.println(text);
 		
 		
 		return text;
