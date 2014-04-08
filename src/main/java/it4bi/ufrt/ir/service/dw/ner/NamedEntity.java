@@ -5,9 +5,14 @@ import java.util.Arrays;
 public class NamedEntity {
 
 	private final String token;
-	private final String cls;
+	private final NamedEntityClass cls;
 
 	public NamedEntity(String token, String cls) {
+		this.token = token;
+		this.cls = NamedEntityClass.valueOf(cls);
+	}
+	
+	public NamedEntity(String token, NamedEntityClass cls) {
 		this.token = token;
 		this.cls = cls;
 	}
@@ -16,7 +21,7 @@ public class NamedEntity {
 		return token;
 	}
 
-	public String getNerClass() {
+	public NamedEntityClass getNerClass() {
 		return cls;
 	}
 
@@ -33,5 +38,10 @@ public class NamedEntity {
 	@Override
 	public int hashCode() {
 		return Arrays.asList(token, cls).hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return "NamedEntity [token=" + token + ", cls=" + cls + "]";
 	}
 }

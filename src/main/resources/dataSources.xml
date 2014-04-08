@@ -18,6 +18,17 @@
 		<constructor-arg name="dataSource" ref="appDataSource" />
 	</bean>
 
+	<bean id="dwhDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="#{db['dwh.jdbc.driver']}" />
+		<property name="url" value="#{db['dwh.jdbc.url']}" />
+		<property name="username" value="#{db['dwh.jdbc.user']}" />
+		<property name="password" value="#{db['dwh.jdbc.password']}" />
+	</bean>
+
+	<bean id="dwhJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg name="dataSource" ref="dwhDataSource" />
+	</bean>
+
 	<util:properties id="db" location="classpath:dataSources.properties" />
 
 </beans>

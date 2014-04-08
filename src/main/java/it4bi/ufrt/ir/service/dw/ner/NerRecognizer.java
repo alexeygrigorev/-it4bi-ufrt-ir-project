@@ -12,7 +12,7 @@ public class NerRecognizer {
 	private static final String DEFAULT_SERIALIZED_CLASSIFIER = "edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz";
 	private final CRFClassifier<CoreLabel> classifier;
 
-	public NerRecognizer(CRFClassifier<CoreLabel> classifier) {
+	private NerRecognizer(CRFClassifier<CoreLabel> classifier) {
 		this.classifier = classifier;
 	}
 
@@ -47,6 +47,7 @@ public class NerRecognizer {
 				if (prevLabel != null) {
 					results.add(new NamedEntity(token.trim(), prevLabel));
 				}
+
 				prevLabel = null;
 				token = "";
 				continue;
