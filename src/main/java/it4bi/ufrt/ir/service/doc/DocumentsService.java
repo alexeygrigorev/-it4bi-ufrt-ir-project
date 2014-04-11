@@ -1,15 +1,11 @@
 package it4bi.ufrt.ir.service.doc;
 
-import it4bi.ufrt.ir.controller.InfoController;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Vector;
 
-import javax.ws.rs.Path;
+
+import java.util.List;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
@@ -17,18 +13,21 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
-import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DocumentsService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(InfoController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentsService.class);
 	public DocumentsDAO docsDAO;
+	
+	@Value("${documents.index}")
+	private String indexLocation;
 	
 	 @Autowired
      public DocumentsService(DocumentsDAO docsDAO) {
@@ -37,15 +36,11 @@ public class DocumentsService {
      }
 	
 	public List<DocumentRecord> find(String query) {
-		
-		
-		
-		
 		// configure index properties
         EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41);  
         Directory indexDir = null;
 		try {
-			indexDir = new MMapDirectory(new File("./luceneIndex"));
+			indexDir = new MMapDirectory(new File(indexLocation));
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -91,8 +86,8 @@ public class DocumentsService {
 
 		// configure index properties
         EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41);  
-        Directory indexDir = new MMapDirectory(new File("./luceneIndex"));
-      	
+        Directory indexDir = new MMapDirectory(new File(indexLocation));
+        
         DocumentIndexer indexer = new DocumentIndexer(indexDir, analyzer);
         
         indexer.deleteIndex();
@@ -103,7 +98,7 @@ public class DocumentsService {
         
         for(DocumentRecord documentRecord : allDocumentRecords) {
 			documentRecord.setDocPath();
-			documentRecord.index();
+			documentRecord.index(indexLocation);
 		}
         
         

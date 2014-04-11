@@ -9,6 +9,7 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
+import org.springframework.beans.factory.annotation.Value;
 
 public class DocumentRecord {
 
@@ -17,7 +18,7 @@ public class DocumentRecord {
 	private int docId;
 	private int uploaderId;
 	private static int docIdCounter = 100000;
-
+	
 	public int getUploaderId() {
 		return uploaderId;
 	}
@@ -29,13 +30,13 @@ public class DocumentRecord {
 		return docTitle;
 	}
 	
-	public DocumentRecord(int docId, String docTitle, int uploderId) {
+	public DocumentRecord(int docId, String docTitle, int uploaderId) {
 		this.docId = docId;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
 	}
 	
-	public DocumentRecord(String docTitle, int uploderId) {
+	public DocumentRecord(String docTitle, int uploaderId) {
 		this.docId = docIdCounter++;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
@@ -53,13 +54,13 @@ public class DocumentRecord {
 		return docText;
 	}
 	
-	public void index() throws Exception {  // Custom Exception Classes can be introduced
+	public void index(String indexLocation) throws Exception {  // Custom Exception Classes can be introduced
 		
 		if(docPath == null) throw new Exception();
 		
 		// configure index properties
-        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41);  
-        Directory indexDir = new MMapDirectory(new File("./luceneIndex"));
+        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41); 
+        Directory indexDir = new MMapDirectory(new File(indexLocation));
       	
       	
         DocumentIndexer indexer = new DocumentIndexer(indexDir, analyzer);

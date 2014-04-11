@@ -32,13 +32,16 @@ import org.springframework.stereotype.Component;
 public class UploadController {
 	private static final int NOT_FOUND_STATUS = 404;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(InfoController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
 	@Autowired
 	private DocumentsDAO docsDAO;
 	
 	@Value("${documents.upload.folder}")
 	private String uploadLocation;
+	
+	@Value("${documents.index}")
+	private String indexLocation;
 
 	@GET
 	@Path("/get/{file}")
@@ -73,7 +76,7 @@ public class UploadController {
 		try {
 			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath,userID);
 			docsDAO.insertDocumentRecord(documentRecord);
-			documentRecord.index();
+			documentRecord.index(indexLocation);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
