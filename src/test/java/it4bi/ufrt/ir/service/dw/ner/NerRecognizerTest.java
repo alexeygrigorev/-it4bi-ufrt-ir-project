@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class NerRecognizerTest {
 
-	private static NerRecognizer nerRecognizer = NerRecognizer.readDefault();
+	private static NerRecognizer nerRecognizer = NerRecognizer.loadDefault().init();
 
 	@Test
 	public void justOne() {

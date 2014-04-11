@@ -10,6 +10,7 @@ import javax.sql.DataSource;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -18,11 +19,24 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class DbConnectionTest {
 
 	@Autowired
-	DataSource dataSource;
+	@Qualifier("appDataSource")
+	DataSource appDataSource;
+
+	@Autowired
+	@Qualifier("dwhDataSource")
+	DataSource dwhDataSource;
 
 	@Test
-	public void testConnection() throws Exception {
-		Connection connection = dataSource.getConnection();
+	public void tesAppDbConnection() throws Exception {
+		Connection connection = appDataSource.getConnection();
+		DatabaseMetaData metaData = connection.getMetaData();
+		assertEquals("Microsoft SQL Server", metaData.getDatabaseProductName());
+		connection.close();
+	}
+
+	@Test
+	public void testDwhConnection() throws Exception {
+		Connection connection = dwhDataSource.getConnection();
 		DatabaseMetaData metaData = connection.getMetaData();
 		assertEquals("Microsoft SQL Server", metaData.getDatabaseProductName());
 		connection.close();
