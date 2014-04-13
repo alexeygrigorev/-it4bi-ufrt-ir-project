@@ -89,30 +89,18 @@ public class DocumentsService {
 			String docTitle = doc.get("title");
 			int uploaderID = Integer.parseInt(doc.get("uploaderId"));
 			float score = hits[i].score;
-			
-			// TODO: ANIL: 
-			
-			// if uploaderID is equal to the ID of the user that makes search then increase score by 50%.			
-			if (userID == uploaderID) {
-				score = score + userOwnerBonus * score;
-			}
-			
-			// TODO: ANIL: if the document is liked by this user then increase score by 25%
-			// if (false == false) {
-				// score = score + docLikedBonus * score;
-			// }
 														
-			DocumentRecord docRecord = new DocumentRecord(docID, docTitle, uploaderID, score);
-			// TODO: ANIL: isLiked.
-			docRecord.setIsLiked(false);
+			DocumentRecord docRecord = new DocumentRecord(docID, docTitle, uploaderID);
+			
 			// TODO: ANIL: DocExtension and check docTitle.
-			docRecord.setDocExtension("TODO extension");
+			// docRecord.setDocExtension("TODO extension");
 						
 		    docsList.add(docRecord);
 		    LOGGER.debug(docTitle + ", " + uploaderID + " - score: " + score);
 		}
 		System.out.println("---end of query results");
 	
+		/*
 		// Sort documents by score DESCENDING
 		Collections.sort(docsList,  new Comparator<DocumentRecord>() {
 
@@ -123,7 +111,7 @@ public class DocumentsService {
 	        	
 	        	return (d2.getScore() < d1.getScore()) ? -1 : 1; 	        	
 	        }
-	    });
+	    });*/
 		
 		return docsList;		
 	}

@@ -18,8 +18,6 @@ public class DocumentRecord {
 	private String docExtension;
 	private int docId;
 	private int uploaderId;
-	private float score;
-	private boolean isLiked;
 	private static int docIdCounter = 100000;
 	
 	public int getUploaderId() {
@@ -34,7 +32,7 @@ public class DocumentRecord {
 	}
 	
 	public DocumentRecord(int docId, String docTitle, int uploaderId) {
-		this.docId = docId;
+		this.docId = docIdCounter++;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
 	}
@@ -45,12 +43,11 @@ public class DocumentRecord {
 		this.uploaderId = uploaderId;
 	}
 	
-	public DocumentRecord(String docTitle, String docPath, int uploaderId, float score) {
+	public DocumentRecord(String docTitle, String docPath, int uploaderId) {
 		this.docId = docIdCounter++;
 		this.docPath = docPath;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
-		this.score = score;
 	}
 	
 	public String getFullText() {
@@ -93,14 +90,6 @@ public class DocumentRecord {
 		DocumentsDAO docDAO = new DocumentsDAO();		
 		this.docPath = docDAO.getDocPath(this.docId);
 	}
-	
-	public float getScore() {
-		return this.score;
-	}
-	
-	public void setScore(float score) {
-		this.score = score;
-	}
 
 	public int getDocId() {
 		return docId;
@@ -116,13 +105,5 @@ public class DocumentRecord {
 
 	public void setDocExtension(String docExtension) {
 		this.docExtension = docExtension;
-	}
-	
-	public boolean getIsLiked() {
-		return this.isLiked;
-	}
-
-	public void setIsLiked(boolean isLiked) {
-		this.isLiked = isLiked;
 	}
 }

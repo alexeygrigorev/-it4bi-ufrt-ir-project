@@ -90,7 +90,7 @@ public class UploadController {
 		// TODO: Alexey, is there any way to start indexing after returning the response?
 		
 		try {
-			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID, 0);
+			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID);
 			docsDAO.insertDocumentRecord(documentRecord);
 			documentRecord.index(indexLocation);
 		} catch (Exception e) {
