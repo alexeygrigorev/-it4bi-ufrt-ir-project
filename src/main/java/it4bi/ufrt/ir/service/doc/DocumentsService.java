@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -29,20 +31,32 @@ public class DocumentsService {
 	@Value("${documents.index}")
 	private String indexLocation;
 	
+	@Value("${documents.userOwnerBonus}")
+	private float userOwnerBonus;
+	
+	@Value("${documents.docLikedBonus}")
+	private float docLikedBonus;
+	
 	 @Autowired
      public DocumentsService(DocumentsDAO docsDAO) {
-             this.docsDAO = docsDAO;
-             
+		 this.docsDAO = docsDAO;            
      }
 	
-	public List<DocumentRecord> find(String query) {
+	public List<DocumentRecord> find(String query, int userID) {
+        // check for existence 
+        File directoryLocation = new File(indexLocation);
+        if(!directoryLocation.exists()) {
+        	LOGGER.debug("Directory does not exist: {}", indexLocation);
+        	return null;
+        }
+ 
 		// configure index properties
         EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41);  
         Directory indexDir = null;
+        
 		try {
-			indexDir = new MMapDirectory(new File(indexLocation));
+			indexDir = new MMapDirectory(directoryLocation);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 	
@@ -51,7 +65,6 @@ public class DocumentsService {
 		try {
 			searcher = new DocumentSearchEngine(indexDir, analyzer);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -60,7 +73,6 @@ public class DocumentsService {
 		try {
 			hits = searcher.performSearch(query);
 		} catch (IOException | ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		LOGGER.debug("---Results found: " + hits.length);
@@ -70,16 +82,50 @@ public class DocumentsService {
 			try {
 				doc = searcher.getDoc(docId);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		    docsList.add(new DocumentRecord(doc.get("id"), doc.get("title"), Integer.parseInt(doc.get("uploaderId"))));
-		    LOGGER.debug(doc.get("title") + ", " + doc.get("uploaderId") + " - score: " + hits[i].score);
+						
+			String docID = doc.get("id");
+			String docTitle = doc.get("title");
+			int uploaderID = Integer.parseInt(doc.get("uploaderId"));
+			float score = hits[i].score;
+			
+			// TODO: ANIL: 
+			
+			// if uploaderID is equal to the ID of the user that makes search then increase score by 50%.			
+			if (userID == uploaderID) {
+				score = score + userOwnerBonus * score;
+			}
+			
+			// TODO: ANIL: if the document is liked by this user then increase score by 25%
+			// if (false == false) {
+				// score = score + docLikedBonus * score;
+			// }
+														
+			DocumentRecord docRecord = new DocumentRecord(docID, docTitle, uploaderID, score);
+			// TODO: ANIL: isLiked.
+			docRecord.setIsLiked(false);
+			// TODO: ANIL: DocExtension and check docTitle.
+			docRecord.setDocExtension("TODO extension");
+						
+		    docsList.add(docRecord);
+		    LOGGER.debug(docTitle + ", " + uploaderID + " - score: " + score);
 		}
 		System.out.println("---end of query results");
 	
-		return docsList;
+		// Sort documents by score DESCENDING
+		Collections.sort(docsList,  new Comparator<DocumentRecord>() {
+
+	        public int compare(DocumentRecord d1, DocumentRecord d2) {
+	        	if (d2.getScore() == d1.getScore()) {
+	        		return 0;
+	        	}
+	        	
+	        	return (d2.getScore() < d1.getScore()) ? -1 : 1; 	        	
+	        }
+	    });
 		
+		return docsList;		
 	}
 	
 	public void rebuildDocsIndex() throws Exception {
@@ -90,19 +136,13 @@ public class DocumentsService {
         
         DocumentIndexer indexer = new DocumentIndexer(indexDir, analyzer);
         
-        indexer.deleteIndex();
+        indexer.deleteIndex();        
         
-        
-        List<DocumentRecord> allDocumentRecords = docsDAO.getAllDocuments();
-        
+        List<DocumentRecord> allDocumentRecords = docsDAO.getAllDocuments();        
         
         for(DocumentRecord documentRecord : allDocumentRecords) {
 			documentRecord.setDocPath();
 			documentRecord.index(indexLocation);
 		}
-        
-        
-	}
-	
-	
+	}		
 }

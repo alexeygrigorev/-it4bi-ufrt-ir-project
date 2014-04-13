@@ -1,25 +1,34 @@
 ﻿var dataServiceProvider = dataService();
 
+/* TODO: IMPLEMENT CHANGE OF SERVER URL FROM DEBUG INFORMATION */
+/* TODO: REMOVE SLEEPING */
+
 function searchEngineViewModel() {
 
     var self = {};
 
-    self.serverURL = '';
+    // User Interface
+    self.logo = ko.observable('IMG/LogoFootball02.png');
     self.mode = ko.observable('Search');
-    self.logo = ko.observable();
-    self.loggedUser = ko.observable();
-    self.searchQuery = ko.observable('');
-    self.uploadDocumentTitle = ko.observable('');
+    self.showDebug = ko.observable('No');
+    self.showSearchResults = ko.observable('No');
+    self.backgroundColor = ko.observable('white');
+    // Features
     self.users = ko.observableArray([]);
+    self.loggedUser = ko.observable();
+    self.uploadDocumentTitle = ko.observable('');
+    // Searching
+    self.serverURL = ko.observable('');
+    self.searchQuery = ko.observable('');
+    self.searchDocs = ko.observable('Yes');
+    self.searchWEB = ko.observable('Yes');
+    self.searchDW = ko.observable('Yes');
     self.resultsDOC = ko.observableArray([]);
 
     self.initialize = function () {
 
-        // Setting up correct serverURL
-        self.serverURL = dataServiceProvider.serverURL;
-
-        // Initialize logo with random image
-        self.initializeLogo();
+        // Setting up correct Server URL from data provider
+        self.serverURL(dataServiceProvider.serverURL);
 
         // Get list of registered users
         dataServiceProvider.getUsers(function (users) {
@@ -30,9 +39,22 @@ function searchEngineViewModel() {
         });
     };
 
+    // Toggle displaying of debug information
+    self.toggleDebug = function () {
+        switch (self.showDebug()) {
+            case 'No': self.showDebug('Yes'); break;
+            default: self.showDebug('No'); break;
+        }
+    };
+
+    // Toggle change of background color from Debug Information
+    ko.computed(function () {
+        $(document.body).css("background-color", self.backgroundColor());
+    });
+
     // Initialize logo with random image
     self.initializeLogo = function () {
-        logoSrc = dataServiceProvider.getLogo();
+        logoSrc = dataServiceProvider.getRandomLogo();
         self.logo(logoSrc);
     };
 
@@ -54,7 +76,7 @@ function searchEngineViewModel() {
 
             // Bind file uploader only once
             $("#fileUploader").uploadFile({
-                url: self.serverURL + "/rest/upload/doc",
+                url: self.serverURL() + "/rest/upload/doc",
                 autoSubmit: true,
                 multiple: false,
                 showDone: true,
@@ -88,6 +110,7 @@ function searchEngineViewModel() {
     self.performSearch = function () {
         userID = self.loggedUser().id;
         query = self.searchQuery();
+        self.showSearchResults('Yes');
 
         self.searchDOC(query, userID);
     };

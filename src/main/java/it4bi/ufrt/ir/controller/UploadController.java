@@ -8,12 +8,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -46,6 +50,8 @@ public class UploadController {
 	@GET
 	@Path("/get/{file}")
 	public Response getFile(@PathParam("file") String file) {
+		
+		// TODO: ANIL: Client doesn't have unique filename. Return file by docID
 		LOGGER.debug("file download requerst for {}", file);
 		File fileToSend = new File(uploadLocation, file);
 		if (fileToSend.exists()) {
@@ -53,9 +59,19 @@ public class UploadController {
 		} else {
 			return Response.status(NOT_FOUND_STATUS).build();
 		}
+	}	
+		
+	@GET
+	@Path("/like")
+	@Produces("application/json; charset=UTF-8")
+	public Response likeDocument(@QueryParam("docID") int docID, @QueryParam("userID") int userID) {				
+
+		// TODO: ANIL
+		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);		
+		String output = "File successfully liked";
+		return Response.status(200).entity(output).build();
 	}
 	
-
 	@POST
 	@Path("/doc")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -74,13 +90,12 @@ public class UploadController {
 		// TODO: Alexey, is there any way to start indexing after returning the response?
 		
 		try {
-			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath,userID);
+			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID, 0);
 			docsDAO.insertDocumentRecord(documentRecord);
 			documentRecord.index(indexLocation);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		
+		}		
 
 		String output = "File saved to location: " + serverFilePath;
 		return Response.status(200).entity(output).build();
@@ -133,6 +148,5 @@ public class UploadController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
+	}	
 }

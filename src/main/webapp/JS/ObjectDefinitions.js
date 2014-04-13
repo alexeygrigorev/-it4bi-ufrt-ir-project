@@ -23,3 +23,18 @@ function userInfo(spec) {
     
     return self;
 }
+
+// DOCUMENT
+function docInfo(spec) {
+    var self = {};
+
+    self.docID = spec.docID;
+    self.docPath = spec.docPath;
+    self.docTitle = spec.docTitle;
+    self.docExtension = spec.docExtension;
+    self.ownerID = spec.ownerID;
+    self.score = spec.score;
+    self.isLiked = spec.isLiked;
+
+    return self;
+}

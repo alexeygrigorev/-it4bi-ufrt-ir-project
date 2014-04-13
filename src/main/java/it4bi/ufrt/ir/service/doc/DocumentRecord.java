@@ -15,19 +15,22 @@ public class DocumentRecord {
 
 	private String docTitle;
 	private String docPath;
+	private String docExtension;
 	private int docId;
 	private int uploaderId;
+	private float score;
+	private boolean isLiked;
 	private static int docIdCounter = 100000;
 	
 	public int getUploaderId() {
 		return uploaderId;
 	}
-
-	public DocumentRecord() {
+	
+	public void setUploaderId(int uploaderId) {
+		this.uploaderId = uploaderId;
 	}
 
-	public String getDocTitle() {
-		return docTitle;
+	public DocumentRecord() {
 	}
 	
 	public DocumentRecord(int docId, String docTitle, int uploaderId) {
@@ -42,11 +45,12 @@ public class DocumentRecord {
 		this.uploaderId = uploaderId;
 	}
 	
-	public DocumentRecord(String docTitle, String docPath, int uploaderId) {
+	public DocumentRecord(String docTitle, String docPath, int uploaderId, float score) {
 		this.docId = docIdCounter++;
 		this.docPath = docPath;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
+		this.score = score;
 	}
 	
 	public String getFullText() {
@@ -73,15 +77,29 @@ public class DocumentRecord {
 		this.docTitle = docTitle;
 	}
 
+	public String getDocTitle() {
+		return docTitle;
+	}
+	
 	public String getDocPath() {
 		return docPath;
 	}
 
-	public void setDocPath() {
-		
-		DocumentsDAO docDAO = new DocumentsDAO();
-		
+	public void setDocPath(String docPath) {			
+		this.docPath = docPath;
+	}
+	
+	public void setDocPath() {		
+		DocumentsDAO docDAO = new DocumentsDAO();		
 		this.docPath = docDAO.getDocPath(this.docId);
+	}
+	
+	public float getScore() {
+		return this.score;
+	}
+	
+	public void setScore(float score) {
+		this.score = score;
 	}
 
 	public int getDocId() {
@@ -91,7 +109,20 @@ public class DocumentRecord {
 	public void setDocId(int docId) {
 		this.docId = docId;
 	}
-
 	
+	public String getDocExtension() {
+		return this.docExtension;
+	}
 
+	public void setDocExtension(String docExtension) {
+		this.docExtension = docExtension;
+	}
+	
+	public boolean getIsLiked() {
+		return this.isLiked;
+	}
+
+	public void setIsLiked(boolean isLiked) {
+		this.isLiked = isLiked;
+	}
 }
