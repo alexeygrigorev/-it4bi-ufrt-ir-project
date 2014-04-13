@@ -2,6 +2,7 @@ package it4bi.ufrt.ir.controller;
 
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
+import it4bi.ufrt.ir.service.web.SocialSearchService;
 
 import java.util.List;
 
@@ -23,6 +24,8 @@ public class SearchController {
 
 	@Autowired
 	private DocumentsService documents;
+	@Autowired
+	private SocialSearchService web;
 
 	@GET
 	@Path("/doc")
