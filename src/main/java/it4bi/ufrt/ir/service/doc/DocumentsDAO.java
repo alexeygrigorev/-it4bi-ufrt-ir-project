@@ -1,6 +1,7 @@
 package it4bi.ufrt.ir.service.doc;
 
 import it4bi.ufrt.ir.business.DocumentDatabase;
+import it4bi.ufrt.ir.business.Tag;
 
 import java.util.List;
 import java.util.Vector;
@@ -46,7 +47,6 @@ public class DocumentsDAO {
 		// Temproary implementation for mock-up DB
 		DocumentDatabase.insertDoc(documentRecord);
 		
-
 	}
 
 
@@ -59,6 +59,20 @@ public class DocumentsDAO {
 
 		return allDocumentRecords;
 
+	}
+
+	public void updateTags(List<String> tags) {
+		
+		for(String tag : tags) {
+			DocumentDatabase.insertTag(tag);
+		}
+		
+		
+	}
+
+	public void updateTagScores(int userID, List<String> tags) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

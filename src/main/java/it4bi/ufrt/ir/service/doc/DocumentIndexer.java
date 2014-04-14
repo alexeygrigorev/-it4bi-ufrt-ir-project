@@ -25,7 +25,7 @@ public class DocumentIndexer {
 	private Directory indexDir;
     private IndexWriter indexWriter = null;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InfoController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentIndexer.class);
     
     /** Creates a new instance of Indexer */
     public DocumentIndexer(Directory indexDir, Analyzer analyzer) {
