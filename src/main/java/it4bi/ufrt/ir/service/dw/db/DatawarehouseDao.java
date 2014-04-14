@@ -18,8 +18,8 @@ public class DatawarehouseDao {
 			String.class);
 
 	private static final String CANONICAL_COUNTRIES_QUERY = "SELECT "
-			+ "[CannonicalName]  FROM [ADW_WorldCupAnalytics_STG].[dbo].[Countries Map] "
-			+ "WHERE [Entry] = :countryName;";
+			+ "CannonicalName FROM ADW_WorldCupAnalytics_STG.dbo.[Countries Map] "
+			+ "WHERE Entry = :countryName;";
 
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 

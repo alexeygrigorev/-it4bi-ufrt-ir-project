@@ -17,11 +17,12 @@ public class QueryParameter {
 		this.parameterType = parameterType;
 	}
 
-	public void tryRecognize(String query, EvalContext context, EvalResult result) {
+	public ExtractionAttempt tryRecognize(String query, EvalContext context, EvalResult result) {
 		// TODO: try to get it right away, without many nested calls
 		ParameterExtractor extractor = context.createExtractor(this);
 		ExtractionAttempt attempt = extractor.tryExtract(query, this, result);
 		result.recordAttempt(attempt);
+		return attempt;
 	}
 
 	public String getName() {

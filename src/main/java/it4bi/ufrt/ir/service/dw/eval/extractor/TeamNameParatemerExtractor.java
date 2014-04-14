@@ -6,9 +6,9 @@ import it4bi.ufrt.ir.service.dw.eval.QueryParameter;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntity;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntityClass;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Iterator;
 
-import com.google.common.base.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class TeamNameParatemerExtractor implements ParameterExtractor {
 
@@ -21,18 +21,19 @@ public class TeamNameParatemerExtractor implements ParameterExtractor {
 
 	@Override
 	public ExtractionAttempt tryExtract(String query, QueryParameter parameter, EvalResult result) {
-		Optional<NamedEntity> next = result.nextNamedEntityOf(NamedEntityClass.LOCATION);
-		while (next.isPresent()) {
-			NamedEntity location = next.get();
+		Iterator<NamedEntity> it = result.namedEntitiesOf(NamedEntityClass.LOCATION);
+
+		while (it.hasNext()) {
+			NamedEntity location = it.next();
 			String canonicalCountryName = dao.canonicalCountry(location.getToken());
 
 			if (canonicalCountryName == null) {
-				// keep trying
-				next = result.nextNamedEntityOf(NamedEntityClass.LOCATION);
 				continue;
 			}
 
-			return ExtractionAttempt.successful(parameter, canonicalCountryName);
+			ExtractionAttempt match = ExtractionAttempt.successful(parameter, canonicalCountryName);
+			it.remove();
+			return match;
 		}
 
 		return ExtractionAttempt.notSuccessful(parameter);

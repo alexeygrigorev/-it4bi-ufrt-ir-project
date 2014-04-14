@@ -6,11 +6,15 @@ import it4bi.ufrt.ir.service.dw.ner.NerRecognizer;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Evaluator {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
 	private final NerRecognizer nerRecognizer;
 	private final QueryTemplateDao queryTemplateDao;
@@ -24,18 +28,21 @@ public class Evaluator {
 		this.extractorInstantiator = extractorInstantiator;
 	}
 
-	public void evaluate(String query) {
+	public AllResults evaluate(String query) {
+		LOGGER.debug("Evaluating query \"{}\"", query);
+
 		List<NamedEntity> namedEntities = nerRecognizer.recognize(query);
 		EvalContext context = new EvalContext(query, extractorInstantiator);
 		context.setNamedEntities(namedEntities);
 
+		AllResults allResults = new AllResults();
 		List<QueryTemplate> templates = queryTemplateDao.all();
 		for (QueryTemplate template : templates) {
 			EvalResult result = template.evaluate(query, context);
-			if (result.isSatisfied()) {
-				// produce smth and return
-			}
+			allResults.add(result);
 		}
+
+		return allResults;
 	}
 
 }

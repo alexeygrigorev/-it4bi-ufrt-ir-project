@@ -3,81 +3,76 @@ package it4bi.ufrt.ir.service.dw.eval;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractionAttempt;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntity;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntityClass;
+import it4bi.ufrt.ir.service.dw.ner.RecognizedNamedEntities;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.LinkedHashMultimap;
+import org.apache.commons.lang3.Validate;
+
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
-/**
- * Not Thread safe!
- */
+//TODO consider renaming
 public class EvalResult {
+
+	private final QueryTemplate queryTemplate;
+	private final RecognizedNamedEntities namedEntities;
 
 	private boolean success = true;
 
-	private final Multimap<NamedEntityClass, NamedEntity> namedEntitites = LinkedHashMultimap.create();
 	private final Map<String, String> foundParams = Maps.newHashMap();
-	private final Set<String> allNames = Sets.newHashSet();
+	private final Set<String> processedParameters = Sets.newHashSet();
+	private final Set<String> allParameters = Sets.newHashSet();
 
-	public void addNamedEntities(Collection<NamedEntity> nes) {
-		for (NamedEntity ne : nes) {
-			namedEntitites.put(ne.getNerClass(), ne);
+	public EvalResult(QueryTemplate queryTemplate, RecognizedNamedEntities namedEntities) {
+		this.queryTemplate = queryTemplate;
+		this.namedEntities = namedEntities;
+		List<QueryParameter> parameters = queryTemplate.getParameters();
+		for (QueryParameter queryParameter : parameters) {
+			allParameters.add(queryParameter.getName());
 		}
 	}
 
-	public Optional<NamedEntity> nextNamedEntityOf(NamedEntityClass neClass) {
-		Collection<NamedEntity> collection = namedEntitites.get(neClass);
-		Iterator<NamedEntity> it = collection.iterator();
-
-		if (!it.hasNext()) {
-			return Optional.absent();
-		}
-
-		NamedEntity next = it.next();
-		it.remove();
-		return Optional.of(next);
+	public PeekingIterator<NamedEntity> namedEntitiesOf(NamedEntityClass neClass) {
+		return namedEntities.of(neClass);
 	}
-	
-	public Optional<NamedEntity> peekNamedEntityOf(NamedEntityClass neClass) {
-		Collection<NamedEntity> collection = namedEntitites.get(neClass);
-		Iterator<NamedEntity> it = collection.iterator();
-
-		if (!it.hasNext()) {
-			return Optional.absent();
-		}
-
-		NamedEntity next = it.next();
-		return Optional.of(next);
-	}
-		
 
 	public void recordAttempt(ExtractionAttempt attempt) {
 		String name = attempt.getParameter().getName();
-		allNames.add(name);
+		processedParameters.add(name); // TODO: needed?
 
-		if (!attempt.isSuccessful()) {
-			success = false;
-		} else {
+		if (attempt.isSuccessful()) {
 			foundParams.put(name, attempt.getValue());
+		} else {
+			success = false;
 		}
 	}
 
 	public boolean isSatisfied() {
-		return success;
+		return success && unsatisfiedParams() == 0;
 	}
 
 	public int unsatisfiedParams() {
 		Set<String> foundParamsNames = foundParams.keySet();
-		SetView<String> diff = Sets.difference(allNames, foundParamsNames);
+		SetView<String> diff = Sets.difference(allParameters, foundParamsNames);
 		return diff.size();
+	}
+
+	public Query toQueryWithFoundParameters() {
+		Validate.validState(isSatisfied(), "all parameters must be satisfied");
+		return new Query(queryTemplate, foundParams);
+	}
+
+	public QueryTemplate getQueryTemplate() {
+		return queryTemplate;
+	}
+
+	public Map<String, String> getFoundParams() {
+		return foundParams;
 	}
 
 }

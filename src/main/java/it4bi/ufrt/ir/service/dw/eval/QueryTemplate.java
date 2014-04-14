@@ -1,11 +1,8 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
-
-import com.google.common.collect.Maps;
 
 public class QueryTemplate {
 
@@ -14,7 +11,6 @@ public class QueryTemplate {
 	private final String sqlTemplate;
 	private final String name;
 	private final List<QueryParameter> parameters;
-	private final Map<String, QueryParameter> parametersMap;
 
 	public QueryTemplate(int id, String keywords, String sqlTemplate, String name,
 			List<QueryParameter> parameters) {
@@ -23,16 +19,7 @@ public class QueryTemplate {
 		this.sqlTemplate = sqlTemplate;
 		this.name = name;
 		this.parameters = parameters;
-		this.parametersMap = build(parameters);
 		validate();
-	}
-
-	private static Map<String, QueryParameter> build(List<QueryParameter> parameters) {
-		Map<String, QueryParameter> result = Maps.newLinkedHashMap();
-		for (QueryParameter param : parameters) {
-			result.put(param.getName(), param);
-		}
-		return result;
 	}
 
 	private void validate() {
@@ -43,13 +30,33 @@ public class QueryTemplate {
 	}
 
 	public EvalResult evaluate(String query, EvalContext context) {
-		EvalResult result = new EvalResult();
+		EvalResult result = context.createResultFor(this);
 
 		for (QueryParameter param : parameters) {
 			param.tryRecognize(query, context, result);
 		}
 
 		return result;
+	}
+
+	public List<QueryParameter> getParameters() {
+		return parameters;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public String getKeywords() {
+		return keywords;
+	}
+
+	public String getSqlTemplate() {
+		return sqlTemplate;
 	}
 
 	@Override

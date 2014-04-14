@@ -3,14 +3,12 @@ package it4bi.ufrt.ir.service.dw.eval;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractorInstantiator;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntity;
-import it4bi.ufrt.ir.service.dw.ner.NamedEntityClass;
+import it4bi.ufrt.ir.service.dw.ner.RecognizedNamedEntities;
 
 import java.util.Collections;
 import java.util.List;
 
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-
+// TODO consider renaming
 public class EvalContext {
 
 	private final String query;
@@ -34,11 +32,12 @@ public class EvalContext {
 		this.namedEntities = namedEntities;
 	}
 
-	public Multimap<NamedEntityClass, NamedEntity> getNamedEntities() {
-		Multimap<NamedEntityClass, NamedEntity> newNamedEntities = LinkedHashMultimap.create();
-		for (NamedEntity ne : namedEntities) {
-			newNamedEntities.put(ne.getNerClass(), ne);
-		}
-		return newNamedEntities;
+	public RecognizedNamedEntities namedEntities() {
+		return RecognizedNamedEntities.from(namedEntities);
 	}
+
+	public EvalResult createResultFor(QueryTemplate queryTemplate) {
+		return new EvalResult(queryTemplate, namedEntities());
+	}
+
 }
