@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -91,14 +90,28 @@ public class UploadController {
 		
 		try {
 			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID);
-			docsDAO.insertDocumentRecord(documentRecord);
+			
 			documentRecord.index(indexLocation);
+			// Update Tags
+			List<String> tags = extractTags(serverFilePath);
+			// Obtain tags from the doc
+			
+			
+			docsDAO.insertDocumentRecord(documentRecord);
+			docsDAO.updateTags(tags);
+			docsDAO.updateTagScores(userID, tags);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
 
 		String output = "File saved to location: " + serverFilePath;
 		return Response.status(200).entity(output).build();
+	}
+
+	private List<String> extractTags(String docPath) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private void createDirectory(String directory) {

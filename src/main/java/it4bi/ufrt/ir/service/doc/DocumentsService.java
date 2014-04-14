@@ -30,12 +30,7 @@ public class DocumentsService {
 	
 	@Value("${documents.index}")
 	private String indexLocation;
-	
-	@Value("${documents.userOwnerBonus}")
-	private float userOwnerBonus;
-	
-	@Value("${documents.docLikedBonus}")
-	private float docLikedBonus;
+
 	
 	 @Autowired
      public DocumentsService(DocumentsDAO docsDAO) {
