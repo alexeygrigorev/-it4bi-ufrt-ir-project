@@ -11,7 +11,7 @@ public class NamedEntity {
 		this.token = token;
 		this.cls = NamedEntityClass.valueOf(cls);
 	}
-	
+
 	public NamedEntity(String token, NamedEntityClass cls) {
 		this.token = token;
 		this.cls = cls;
@@ -44,4 +44,5 @@ public class NamedEntity {
 	public String toString() {
 		return "NamedEntity [token=" + token + ", cls=" + cls + "]";
 	}
+
 }

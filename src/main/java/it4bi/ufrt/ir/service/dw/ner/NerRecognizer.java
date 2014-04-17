@@ -1,73 +1,116 @@
 package it4bi.ufrt.ir.service.dw.ner;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import edu.stanford.nlp.ie.crf.CRFClassifier;
+import org.apache.commons.lang3.Validate;
+
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 
 public class NerRecognizer {
 
-	private static final String DEFAULT_SERIALIZED_CLASSIFIER = "edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz";
-	private final CRFClassifier<CoreLabel> classifier;
+	private final LazyClassifier classifier;
 
-	private NerRecognizer(CRFClassifier<CoreLabel> classifier) {
+	public static NerRecognizer loadDefault() {
+		return new NerRecognizer(LazyClassifier.defaultClassifier());
+	}
+
+	private NerRecognizer(LazyClassifier classifier) {
 		this.classifier = classifier;
 	}
 
-	public static NerRecognizer readDefault() {
-		CRFClassifier<CoreLabel> classifier = CRFClassifier
-				.getClassifierNoExceptions(DEFAULT_SERIALIZED_CLASSIFIER);
-		return new NerRecognizer(classifier);
+	public NerRecognizer init() {
+		classifier.init();
+		return this;
 	}
 
 	public List<NamedEntity> recognize(String query) {
 		List<List<CoreLabel>> out = classifier.classify(query);
-		List<NamedEntity> results = new ArrayList<>();
+		List<List<CoreLabel>> groups = groupAllByClass(out);
+		return extractNamedEntities(groups);
+	}
+
+	private List<List<CoreLabel>> groupAllByClass(List<List<CoreLabel>> out) {
+		List<List<CoreLabel>> groups = new ArrayList<>();
 
 		for (List<CoreLabel> list : out) {
-			List<NamedEntity> subresult = groupBy(list);
-			results.addAll(subresult);
+			List<List<CoreLabel>> subresult = groupByClass(list);
+			groups.addAll(subresult);
+		}
+
+		return groups;
+	}
+
+	private List<List<CoreLabel>> groupByClass(List<CoreLabel> list) {
+		if (list.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<List<CoreLabel>> results = new ArrayList<>();
+		Iterator<CoreLabel> iterator = list.iterator();
+
+		List<CoreLabel> accumulator = new ArrayList<>();
+		results.add(accumulator);
+
+		CoreLabel first = iterator.next();
+		accumulator.add(first);
+
+		String currentClass = classOf(first);
+
+		while (iterator.hasNext()) {
+			CoreLabel next = iterator.next();
+			String cls = classOf(next);
+
+			if (!cls.equals(currentClass)) {
+				currentClass = cls;
+				accumulator = new ArrayList<>();
+				results.add(accumulator);
+			}
+
+			accumulator.add(next);
 		}
 
 		return results;
 	}
 
-	private List<NamedEntity> groupBy(List<CoreLabel> list) {
+	private List<NamedEntity> extractNamedEntities(List<List<CoreLabel>> groups) {
 		List<NamedEntity> results = new ArrayList<>();
 
-		String prevLabel = null;
-		String token = "";
-
-		for (CoreLabel cl : list) {
-			String cls = cl.get(CoreAnnotations.AnswerAnnotation.class);
-
-			if (cls.equals("O")) {
-				if (prevLabel != null) {
-					results.add(new NamedEntity(token.trim(), prevLabel));
-				}
-
-				prevLabel = null;
-				token = "";
-				continue;
+		for (List<CoreLabel> group : groups) {
+			CoreLabel first = group.get(0);
+			String cls = classOf(first);
+			if (!"O".equals(cls)) {
+				NamedEntity ne = namedEntityFrom(group);
+				results.add(ne);
 			}
-
-			if (prevLabel == null || cls.equals(prevLabel)) {
-				prevLabel = cls;
-				token = token + " " + cl.value();
-			} else {
-				results.add(new NamedEntity(token.trim(), prevLabel));
-				prevLabel = cls;
-				token = cl.value();
-			}
-		}
-
-		if (prevLabel != null) {
-			results.add(new NamedEntity(token.trim(), prevLabel));
 		}
 
 		return results;
+	}
+
+	private NamedEntity namedEntityFrom(List<CoreLabel> group) {
+		Validate.isTrue(!group.isEmpty());
+
+		Iterator<CoreLabel> it = group.iterator();
+		CoreLabel first = it.next();
+		String cls = classOf(first);
+
+		StringBuilder result = new StringBuilder(first.value());
+		while (it.hasNext()) {
+			String value = it.next().value();
+			result.append(" ").append(value);
+		}
+
+		String token = result.toString();
+
+		return new NamedEntity(token, cls);
+	}
+
+	private static String classOf(CoreLabel token) {
+		return token.get(CoreAnnotations.AnswerAnnotation.class);
 	}
 
 }

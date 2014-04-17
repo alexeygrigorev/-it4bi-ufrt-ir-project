@@ -29,11 +29,28 @@ public class NerRecognizerValuesFromDBTest {
 	private NamedParameterJdbcTemplate dwhJdbcTemplate;
 
 	@Autowired
-	NerRecognizer nerRecognizer;
+	private NerRecognizer nerRecognizer;
 
 	@Test
-	public void justOne() {
-		List<String> players = dwhJdbcTemplate.query("SELECT PlayerName FROM DimPlayer;", stringMapper());
+	public void nerTestForPlayers() {
+		double ratio = executeDwhQuery("SELECT PlayerName FROM DimPlayer;");
+		assertTrue(ratio > 0.9);
+	}
+
+	@Test
+	public void nerTestForCoaches() {
+		double ratio = executeDwhQuery("SELECT Name FROM DimCoach;");
+		assertTrue(ratio > 0.8);
+	}
+
+	@Test
+	public void nerTestForReferees() {
+		double ratio = executeDwhQuery("SELECT RefereeName FROM DimReferee;");
+		assertTrue(ratio > 0.9);
+	}
+
+	private double executeDwhQuery(String sqlQuery) {
+		List<String> players = dwhJdbcTemplate.query(sqlQuery, stringMapper());
 		List<Pair<String, NamedEntity>> rejected = Lists.newArrayList();
 
 		for (String player : players) {
@@ -54,8 +71,7 @@ public class NerRecognizerValuesFromDBTest {
 		double ratio = 1 - (rejected.size() + 0.0) / players.size();
 		LOGGER.info("size of rejected list is {} out of {}, ratio: {}", rejected.size(), players.size(),
 				ratio);
-
-		assertTrue(ratio > 0.9);
+		return ratio;
 	}
 
 	private SingleColumnRowMapper<String> stringMapper() {

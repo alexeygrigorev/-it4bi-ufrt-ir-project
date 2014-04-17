@@ -1,4 +1,4 @@
-package it4bi.ufrt.ir.service.dw.evaluation;
+package it4bi.ufrt.ir.service.dw.eval;
 
 import it4bi.ufrt.ir.service.dw.ner.NerRecognizer;
 
@@ -10,7 +10,7 @@ public class EvaluationSpringConfig {
 
 	@Bean
 	public NerRecognizer nerRecognizer() {
-		return NerRecognizer.readDefault();
+		return NerRecognizer.loadDefault();
 	}
 
 }
