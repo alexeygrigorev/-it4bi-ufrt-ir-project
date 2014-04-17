@@ -6,10 +6,13 @@ import it4bi.ufrt.ir.service.doc.DocumentsDAO;
 import it4bi.ufrt.ir.service.doc.Tag;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URLConnection;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +35,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.lucene.document.Field.TermVector;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexReader;
@@ -43,6 +45,11 @@ import org.apache.lucene.search.similarities.DefaultSimilarity;
 import org.apache.lucene.search.similarities.TFIDFSimilarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.BodyContentHandler;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -50,6 +57,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.xml.sax.ContentHandler;
+
+
+import org.xml.sax.SAXException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.sax.BodyContentHandler;
+import org.xml.sax.ContentHandler;
 
 @Component
 @Path("/upload")
@@ -93,8 +109,8 @@ public class UploadController {
 	@Produces("application/json; charset=UTF-8")
 	public Response likeDocument(@QueryParam("docID") int docID, @QueryParam("userID") int userID) {				
 
-		// TODO: ANIL
-		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);		
+		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);
+		//TODO: ANIL
 		String output = "File successfully liked";
 		return Response.status(200).entity(output).build();
 	}
@@ -107,20 +123,45 @@ public class UploadController {
 			@FormDataParam("docTitle") String documentTitle,
 			@FormDataParam("userID") int userID) {
 
+		
 		LOGGER.debug("uploading file. UserID {}; Doc Title: {}", userID, documentTitle);
+		
 		createDirectory(uploadLocation);
 		
 		String clientFilePath = fileInfo.getFileName();
+		
 		String serverFilePath = createServerFilePath(clientFilePath);
 		saveFile(fileStream, serverFilePath);
-
-		// TODO: Alexey, is there any way to start indexing after returning the response?
+		
+		InputStream is = null;
+		File f = new File(serverFilePath);
+		try {
+			is = new FileInputStream(f);
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		ContentHandler contenthandler = new BodyContentHandler();
+		Metadata metadata = new Metadata();
+	    metadata.set(Metadata.RESOURCE_NAME_KEY, f.getName());
+	    Parser parser = new AutoDetectParser();
+	    // OOXMLParser parser = new OOXMLParser();
+	    
+		try {
+			parser.parse(is, contenthandler, metadata, null);
+		} catch (IOException | SAXException | TikaException e2) {
+			e2.printStackTrace();
+		}
+		
+	    
+	    String mime = metadata.get(Metadata.CONTENT_TYPE);
 		
 		try {
-			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID);
+			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID, mime);
+			
 			
 			documentRecord.index(indexLocation);
-			
 			
 			MMapDirectory indexDir = null;
 			try {
@@ -154,6 +195,12 @@ public class UploadController {
 
 		String output = "File saved to location: " + serverFilePath;
 		return Response.status(200).entity(output).build();
+	}
+
+	private void analyseFile(File f) {
+		
+		
+		
 	}
 
 	public void getTF(IndexReader reader, int docID, List<Pair<String, Integer>> termFreqs) throws IOException
