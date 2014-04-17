@@ -34,17 +34,16 @@ public class SearchController {
 	@GET
 	@Path("/doc")
 	@Produces("application/json; charset=UTF-8")
-	public List<DocumentRecord> documents(@QueryParam("q") String query) {
-		LOGGER.debug("document search query: {}", query);
-		return documents.find(query);
-		
+	public List<DocumentRecord> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {
+		LOGGER.debug("document search query: {}, UserID: {}", query, userID);
+		return documents.find(query, userID);		
 	}
 	
 	@GET
 	@Path("/social")
 	@Produces("application/json; charset=UTF-8")
-	public List<SocialSearchRecord> web(@QueryParam("q") String query) {
-		LOGGER.debug("document search query: {}", query);
+	public List<SocialSearchRecord> web(@QueryParam("q") String query, @QueryParam("u") int userID) {
+		LOGGER.debug("social search query: {}, UserID: {}", query, userID);
 		
 		try {
 			return web.search(query, SocialSearchType.FACEBOOK);
