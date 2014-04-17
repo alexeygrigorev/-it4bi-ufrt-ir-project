@@ -6,6 +6,11 @@ import it4bi.ufrt.ir.service.doc.DocumentsService;
 import it4bi.ufrt.ir.service.doc.Tag;
 
 import java.util.ArrayList;
+import it4bi.ufrt.ir.service.web.SocialSearchException;
+import it4bi.ufrt.ir.service.web.SocialSearchRecord;
+import it4bi.ufrt.ir.service.web.SocialSearchService;
+import it4bi.ufrt.ir.service.web.SocialSearchType;
+
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -30,6 +35,9 @@ public class SearchController {
 	
 	@Autowired
 	private DocumentsService documents;
+	
+	@Autowired
+	private SocialSearchService web;
 	
 	@Value("${documents.score.query}")
 	private float queryScore;
@@ -60,4 +68,19 @@ public class SearchController {
 		
 		return resultSet;
 	}	
+	
+	@GET
+	@Path("/social")
+	@Produces("application/json; charset=UTF-8")
+	public List<SocialSearchRecord> web(@QueryParam("q") String query, @QueryParam("u") int userID) {
+		LOGGER.debug("social search query: {}, UserID: {}", query, userID);
+		
+		try {
+			return web.search(query, SocialSearchType.FACEBOOK);
+		} catch (SocialSearchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 }
