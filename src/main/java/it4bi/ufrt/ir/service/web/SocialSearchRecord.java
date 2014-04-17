@@ -1,16 +1,33 @@
 package it4bi.ufrt.ir.service.web;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+
+@XmlRootElement(name = "item")
+@XmlAccessorType (XmlAccessType.FIELD)
+
 public class SocialSearchRecord {
 	
+	@XmlElement(name = "id")
 	private String ID;
+	
 	private String title;
 	private String description;
 	private String link;
 	private String timestamp;
 	private String user;
-	private String userLink;
+	
+	@XmlElement(name = "userlink")
+	private String user_link;
 	private String source;
-	private String socialSource;
+	
+	@XmlElement(name = "type")
+	private String socialMentionType;
+	
+	private SocialSearchType socialSource;
 	
 	
 	public String getID() {
@@ -50,10 +67,10 @@ public class SocialSearchRecord {
 		this.user = user;
 	}
 	public String getUserLink() {
-		return userLink;
+		return user_link;
 	}
 	public void setUserLink(String userLink) {
-		this.userLink = userLink;
+		this.user_link = userLink;
 	}
 	public String getSource() {
 		return source;
@@ -61,14 +78,71 @@ public class SocialSearchRecord {
 	public void setSource(String source) {
 		this.source = source;
 	}
-	public String getSocialSource() {
+	public SocialSearchType getSocialSource() {
 		return socialSource;
 	}
-	public void setSocialSource(String socialSource) {
-		this.socialSource = socialSource;
+
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("SocialSearchRecord [ID=");
+		builder.append(ID);
+		builder.append(", title=");
+		builder.append(title);
+		builder.append(", description=");
+		builder.append(description);
+		builder.append(", link=");
+		builder.append(link);
+		builder.append(", timestamp=");
+		builder.append(timestamp);
+		builder.append(", user=");
+		builder.append(user);
+		builder.append(", user_link=");
+		builder.append(user_link);
+		builder.append(", source=");
+		builder.append(source);
+		builder.append(", type=");
+		builder.append(socialMentionType);
+		builder.append(", socialSource=");
+		builder.append(socialSource);
+		builder.append("]");
+		return builder.toString();
+	}
+	public String getSocialMentionType() {
+		return socialMentionType;
+	}
+	public void setSocialMentionType(String socialMentionType) {
+		this.socialMentionType = socialMentionType;
+		
 	}
 	
-	
+	public SocialSearchRecord mapSocialSearchType (){
+		
+		if("news".equalsIgnoreCase(socialMentionType)){
+			socialSource = SocialSearchType.NEWS;
+			return this;
+		}
+		
+		if("videos".equalsIgnoreCase(socialMentionType)){
+			socialSource = SocialSearchType.VIDEOS;
+			return this;
+		}
+			
+		if("facebook".equalsIgnoreCase(source)){
+			socialSource = SocialSearchType.FACEBOOK;
+			return this;
+		}
+		
+		if("twitter".equalsIgnoreCase(source)){
+			socialSource = SocialSearchType.TWITTER;
+			return this;
+		}
+		
+		
+		
+		return this;
+	}
 	
 	
 	
