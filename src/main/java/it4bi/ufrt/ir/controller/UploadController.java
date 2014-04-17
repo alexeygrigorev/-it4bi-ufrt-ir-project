@@ -1,14 +1,23 @@
 package it4bi.ufrt.ir.controller;
 
+import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
+import it4bi.ufrt.ir.service.doc.Tag;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.Date;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -21,6 +30,19 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.lucene.document.Field.TermVector;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.Fields;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.search.similarities.DefaultSimilarity;
+import org.apache.lucene.search.similarities.TFIDFSimilarity;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.MMapDirectory;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 import org.slf4j.Logger;
@@ -46,6 +68,12 @@ public class UploadController {
 	@Value("${documents.index}")
 	private String indexLocation;
 
+	@Value("${documents.tagsPerDoc}")
+	private int tagsPerDoc;
+	
+	@Value("${documents.score.ownerScore}")
+	private float ownerScore;
+	
 	@GET
 	@Path("/get/{file}")
 	public Response getFile(@PathParam("file") String file) {
@@ -92,14 +120,33 @@ public class UploadController {
 			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID);
 			
 			documentRecord.index(indexLocation);
+			
+			
+			MMapDirectory indexDir = null;
+			try {
+				indexDir = new MMapDirectory(new File(indexLocation));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
+			
 			// Update Tags
-			List<String> tags = extractTags(serverFilePath);
+			List<String> tagTexts = extractTags(documentRecord, indexLocation);
+			List<Tag> tags = new ArrayList<Tag>();
 			// Obtain tags from the doc
 			
+			for(String tagText : tagTexts) {
+				tags.add(new Tag(tagText));
+			}
+			
+			
+			
+			documentRecord.setTags(tags);
 			
 			docsDAO.insertDocumentRecord(documentRecord);
+			docsDAO.insertUserDocsAssociation(documentRecord.getDocId(),userID,DOCUSER_ASSOC.OWNS);
 			docsDAO.updateTags(tags);
-			docsDAO.updateTagScores(userID, tags);
+			docsDAO.updateTagScores(userID, tags, ownerScore);
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -109,10 +156,78 @@ public class UploadController {
 		return Response.status(200).entity(output).build();
 	}
 
-	private List<String> extractTags(String docPath) {
-		// TODO Auto-generated method stub
-		return null;
+	public void getTF(IndexReader reader, int docID, List<Pair<String, Integer>> termFreqs) throws IOException
+	{
+	    Fields f = reader.getTermVectors(docID);
+	    
+	    Iterator<String> it = f.iterator();
+	    
+	    while(it.hasNext()) {
+	    	Terms t = f.terms("content");
+	    	TermsEnum it2 = t.iterator(null);
+	    	
+	    	while(it2.next() != null) {
+	    		
+	    		//System.out.println(it2.term().utf8ToString() + " " + it2.totalTermFreq());
+	    		termFreqs.add(new ImmutablePair<String, Integer>(it2.term().utf8ToString(), (int) it2.totalTermFreq()));
+	    	}
+	    	
+	    	break;
+	    }
+	    
 	}
+	
+	private List<String> extractTags(DocumentRecord docRecord, String indexLocation) {
+		
+		List<Pair<String, Integer>> termFreqs = new ArrayList<Pair<String,Integer>>();
+		List<String> tags = new ArrayList<String>();
+		
+		try {
+			getTF(DirectoryReader.open(MMapDirectory.open(new File(indexLocation))), docRecord.getDocId(), termFreqs);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		Collections.sort(termFreqs,  new Comparator<Pair<String, Integer>>() {
+			public int compare(Pair<String, Integer> p1, Pair<String, Integer> p2) {
+	        	if (p2.getRight() == p1.getRight()) return 0;
+	        	else return (p2.getRight() < p1.getRight()) ? -1 : 1; 	        	
+	        }
+		});
+
+		int ctr = 0;
+		for(Pair<String, Integer> tfs : termFreqs) {
+			String temp = tfs.getLeft();
+			if(isNumerical(temp) == false) {
+				ctr++;
+				tags.add(temp);
+			}
+			if(ctr == tagsPerDoc) break;
+		}
+		
+		//TFIDFSimilarity tfidfSIM = new DefaultSimilarity();
+		//Map<String, Float> tf_Idf_Weights = new HashMap<>();
+		//Map<String, Float> termFrequencies = new HashMap<>();
+		
+		return tags;
+		
+	}
+	
+	public static boolean isNumerical (String input)  
+	{  
+	   try  
+	   {  
+	      Integer.parseInt(input);
+	      Double.parseDouble(input);
+	      Date.parse(input);
+	      return true;  
+	   }  
+	   catch(Exception e)  
+	   {  
+	      return false;  
+	   }  
+	}  
 
 	private void createDirectory(String directory) {
 		File folder = new File(directory);

@@ -7,6 +7,7 @@ import java.io.IOException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
@@ -37,7 +38,7 @@ public class DocumentIndexer {
     /** Gets index writer */
     public IndexWriter getIndexWriter() throws IOException {
         if (indexWriter == null) {
-            IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_41, analyzer);
+            IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_47, analyzer);
             indexWriter = new IndexWriter(indexDir, config);
         }
         return indexWriter;
@@ -63,12 +64,19 @@ public class DocumentIndexer {
     /** Adds a document (a hotel) to the index */ 
     public void indexDocument(DocumentRecord documentRecord) throws IOException {
     	 LOGGER.debug("Indexing document: " + documentRecord.getDocTitle());
+    	 
+    	 FieldType type = new FieldType();
+    	 type.setStoreTermVectors(true);
+    	 type.setStored(false);
+    	 type.setIndexed(true);
+    	 
          IndexWriter writer = getIndexWriter();
          Document doc = new Document();
          doc.add(new StoredField("id", documentRecord.getDocId()));
          doc.add(new StoredField("uploaderId", documentRecord.getUploaderId()));
          doc.add(new TextField("title", documentRecord.getDocTitle(), Field.Store.YES));
-         doc.add(new TextField("content", documentRecord.getFullText() , Field.Store.NO));
+         //doc.add(new TextField("content", documentRecord.getFullText() , Field.Store.NO));
+         doc.add(new Field("content", documentRecord.getFullText(), type));
          writer.addDocument(doc);
          writer.commit();
          writer.close();

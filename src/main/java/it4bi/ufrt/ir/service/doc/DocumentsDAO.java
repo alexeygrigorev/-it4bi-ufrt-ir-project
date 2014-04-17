@@ -1,7 +1,6 @@
 package it4bi.ufrt.ir.service.doc;
 
 import it4bi.ufrt.ir.business.DocumentDatabase;
-import it4bi.ufrt.ir.business.Tag;
 
 import java.util.List;
 import java.util.Vector;
@@ -30,12 +29,10 @@ public class DocumentsDAO {
 
 	}
 
-	public String getDocPath(int docId) {
-		String filePath = null;
+	public DocumentRecord getDocByDocId(int docId) {
+		
+		return DocumentDatabase.getDocByDocId(docId);
 
-		// Implement logic for retrieving docPath for a given documentId
-
-		return filePath;
 	}
 
 	public void insertDocumentRecord(DocumentRecord documentRecord) {
@@ -46,6 +43,7 @@ public class DocumentsDAO {
 		
 		// Temproary implementation for mock-up DB
 		DocumentDatabase.insertDoc(documentRecord);
+		
 		
 	}
 
@@ -61,18 +59,29 @@ public class DocumentsDAO {
 
 	}
 
-	public void updateTags(List<String> tags) {
+	public void updateTags(List<Tag> tags) {
 		
-		for(String tag : tags) {
+		for(Tag tag : tags) {
 			DocumentDatabase.insertTag(tag);
 		}
 		
 		
 	}
 
-	public void updateTagScores(int userID, List<String> tags) {
-		// TODO Auto-generated method stub
+	public void updateTagScores(int userID, List<Tag> tags, float score) {
+		for(Tag tag : tags) {
+			DocumentDatabase.insertTagUserValue(tag.tagId, userID, score);
+		}
 		
 	}
 
+	public void insertUserDocsAssociation(int docId, int userID, DOCUSER_ASSOC owns) {
+		
+		DocumentDatabase.insertDocUserValue(docId, userID, owns);
+	}
+
+	public float calculateUserDocAffinity(List<Tag> tags, Integer userId) {
+		return DocumentDatabase.calculateUserDocAffinity(tags, userId);
+	}
+	
 }

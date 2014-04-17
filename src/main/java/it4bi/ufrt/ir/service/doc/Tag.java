@@ -1,4 +1,4 @@
-package it4bi.ufrt.ir.business;
+package it4bi.ufrt.ir.service.doc;
 
 public class Tag {
 	public int getTagId() {

@@ -26,7 +26,7 @@ public class DocumentSearchEngine {
     public DocumentSearchEngine(Directory indexDir, Analyzer analyzer) throws IOException {
         IndexReader reader = DirectoryReader.open(indexDir);
         searcher = new IndexSearcher(reader);
-        parser = new QueryParser(Version.LUCENE_41, "content", analyzer);
+        parser = new QueryParser(Version.LUCENE_47, "content", analyzer);
     }
     
     /** Performs a search */

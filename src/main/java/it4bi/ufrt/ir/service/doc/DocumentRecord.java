@@ -2,6 +2,8 @@ package it4bi.ufrt.ir.service.doc;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -18,7 +20,9 @@ public class DocumentRecord {
 	private String docExtension;
 	private int docId;
 	private int uploaderId;
-	private static int docIdCounter = 100000;
+	private static int docIdCounter = 0;
+	private List<Tag> tags;
+
 	
 	public int getUploaderId() {
 		return uploaderId;
@@ -29,6 +33,7 @@ public class DocumentRecord {
 	}
 
 	public DocumentRecord() {
+		tags = new ArrayList<Tag>();
 	}
 	
 	public DocumentRecord(int docId, String docTitle, int uploaderId) {
@@ -60,7 +65,7 @@ public class DocumentRecord {
 		if(docPath == null) throw new Exception();
 		
 		// configure index properties
-        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_41); 
+        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_47); 
         Directory indexDir = new MMapDirectory(new File(indexLocation));
       	
       	
@@ -85,11 +90,6 @@ public class DocumentRecord {
 	public void setDocPath(String docPath) {			
 		this.docPath = docPath;
 	}
-	
-	public void setDocPath() {		
-		DocumentsDAO docDAO = new DocumentsDAO();		
-		this.docPath = docDAO.getDocPath(this.docId);
-	}
 
 	public int getDocId() {
 		return docId;
@@ -105,5 +105,15 @@ public class DocumentRecord {
 
 	public void setDocExtension(String docExtension) {
 		this.docExtension = docExtension;
+	}
+
+	public void setTags(List<Tag> tags) {
+		this.tags = tags;
+		
+	}
+
+	public List<Tag> getTags() {
+		// TODO Auto-generated method stub
+		return tags;
 	}
 }

@@ -8,51 +8,91 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
-
+import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
+import it4bi.ufrt.ir.service.doc.Tag;
 
 
 public class DocumentDatabase {
     
-    private static List<DocumentRecord> documents = new ArrayList<DocumentRecord>();
+    private static Map<Integer, DocumentRecord> documents = new HashMap<Integer, DocumentRecord>();
     private static Map<String,Tag> tagDictionary = new HashMap<String,Tag>();
-    private static Map<Pair<Integer,Integer>, Integer> tagsUsersTable = new HashMap<Pair<Integer,Integer>, Integer>();
-
+    private static Map<Pair<Integer,Integer>, Float> tagsUsersTable = new HashMap<Pair<Integer,Integer>, Float>();
+    private static Map<Pair<Integer,Integer>, DOCUSER_ASSOC> docsUsersTable = new HashMap<Pair<Integer,Integer>, DOCUSER_ASSOC>();
 	public static int currentTagDictionarySize() {
 		return tagDictionary.size();
 	}
 	
 	
 
-	public static void insertTag(String tag) {
+	public static void insertTag(Tag tag) {
 		
 		if(tagDictionary.containsKey(tag)) return;
-		else tagDictionary.put(tag, new Tag(tag));
+		else tagDictionary.put(tag.getTag(), tag);
 		
 	}
 	
-	public static void getTagId(String tag) {
+	public static int getTagId(String tag) {
 		
-		tagDictionary.get(tag).getTagId();
+		return tagDictionary.get(tag).getTagId();
 		
 	}
 	
-	public static void insertTagUserValue(Integer tagId, Integer userId) {
+	public static void insertTagUserValue(Integer tagId, Integer userId, float score) {
 		
-		if(tagsUsersTable.containsKey(new ImmutablePair<Integer, Integer>(tagId, userId))) return;
-		else tagsUsersTable.put(new ImmutablePair<Integer, Integer>(tagId, userId), 1);
+		ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(tagId, userId);
 		
+		if(tagsUsersTable.containsKey(key) )
+			return; // no action is the best action here
+		else tagsUsersTable.put(key, score);
+		
+	}
+	
+	public static void queryUpdateTagUserValue(Integer tagId, Integer userId, float surPlus) {  // this will translate into an update query
+		
+		ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(tagId, userId);
+		
+		if(!tagsUsersTable.containsKey(key))
+			tagsUsersTable.put(new ImmutablePair<Integer, Integer>(tagId, userId), surPlus); 
+		else {
+			Float score = tagsUsersTable.get(key);
+			score += score + surPlus;
+		}
 	}
     
     
-	public static List<DocumentRecord> getDocuments() {
-		return documents;
-	}
 	
 	public static void insertDoc(DocumentRecord doc) {
-		documents.add(doc);
+		documents.put(doc.getDocId(),doc);
+	}
+
+
+
+	public static void insertDocUserValue(int docId, int userID,DOCUSER_ASSOC type) {
+		docsUsersTable.put(new ImmutablePair<Integer, Integer>(docId, userID), type);
+		
+	}
+
+	
+	public static float calculateUserDocAffinity(List<Tag> tags, Integer userId) {  // can be written an SQL query for this
+		
+		Float score = 0f;
+		
+		for(Tag tag : tags) {
+			ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(tag.getTagId(), userId);
+			if(tagsUsersTable.containsKey(key)) score += tagsUsersTable.remove(key);
+					
+		}
+		
+		return score/tags.size();
+	}
+
+
+
+	public static DocumentRecord getDocByDocId(int docId) {
+		
+		return documents.get(docId);
+		
 	}
 }
 
