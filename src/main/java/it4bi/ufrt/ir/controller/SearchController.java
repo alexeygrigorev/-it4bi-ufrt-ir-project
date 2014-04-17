@@ -2,7 +2,10 @@ package it4bi.ufrt.ir.controller;
 
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
+import it4bi.ufrt.ir.service.web.SocialSearchException;
+import it4bi.ufrt.ir.service.web.SocialSearchRecord;
 import it4bi.ufrt.ir.service.web.SocialSearchService;
+import it4bi.ufrt.ir.service.web.SocialSearchType;
 
 import java.util.List;
 
@@ -26,6 +29,7 @@ public class SearchController {
 	private DocumentsService documents;
 	@Autowired
 	private SocialSearchService web;
+	
 
 	@GET
 	@Path("/doc")
@@ -33,5 +37,21 @@ public class SearchController {
 	public List<DocumentRecord> documents(@QueryParam("q") String query) {
 		LOGGER.debug("document search query: {}", query);
 		return documents.find(query);
+		
+	}
+	
+	@GET
+	@Path("/social")
+	@Produces("application/json; charset=UTF-8")
+	public List<SocialSearchRecord> web(@QueryParam("q") String query) {
+		LOGGER.debug("document search query: {}", query);
+		
+		try {
+			return web.search(query, SocialSearchType.FACEBOOK);
+		} catch (SocialSearchException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

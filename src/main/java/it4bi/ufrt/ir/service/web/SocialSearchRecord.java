@@ -29,6 +29,10 @@ public class SocialSearchRecord {
 	
 	private SocialSearchType socialSource;
 	
+	public SocialSearchRecord(){
+		
+	}
+	
 	
 	public String getID() {
 		return ID;
