@@ -1,8 +1,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Football Search Engine</title>
+    <link href="CSS/Styles.css" rel="stylesheet" />
+    <link href="CSS/uploadfile.css" rel="stylesheet" />
     <script src="Vendor/knockout-3.1.0.js"></script>
     <script src="Vendor/jquery-2.1.0.js"></script>
+    <script src="Vendor/jquery.uploadfile.js"></script>
+    <script src="JS/ObjectDefinitions.js"></script>
     <script src="JS/DataService.js"></script>
     <script src="JS/SearchEngine.js"></script>
     <script type="text/javascript">
@@ -10,21 +14,167 @@
         var searchEngine;
 
         $(document).ready(function () {
-            searchEngine = searchEngineViewModel();          
+            searchEngine = searchEngineViewModel();
+            searchEngine.initialize();
+
             ko.applyBindings(searchEngine);
 
-            // TODO: Delete this
-            searchEngine.searchDoc("qwerty");
+            // Ctrl-1 pressed
+            $(document).keydown(function (e) {
+                if (e.ctrlKey && e.keyCode == 49) {
+                    searchEngine.toggleDebug();
+                }
+            });
         });
-        
+
     </script>
 </head>
 <body>
-    <h1>Hello World</h1>
-    <label data-bind="text: description"> </label>
-
-    <div data-bind="foreach: resultsDoc">
-        <label data-bind="text: docName"></label><br />
+    <div id="menuBorder">
+        <a class="menuBorderButtonLeft" href="javascript:void(0)" data-bind="click: showSearchPage">Football Search Engine</a>
+        <select class="menuBorderUserList" data-bind="options: users, value: loggedUser, optionsText: function(item) { return item.userFullName() }"></select>
+        <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyProfile">My Profile</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyFiles">My Files</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showUploadFile">Upload File</a>
     </div>
+    <div style="height: 40px;"></div>
+
+    <!-- ko if: mode() == 'MyProfile'-->
+    <table class="profileTable">
+        <thead>
+            <tr>
+                <th colspan="2">My Profile</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="alignRight">Name:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().name : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Surname:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().surname : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Country:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().country : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Sex:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().sexFormatted() : 'unknown'" /></td>
+            </tr>
+            <tr>
+                <td class="alignRight">Birthday:</td>
+                <td><label data-bind="text: loggedUser() ? loggedUser().birthday : 'unknown'" /></td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <th><a href="javascript:void(0)" data-bind="click: showUploadFile">Upload File</a></th>
+                <th><a href="javascript:void(0)" data-bind="click: showMyFiles">My Files</a></th>
+            </tr>
+        </tfoot>
+    </table>
+    <!-- /ko -->
+    <!-- ko if: mode() == 'MyFiles' -->
+    <div>
+        My Files
+    </div>
+    <!-- /ko -->
+    <!-- ko if: mode() == 'UploadFile' -->
+    <table class="profileTable">
+        <thead>
+            <tr>
+                <th colspan="2">Upload File</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="alignRight" width="120px">Document Title:</td>
+                <td><input class="highlightedTextBox" style="width: 100%" type="text" data-bind="value: uploadDocumentTitle, valueUpdate: 'afterkeydown'" /></td>
+            </tr>
+            <tr>
+                <td colspan="2"><div id="fileUploader">Upload</div></td>
+            </tr>
+        </tbody>
+    </table>
+    <!-- /ko -->
+    <!-- ko if: mode() == 'Search' -->
+    <form class="alignCenter" data-bind="submit: performSearch">
+        <table id="searchTable">
+            <tr>
+                <td id="searchLabel"><img id="searchLogo" data-bind="attr: { src: logo }, click: initializeLogo" /></td>
+                <td><input class="highlightedTextBox" style="width: 450px" type="text" data-bind="value: searchQuery, valueUpdate: 'afterkeydown'" /></td>
+                <td><input class="highlightedButton" style="width: 100px" type="button" value="GO" data-bind="click: performSearch"></td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <!-- ko if: showSearchResults() == 'Yes' -->
+                    <div class="alignCenter">
+                        <span style="margin-left: 80px; margin-right: 25px">All</span>
+                        <span style="margin-right: 25px">WEB</span>
+                        <span style="margin-right: 25px">Data Warehouse</span>
+                        <span style="margin-right: 25px">Documents</span>
+                    </div>
+                    <hr />
+                    <!-- ko if: searchDocs() == 'Yes' -->
+                    <div class="alignCenter">Documents</div>
+                    <table data-bind="foreach: resultsDOC">
+                        <tr>
+                            <td>
+                                Status
+                            </td>
+                            <td>
+                                <label data-bind="text: docPath"></label><br />
+                            </td>
+                        </tr>
+                    </table>
+                    <!-- /ko -->
+                    <!-- ko if: searchDW() == 'Yes' -->
+                    <!-- /ko -->
+                    <!-- ko if: searchWEB() == 'Yes' -->
+                    <!-- /ko -->
+                    <!-- /ko -->
+                </td>
+            </tr>
+        </table>
+    </form>
+    <!-- /ko -->
+    <!-- ko if: showDebug() == 'Yes' -->
+    <br />
+    <table class="profileTable" style="margin: 0px">
+        <thead>
+            <tr>
+                <th colspan="2">Debug Information</th>
+            </tr>
+        </thead>
+        <tr>
+            <td>Logged user ID: </td>
+            <td><label data-bind="text: loggedUser() ? loggedUser().id : -1"></label></td>
+        </tr>
+        <tr>
+            <td>Logged user name: </td>
+            <td><label data-bind="text: loggedUser() ? loggedUser().userFullName() : 'unknown'"></label></td>
+        </tr>
+        <tr>
+            <td>Search Query: </td>
+            <td><label data-bind="text: searchQuery"></label></td>
+        </tr>
+        <tr>
+            <td>Server URL: </td>
+            <td><input style="width: 250px" type="text" data-bind="value: serverURL" /></td>
+        </tr>
+        <tr>
+            <td>Background color:</td>
+            <td>
+                <select data-bind="value: backgroundColor">
+                    <option value="white">White</option>
+                    <option value="lightgray">Light Gray</option>
+                    <option value="#e9eaed">#e9eaed</option>
+                </select>
+            </td>
+        </tr>
+    </table>
+    <!-- /ko -->
 </body>
 </html>
