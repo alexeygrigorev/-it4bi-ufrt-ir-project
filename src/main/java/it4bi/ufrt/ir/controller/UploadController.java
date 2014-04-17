@@ -48,6 +48,7 @@ import org.apache.lucene.store.MMapDirectory;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.sax.BodyContentHandler;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
@@ -61,12 +62,6 @@ import org.xml.sax.ContentHandler;
 
 
 import org.xml.sax.SAXException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.parser.Parser;
-import org.apache.tika.sax.BodyContentHandler;
-import org.xml.sax.ContentHandler;
-
 @Component
 @Path("/upload")
 // TODO: needs renaming
@@ -90,13 +85,16 @@ public class UploadController {
 	@Value("${documents.score.ownerScore}")
 	private float ownerScore;
 	
+	@Value("${documents.score.likeScore}")
+	private float likeScore;
+	
 	@GET
 	@Path("/get/{file}")
-	public Response getFile(@PathParam("file") String file) {
+	public Response getFile(@PathParam("docID") int docID) {
 		
-		// TODO: ANIL: Client doesn't have unique filename. Return file by docID
-		LOGGER.debug("file download requerst for {}", file);
-		File fileToSend = new File(uploadLocation, file);
+		LOGGER.debug("file download requerst for {}", docID);
+		
+		File fileToSend = new File(docsDAO.getDocByDocId(docID).getDocPath());
 		if (fileToSend.exists()) {
 			return Response.ok(fileToSend, MediaType.APPLICATION_OCTET_STREAM).build();
 		} else {
@@ -110,6 +108,13 @@ public class UploadController {
 	public Response likeDocument(@QueryParam("docID") int docID, @QueryParam("userID") int userID) {				
 
 		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);
+		
+		docsDAO.insertUserDocsAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
+		
+		DocumentRecord docRec = docsDAO.getDocByDocId(docID);
+		docsDAO.updateTagScores(userID, docRec.getTags(), likeScore);
+		
+		
 		//TODO: ANIL
 		String output = "File successfully liked";
 		return Response.status(200).entity(output).build();
@@ -149,7 +154,7 @@ public class UploadController {
 	    // OOXMLParser parser = new OOXMLParser();
 	    
 		try {
-			parser.parse(is, contenthandler, metadata, null);
+			parser.parse(is, contenthandler, metadata, new ParseContext());
 		} catch (IOException | SAXException | TikaException e2) {
 			e2.printStackTrace();
 		}

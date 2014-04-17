@@ -1,5 +1,7 @@
 package it4bi.ufrt.ir.service.doc;
 
+import it4bi.ufrt.ir.business.DocumentDatabase;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -140,6 +142,8 @@ public class DocumentsService {
 	}
 	
 	
+	 
+	 
 	public void rebuildDocsIndex() throws Exception {
 
 		// configure index properties

@@ -68,16 +68,20 @@ public class DocumentsDAO {
 		
 	}
 
-	public void updateTagScores(int userID, List<Tag> tags, float score) {
+	public void updateTagScores(int userID, List<Tag> tags, float delta) {
 		for(Tag tag : tags) {
-			DocumentDatabase.insertTagUserValue(tag.tagId, userID, score);
+			DocumentDatabase.updateTagUserValue(tag.tagId, userID, delta);
 		}
 		
 	}
 
-	public void insertUserDocsAssociation(int docId, int userID, DOCUSER_ASSOC owns) {
+	public Tag getTag(String tagText) {
+		 return DocumentDatabase.getTag(tagText);
+	 }
+	
+	public void insertUserDocsAssociation(int docId, int userID, DOCUSER_ASSOC type) {
 		
-		DocumentDatabase.insertDocUserValue(docId, userID, owns);
+		DocumentDatabase.insertDocUserValue(docId, userID, type);
 	}
 
 	public float calculateUserDocAffinity(List<Tag> tags, Integer userId) {

@@ -59,7 +59,7 @@ public class DocumentRecord {
 	}
 	
 	public String getFullText() {
-		String docText = DocumentReader.readDoc(docPath);
+		String docText = DocumentReader.readDoc(docPath, mime);
 		return docText;
 	}
 	
