@@ -17,11 +17,11 @@ public class DocumentRecord {
 
 	private String docTitle;
 	private String docPath;
-	private String docExtension;
 	private int docId;
 	private int uploaderId;
 	private static int docIdCounter = 0;
 	private List<Tag> tags;
+	private String mime;
 
 	
 	public int getUploaderId() {
@@ -36,23 +36,26 @@ public class DocumentRecord {
 		tags = new ArrayList<Tag>();
 	}
 	
-	public DocumentRecord(int docId, String docTitle, int uploaderId) {
+	public DocumentRecord(int docId, String docTitle, int uploaderId, String mime) {
 		this.docId = docIdCounter++;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
+		this.mime = mime;
 	}
 	
-	public DocumentRecord(String docTitle, int uploaderId) {
+	public DocumentRecord(String docTitle, int uploaderId, String mime) {
 		this.docId = docIdCounter++;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
+		this.mime = mime;
 	}
 	
-	public DocumentRecord(String docTitle, String docPath, int uploaderId) {
+	public DocumentRecord(String docTitle, String docPath, int uploaderId, String mime) {
 		this.docId = docIdCounter++;
 		this.docPath = docPath;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
+		this.mime = mime;
 	}
 	
 	public String getFullText() {
@@ -99,12 +102,8 @@ public class DocumentRecord {
 		this.docId = docId;
 	}
 	
-	public String getDocExtension() {
-		return this.docExtension;
-	}
-
-	public void setDocExtension(String docExtension) {
-		this.docExtension = docExtension;
+	public String getMime() {
+		return this.mime;
 	}
 
 	public void setTags(List<Tag> tags) {
