@@ -2,7 +2,7 @@ package it4bi.ufrt.ir.service.dw.eval.extractor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import it4bi.ufrt.ir.service.dw.eval.EvalResult;
+import it4bi.ufrt.ir.service.dw.eval.EvaluationResult;
 import it4bi.ufrt.ir.service.dw.eval.QueryParameter;
 import it4bi.ufrt.ir.service.dw.eval.QueryTemplate;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntity;
@@ -38,7 +38,7 @@ public class TeamNameParatemerExtractorTest {
 		NamedEntity country = new NamedEntity("Russia", NamedEntityClass.LOCATION);
 		RecognizedNamedEntities nes = RecognizedNamedEntities.from(someGarbage, country);
 
-		EvalResult result = new EvalResult(queryTemplate, nes);
+		EvaluationResult result = new EvaluationResult(queryTemplate, nes);
 
 		ExtractionAttempt attempt = extractor.tryExtract("Mathes of Russia", parameter, result);
 		assertTrue(attempt.isSuccessful());
@@ -60,7 +60,7 @@ public class TeamNameParatemerExtractorTest {
 		NamedEntity ne2 = new NamedEntity("England", NamedEntityClass.LOCATION);
 		RecognizedNamedEntities nes = RecognizedNamedEntities.from(ne1, ne2);
 
-		EvalResult result = new EvalResult(queryTemplate, nes);
+		EvaluationResult result = new EvaluationResult(queryTemplate, nes);
 
 		ExtractionAttempt attempt1 = teamAExtractor.tryExtract("Mathes of Russia vs England", teamAparam,
 				result);

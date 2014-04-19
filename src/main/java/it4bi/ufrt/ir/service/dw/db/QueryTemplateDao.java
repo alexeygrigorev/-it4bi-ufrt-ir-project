@@ -1,5 +1,7 @@
-package it4bi.ufrt.ir.service.dw.eval;
+package it4bi.ufrt.ir.service.dw.db;
 
+import it4bi.ufrt.ir.service.dw.eval.QueryParameter;
+import it4bi.ufrt.ir.service.dw.eval.QueryTemplate;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
 
 import java.sql.ResultSet;

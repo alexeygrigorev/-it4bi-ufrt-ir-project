@@ -1,8 +1,9 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
+import it4bi.ufrt.ir.service.dw.db.QueryTemplateDao;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractorInstantiator;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntity;
-import it4bi.ufrt.ir.service.dw.ner.NerRecognizer;
+import it4bi.ufrt.ir.service.dw.ner.NamedEntitiesRecognizer;
 
 import java.util.List;
 
@@ -16,30 +17,31 @@ public class Evaluator {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Evaluator.class);
 
-	private final NerRecognizer nerRecognizer;
+	private final NamedEntitiesRecognizer nerRecognizer;
 	private final QueryTemplateDao queryTemplateDao;
 	private final ExtractorInstantiator extractorInstantiator;
 
 	@Autowired
-	public Evaluator(NerRecognizer nerRecognizer, QueryTemplateDao queryTemplateDao,
+	public Evaluator(NamedEntitiesRecognizer nerRecognizer, QueryTemplateDao queryTemplateDao,
 			ExtractorInstantiator extractorInstantiator) {
 		this.nerRecognizer = nerRecognizer;
 		this.queryTemplateDao = queryTemplateDao;
 		this.extractorInstantiator = extractorInstantiator;
 	}
 
-	public AllResults evaluate(String query) {
+	public AllEvaluationResults evaluate(String query) {
 		LOGGER.debug("Evaluating query \"{}\"", query);
 
+		GlobalEvaluationContext context = new GlobalEvaluationContext(query, extractorInstantiator);
+
 		List<NamedEntity> namedEntities = nerRecognizer.recognize(query);
-		EvalContext context = new EvalContext(query, extractorInstantiator);
 		context.setNamedEntities(namedEntities);
 
-		AllResults allResults = new AllResults();
+		AllEvaluationResults allResults = new AllEvaluationResults();
 		List<QueryTemplate> templates = queryTemplateDao.all();
 		for (QueryTemplate template : templates) {
-			EvalResult result = template.evaluate(query, context);
-			allResults.add(result);
+			EvaluationResult evaluationResult = template.evaluate(query, context);
+			allResults.add(evaluationResult);
 		}
 
 		return allResults;

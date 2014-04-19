@@ -19,7 +19,7 @@ public class EvaluatorTest {
 
 	@Test
 	public void test() {
-		AllResults results = evaluator.evaluate("Matches of Russia");
+		AllEvaluationResults results = evaluator.evaluate("Matches of Russia");
 		List<Query> queries = results.getQueries();
 		Query query = queries.get(0);
 		assertEquals(1, query.getQueryTemplateId());

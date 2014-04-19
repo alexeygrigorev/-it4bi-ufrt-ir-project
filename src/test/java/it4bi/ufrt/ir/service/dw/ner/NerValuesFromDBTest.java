@@ -20,16 +20,16 @@ import com.google.common.collect.Lists;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:dwTestContextRealDb.xml")
-public class NerRecognizerValuesFromDBTest {
+public class NerValuesFromDBTest {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(NerRecognizerValuesFromDBTest.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NerValuesFromDBTest.class);
 
 	@Autowired
 	@Qualifier("dwhJdbcTemplate")
 	private NamedParameterJdbcTemplate dwhJdbcTemplate;
 
 	@Autowired
-	private NerRecognizer nerRecognizer;
+	private NamedEntitiesRecognizer nerRecognizer;
 
 	@Test
 	public void nerTestForPlayers() {

@@ -1,6 +1,6 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
-import it4bi.ufrt.ir.service.dw.ner.NerRecognizer;
+import it4bi.ufrt.ir.service.dw.ner.NamedEntitiesRecognizer;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 public class EvaluationSpringConfig {
 
 	@Bean
-	public NerRecognizer nerRecognizer() {
-		return NerRecognizer.loadDefault();
+	public NamedEntitiesRecognizer nerRecognizer() {
+		return NamedEntitiesRecognizer.loadDefault();
 	}
 
 }

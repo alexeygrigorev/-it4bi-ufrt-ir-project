@@ -15,18 +15,6 @@ public class Query {
 		this.params = params;
 	}
 
-	public Map<String, String> getSqlQueryParams() {
-		return params;
-	}
-
-	public String getSqlQuery() {
-		return template.getSqlTemplate();
-	}
-
-	public int getQueryTemplateId() {
-		return template.getId();
-	}
-
 	public String getTitle() {
 		String[] searchList = new String[params.size()];
 		String[] replacementList = new String[params.size()];
@@ -40,6 +28,18 @@ public class Query {
 
 		String name = template.getName();
 		return StringUtils.replaceEachRepeatedly(name, searchList, replacementList);
+	}
+
+	public Map<String, String> getSqlQueryParams() {
+		return params;
+	}
+
+	public String getSqlQuery() {
+		return template.getSqlTemplate();
+	}
+
+	public int getQueryTemplateId() {
+		return template.getId();
 	}
 
 }

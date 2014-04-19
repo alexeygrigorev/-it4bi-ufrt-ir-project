@@ -6,9 +6,9 @@ import java.util.List;
 
 import org.junit.Test;
 
-public class NerRecognizerTest {
+public class NamedEntitiesRecognizerTest {
 
-	private static NerRecognizer nerRecognizer = NerRecognizer.loadDefault().init();
+	private static NamedEntitiesRecognizer nerRecognizer = NamedEntitiesRecognizer.loadDefault().init();
 
 	@Test
 	public void justOne() {

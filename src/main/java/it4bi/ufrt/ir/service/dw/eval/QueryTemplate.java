@@ -1,5 +1,8 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
+import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractionAttempt;
+import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
+
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
@@ -29,11 +32,13 @@ public class QueryTemplate {
 		}
 	}
 
-	public EvalResult evaluate(String query, EvalContext context) {
-		EvalResult result = context.createResultFor(this);
+	public EvaluationResult evaluate(String query, GlobalEvaluationContext context) {
+		EvaluationResult result = context.createResultFor(this);
 
-		for (QueryParameter param : parameters) {
-			param.tryRecognize(query, context, result);
+		for (QueryParameter parameter : parameters) {
+			ParameterExtractor extractor = context.createExtractorFor(parameter);
+			ExtractionAttempt attempt = extractor.tryExtract(query, parameter, result);
+			result.record(attempt);
 		}
 
 		return result;

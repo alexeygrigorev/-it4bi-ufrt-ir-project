@@ -13,10 +13,15 @@ import com.google.common.base.Throwables;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreLabel;
 
+/**
+ * Lazy initializer of the stanford NER classifier. The purpose of making it lazy is not to load it in tests
+ * when the classifier is not needed (otherwise the classifier is always loaded even when it's not needed)
+ * 
+ * @see NamedEntitiesRecognizer
+ */
 public class LazyClassifier {
 
-	private static final String DEFAULT_SERIALIZED_CLASSIFIER = 
-			"edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz";
+	private static final String DEFAULT_SERIALIZED_CLASSIFIER = "edu/stanford/nlp/models/ner/english.all.3class.distsim.crf.ser.gz";
 	private static final Logger LOGGER = LoggerFactory.getLogger(LazyClassifier.class);
 
 	private final LazyInitializer<CRFClassifier<CoreLabel>> lazyLoader;

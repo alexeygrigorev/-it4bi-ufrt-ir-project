@@ -1,8 +1,8 @@
-package it4bi.ufrt.ir.service.dw.eval;
+package it4bi.ufrt.ir.service.dw.db;
 
 import static org.junit.Assert.*;
+import it4bi.ufrt.ir.service.dw.db.QueryTemplateDao;
 import it4bi.ufrt.ir.service.dw.eval.QueryTemplate;
-import it4bi.ufrt.ir.service.dw.eval.QueryTemplateDao;
 
 import java.util.List;
 

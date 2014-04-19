@@ -2,6 +2,11 @@ package it4bi.ufrt.ir.service.dw.ner;
 
 import java.util.Arrays;
 
+/**
+ * A token - named enity - extracted from some free text query along with associated class of this token
+ * 
+ * @see NamedEntityClass
+ */
 public class NamedEntity {
 
 	private final String token;

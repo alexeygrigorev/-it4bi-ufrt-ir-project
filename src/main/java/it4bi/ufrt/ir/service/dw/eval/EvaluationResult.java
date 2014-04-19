@@ -16,8 +16,10 @@ import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
-//TODO consider renaming
-public class EvalResult {
+/**
+ * The results of trying to apply a certain {@link QueryTemplate} to the user query in the free text form
+ */
+public class EvaluationResult {
 
 	private final QueryTemplate queryTemplate;
 	private final RecognizedNamedEntities namedEntities;
@@ -28,7 +30,7 @@ public class EvalResult {
 	private final Set<String> processedParameters = Sets.newHashSet();
 	private final Set<String> allParameters = Sets.newHashSet();
 
-	public EvalResult(QueryTemplate queryTemplate, RecognizedNamedEntities namedEntities) {
+	public EvaluationResult(QueryTemplate queryTemplate, RecognizedNamedEntities namedEntities) {
 		this.queryTemplate = queryTemplate;
 		this.namedEntities = namedEntities;
 		List<QueryParameter> parameters = queryTemplate.getParameters();
@@ -41,7 +43,7 @@ public class EvalResult {
 		return namedEntities.of(neClass);
 	}
 
-	public void recordAttempt(ExtractionAttempt attempt) {
+	public void record(ExtractionAttempt attempt) {
 		String name = attempt.getParameter().getName();
 		processedParameters.add(name); // TODO: needed?
 
@@ -62,6 +64,10 @@ public class EvalResult {
 		return diff.size();
 	}
 
+	/**
+	 * @return
+	 * @throws IllegalStateException if not all parameters were satisfied during the evaluation
+	 */
 	public Query toQueryWithFoundParameters() {
 		Validate.validState(isSatisfied(), "all parameters must be satisfied");
 		return new Query(queryTemplate, foundParams);

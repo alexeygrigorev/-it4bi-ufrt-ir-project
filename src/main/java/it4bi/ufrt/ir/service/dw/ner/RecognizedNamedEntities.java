@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
@@ -41,33 +40,6 @@ public class RecognizedNamedEntities {
 	public RecognizedNamedEntities copy() {
 		Multimap<NamedEntityClass, NamedEntity> newMap = LinkedHashMultimap.create(namedEntitites);
 		return new RecognizedNamedEntities(newMap);
-	}
-
-	@Deprecated
-	public Optional<NamedEntity> nextNamedEntityOf(NamedEntityClass neClass) {
-		Collection<NamedEntity> collection = namedEntitites.get(neClass);
-		Iterator<NamedEntity> it = collection.iterator();
-
-		if (!it.hasNext()) {
-			return Optional.absent();
-		}
-
-		NamedEntity next = it.next();
-		it.remove();
-		return Optional.of(next);
-	}
-
-	@Deprecated
-	public Optional<NamedEntity> peekNamedEntityOf(NamedEntityClass neClass) {
-		Collection<NamedEntity> collection = namedEntitites.get(neClass);
-		Iterator<NamedEntity> it = collection.iterator();
-
-		if (!it.hasNext()) {
-			return Optional.absent();
-		}
-
-		NamedEntity next = it.next();
-		return Optional.of(next);
 	}
 
 }

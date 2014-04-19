@@ -10,29 +10,50 @@ import org.apache.commons.lang3.Validate;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 
-public class NerRecognizer {
+/**
+ * Recognizes named entities in a free text. The classes that can be recognized are in
+ * {@link NamedEntityClass}
+ * 
+ * @see NamedEntity
+ * @see NamedEntityClass
+ */
+public class NamedEntitiesRecognizer {
 
 	private final LazyClassifier classifier;
 
-	public static NerRecognizer loadDefault() {
-		return new NerRecognizer(LazyClassifier.defaultClassifier());
+	/**
+	 * Loads the default lazy classifier. Run {@link #init()} if you need to make sure it gets initialized
+	 * before used, otherwise it's initialized only when you try to use it
+	 * 
+	 * @return
+	 */
+	public static NamedEntitiesRecognizer loadDefault() {
+		return new NamedEntitiesRecognizer(LazyClassifier.defaultClassifier());
 	}
 
-	private NerRecognizer(LazyClassifier classifier) {
+	private NamedEntitiesRecognizer(LazyClassifier classifier) {
 		this.classifier = classifier;
 	}
 
-	public NerRecognizer init() {
-		classifier.init();
-		return this;
-	}
-
+	/**
+	 * Recognizes all named entities for the given query
+	 * 
+	 * @param query free text user query
+	 * @return all found entities
+	 */
 	public List<NamedEntity> recognize(String query) {
 		List<List<CoreLabel>> out = classifier.classify(query);
 		List<List<CoreLabel>> groups = groupAllByClass(out);
 		return extractNamedEntities(groups);
 	}
 
+	/**
+	 * In a list, a group is a sequence of labels that belong to the same class. This methods finds such
+	 * groups and puts each in a separate list
+	 * 
+	 * @param out to group
+	 * @return labels grouped by class
+	 */
 	private List<List<CoreLabel>> groupAllByClass(List<List<CoreLabel>> out) {
 		List<List<CoreLabel>> groups = new ArrayList<>();
 
@@ -76,6 +97,13 @@ public class NerRecognizer {
 		return results;
 	}
 
+	/**
+	 * Within the given list of groups, finds all that don't belong to class "O", and then forms
+	 * {@link NamedEntity} classes from them
+	 * 
+	 * @param groups
+	 * @return
+	 */
 	private List<NamedEntity> extractNamedEntities(List<List<CoreLabel>> groups) {
 		List<NamedEntity> results = new ArrayList<>();
 
@@ -91,6 +119,9 @@ public class NerRecognizer {
 		return results;
 	}
 
+	/**
+	 * Joins all labels within the given group on " " and then forms a {@link NamedEntity} from the result
+	 */
 	private NamedEntity namedEntityFrom(List<CoreLabel> group) {
 		Validate.isTrue(!group.isEmpty());
 
@@ -111,6 +142,16 @@ public class NerRecognizer {
 
 	private static String classOf(CoreLabel token) {
 		return token.get(CoreAnnotations.AnswerAnnotation.class);
+	}
+
+	/**
+	 * Call this method if you need to make sure the recognizer is fully initialized before you use it
+	 * 
+	 * @return this instance
+	 */
+	public NamedEntitiesRecognizer init() {
+		classifier.init();
+		return this;
 	}
 
 }
