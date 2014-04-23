@@ -17,7 +17,8 @@ public class JerseyApp extends ResourceConfig {
 		register(UploadController.class);
 				
 		// http://localhost:8080/it4bi-ufrt-ir-project 
-		// http://localhost:8080/it4bi-ufrt-ir-project/rest/search/doc?q=123&u=5
+		// http://localhost:8080/it4bi-ufrt-ir-project/rest/search/doc?q=goal&u=10000
+		// http://localhost:8080/it4bi-ufrt-ir-project/rest/search/social?q=goal&u=10000
 		// http://localhost:8080/it4bi-ufrt-ir-project/rest/info/users
 	}
 }

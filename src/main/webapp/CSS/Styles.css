@@ -1,4 +1,11 @@
-html, body {
+body {
+    margin: 0px 0px 0px 5px;
+    padding: 0px;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+html {
     margin: 0px 0px 0px 5px;
     padding: 0px;
     height: 100%;
@@ -62,7 +69,7 @@ html, body {
     height: 30px;
     border: 1px solid #C1C1C1;
     border-top: 2px solid #C1C1C1;
-    background: white;
+    background-color: white;
     font-family: arial;
     font-size: 16px;
     padding-left: 8px;
@@ -72,6 +79,7 @@ html, body {
     .highlightedTextBox:hover, .highlightedButton:hover, .highlightedTextBox:focus {
         /*box-shadow: 0 0 0 2px rgba(70,169,232,0.3),0 1px 0 #fff inset;*/
         box-shadow: 0 0 0 2px rgba(0,0,255,0.3),0 1px 0 #fff inset;
+        background-color: #95f5ff;
     }
 
 .highlightedButton {
@@ -100,6 +108,7 @@ html, body {
     margin: 0 auto;
     text-align: left;
     border-spacing: 0px;
+    width: 600px;
 }
 
 .profileTable {
@@ -138,3 +147,74 @@ html, body {
             color: #039;
             text-decoration: underline;
         }
+
+.resultsDIV {
+    min-height: 75px;
+}
+
+.resultsGroupHeader {
+    text-align: center;
+    font-family: "Lucida Sans Unicode";
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.noResultsGroupHeader {
+    text-align: center;
+    font-family: "Lucida Sans Unicode";
+    font-size: 13px;
+    color: #333;
+    margin-top: 12px;
+}
+
+.searchGroupLinkButton {
+    height: 21px;
+    margin-right: 25px;
+    color: #0033CC;
+    text-decoration: none;
+    font-family: "Lucida Sans Unicode";
+    font-size: 14px;
+}
+
+    .searchGroupLinkButton:hover {
+        text-decoration: underline;
+    }
+
+.showMore {
+    font-style: italic;
+    font-weight: normal;
+    color: #0033CC;
+}
+
+    .showMore:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+.WEBResultEntry {
+    margin: 4px;
+    padding: 5px;
+    /*border-bottom: 2px solid #0033CC;*/
+    /*border-bottom: 1px solid #0033CC;*/
+    /*box-shadow: 0px 0px 6px #a39e9e;*/
+    /*border-radius: 3px;*/
+}
+
+.WEBResultEntryTitle {
+    z-index: 0;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 7px;
+}
+
+.WEBResultsSeparator {
+    border-bottom: 2px solid #698dfa;
+}
+
+.iconEntry {
+    height: 32px;
+    width: 32px;
+    margin-top: 10px;
+}

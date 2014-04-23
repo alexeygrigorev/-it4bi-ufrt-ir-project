@@ -5,8 +5,8 @@ function dataService() {
     var self = {};
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
-    self.serverURL = window.location.href;
-    // self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
+    // self.serverURL = window.location.href;
+    self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
     self.getUsers = function (callback) {
@@ -29,7 +29,7 @@ function dataService() {
             // Return users back to the caller
             callback(users);
         });
-    }
+    };
 
     // Perform search on DOCUMENTS
     self.searchDOC = function (query, userID, callback) {
@@ -53,7 +53,34 @@ function dataService() {
             // Return results back to the caller
             callback(data);
         });
-    }
+    };
+    
+    // Perform search on WEB
+    self.searchWEB = function (query, userID, callback) {
+        var url = self.serverURL + "/rest/search/social?q=" + query + "&u=" + userID;
+
+        $.get(url, function (data) {
+
+            // Map received fields to expected fields
+            docs = $.map(data, function (d) {
+                return new webInfo({
+                	id: d.id,
+                    title: d.title,
+                    description: d.description,
+                    link: d.link,
+                    timestamp: d.timestamp,
+                    user: d.user,
+                    userlink: d.userlink,
+                    source: d.source,
+                    type: d.type,
+                    socialSource: d.socialSource
+                });
+            });
+
+            // Return results back to the caller
+            callback(docs);
+        });
+    };
 
     // Return random logo
     self.getRandomLogo = function () {

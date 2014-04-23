@@ -109,31 +109,124 @@
             </tr>
             <tr>
                 <td colspan="3">
-                    <!-- ko if: showSearchResults() == 'Yes' -->
+                    <!-- ko if: showSearchResults() == true -->
                     <div class="alignCenter">
-                        <span style="margin-left: 80px; margin-right: 25px">All</span>
-                        <span style="margin-right: 25px">WEB</span>
-                        <span style="margin-right: 25px">Data Warehouse</span>
-                        <span style="margin-right: 25px">Documents</span>
+                        <a class="searchGroupLinkButton" style="margin-left: 80px;" href="javascript:void(0)" data-bind="click: showALLResultsOnly, style: { fontWeight: isALLSearch() ? 'bold' : '' }">All</a>
+                        <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: showDOCResultsOnly, style: { fontWeight: isDOCSearch() ? 'bold' : '' }">Documents</a>
+                        <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: showDWResultsOnly, style: { fontWeight: isDWSearch() ? 'bold' : '' }">Data Warehouse</a>
+                        <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: showWEBResultsOnly, style: { fontWeight: isWEBSearch() ? 'bold' : '' }">WEB</a>
                     </div>
-                    <hr />
-                    <!-- ko if: searchDocs() == 'Yes' -->
-                    <div class="alignCenter">Documents</div>
-                    <table data-bind="foreach: resultsDOC">
-                        <tr>
-                            <td>
-                                Status
-                            </td>
-                            <td>
-                                <label data-bind="text: docPath"></label><br />
-                            </td>
-                        </tr>
-                    </table>
-                    <!-- /ko -->
-                    <!-- ko if: searchDW() == 'Yes' -->
-                    <!-- /ko -->
-                    <!-- ko if: searchWEB() == 'Yes' -->
-                    <!-- /ko -->
+                    <!--
+
+                        DOCUMENTS RESULTS
+
+                     -->
+                    <div class="resultsDIV" data-bind="fadeVisible: searchDocs()">
+                        <hr />
+                        <div class="resultsGroupHeader">Documents</div>
+                        <table style="width: 100%" data-bind="visible: resultsDOC().length > 0">
+                            <tbody data-bind="foreach: resultsDOC">
+                                <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isDOCSearch()">
+                                    <td>
+                                        Status
+                                    </td>
+                                    <td>
+                                        <label data-bind="text: docPath"></label>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot data-bind="visible: isALLSearch()">
+                                <tr>
+                                    <th colspan="2" class="alignRight">
+                                        <span class="showMore" data-bind="click: showDOCResultsOnly">show more</span>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="alignCenter" data-bind="visible: searchDOCinProgress()">
+                            <img src="IMG/Loader.gif" alt="" />
+                        </div>
+                        <div class="noResultsGroupHeader" data-bind="visible: (resultsDOC().length == 0 && !searchDOCinProgress())">
+                            Search by Documents returned no results
+                        </div>
+                    </div>
+                    <!--
+
+                        DATA WAREHOUSE RESULTS
+
+                     -->
+                    <div class="resultsDIV" data-bind="fadeVisible: searchDW()">
+                        <hr />
+                        <div class="resultsGroupHeader">Data Warehouse</div>
+                        <table style="width: 100%" data-bind="visible: resultsDW().length > 0">
+                            <tbody data-bind="foreach: resultsDW">
+                                <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isDWSearch()">
+                                    <td>
+                                        Status
+                                    </td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                            <tfoot data-bind="visible: isALLSearch()">
+                                <tr>
+                                    <th colspan="2" class="alignRight">
+                                        <span class="showMore" data-bind="click: showDWResultsOnly">show more</span>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="alignCenter" data-bind="visible: searchDWinProgress()">
+                            <img src="IMG/Loader.gif" alt="" />
+                        </div>
+                        <div class="noResultsGroupHeader" data-bind="visible: (resultsDW().length == 0 && !searchDWinProgress())">
+                            Search by Data Warehouse returned no results
+                        </div>
+                    </div>
+                    <!--
+
+                        WEB RESULTS
+
+                    -->
+                    <div class="resultsDIV" data-bind="fadeVisible: searchWEB()">
+                        <hr />
+                        <div class="resultsGroupHeader">WEB</div>
+                        <table style="width: 100%; border-spacing: 0px; border-collapse: separate" data-bind="visible: resultsWEB().length > 0">
+                            <tbody data-bind="foreach: resultsWEB">
+                                <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isWEBSearch()">
+                                    <td class="WEBResultsSeparator" style="width: 32px; vertical-align: top;">
+                                        <a data-bind="attr: { href: link }">
+                                            <img class="iconEntry" data-bind="attr: { src: getIconURL() }" />
+                                        </a>
+                                    </td>
+                                    <td class="WEBResultsSeparator">
+                                        <div class="WEBResultEntry">
+                                            <div class="WEBResultEntryTitle" data-bind="style: { maxHeight: isExpanded() ? '200px' : '40px' }">
+                                                <label data-bind="text: getTitle()"></label><br />
+                                            </div>
+                                            <a data-bind="attr: { href: userlink }, text: user"></a>
+                                            <span data-bind="text: getType()"></span>
+                                            <span data-bind="text: getSource()"></span>
+                                            <span data-bind="text: getTime()"></span>
+                                            <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="visible: getTitle().length > 190, click: togleExpand, text: isExpanded() ? 'Collapse' : 'Expand'"></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot data-bind="visible: isALLSearch()">
+                                <tr>
+                                    <th colspan="2" class="alignRight">
+                                        <span class="showMore" data-bind="click: showWEBResultsOnly">show more</span>
+                                    </th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        <div class="alignCenter" data-bind="visible: searchWEBinProgress()">
+                            <img src="IMG/Loader.gif" alt="" />
+                        </div>
+                        <div class="noResultsGroupHeader" data-bind="visible: (resultsWEB().length == 0 && !searchWEBinProgress())">
+                            Search by WEB returned no results
+                        </div>
+                    </div>
                     <!-- /ko -->
                 </td>
             </tr>

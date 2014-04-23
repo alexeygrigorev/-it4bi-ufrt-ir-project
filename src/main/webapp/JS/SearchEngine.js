@@ -3,6 +3,19 @@
 /* TODO: IMPLEMENT CHANGE OF SERVER URL FROM DEBUG INFORMATION */
 /* TODO: REMOVE SLEEPING */
 
+//Here's a custom Knockout binding that makes elements shown/hidden via jQuery's methods
+ko.bindingHandlers.fadeVisible = {
+    init: function (element, valueAccessor) {
+        // Initially set the element to be instantly visible/hidden depending on the value
+        var value = valueAccessor();
+        $(element).toggle(ko.unwrap(value));
+    },
+    update: function (element, valueAccessor) {
+        var value = valueAccessor();
+        ko.unwrap(value) ? $(element).fadeIn() : $(element).hide();
+    }
+};
+
 function searchEngineViewModel() {
 
     var self = {};
@@ -11,8 +24,12 @@ function searchEngineViewModel() {
     self.logo = ko.observable('IMG/LogoFootball02.png');
     self.mode = ko.observable('Search');
     self.showDebug = ko.observable('No');
-    self.showSearchResults = ko.observable('No');
     self.backgroundColor = ko.observable('white');
+    self.showSearchResults = ko.observable(false);
+    self.searchDWinProgress = ko.observable(true);
+    self.searchDOCinProgress = ko.observable(true);
+    self.searchWEBinProgress = ko.observable(true);
+    self.displayLimit = 5;
     // Features
     self.users = ko.observableArray([]);
     self.loggedUser = ko.observable();
@@ -20,10 +37,12 @@ function searchEngineViewModel() {
     // Searching
     self.serverURL = ko.observable('');
     self.searchQuery = ko.observable('');
-    self.searchDocs = ko.observable('Yes');
-    self.searchWEB = ko.observable('Yes');
-    self.searchDW = ko.observable('Yes');
+    self.searchDocs = ko.observable(true);
+    self.searchWEB = ko.observable(true);
+    self.searchDW = ko.observable(true);
     self.resultsDOC = ko.observableArray([]);
+    self.resultsWEB = ko.observableArray([]);
+    self.resultsDW = ko.observableArray([]);
 
     self.initialize = function () {
 
@@ -87,7 +106,7 @@ function searchEngineViewModel() {
                     return {
                         userID: self.loggedUser() ? self.loggedUser().id : -1,
                         docTitle: self.uploadDocumentTitle()
-                    }
+                    };
                 },
                 onSelect: function (files) {
                     if (self.uploadDocumentTitle() == '') {
@@ -106,23 +125,122 @@ function searchEngineViewModel() {
         self.mode('Search');
     };
 
+    // Show only results from search by ALL SOURCES
+    self.showALLResultsOnly = function () {
+        // Yeah, this way :)
+        self.searchDocs(false);
+        self.searchWEB(false);
+        self.searchDW(false);
+        self.searchDocs(true);
+        self.searchWEB(true);
+        self.searchDW(true);
+    };
+
+    // Show only results from search by DOCUMENTS
+    self.showDOCResultsOnly = function () {
+        self.searchDocs(false);
+        self.searchDW(false);
+        self.searchWEB(false);
+        self.searchDocs(true);
+    };
+
+    // Show only results from search by DW
+    self.showDWResultsOnly = function () {
+        self.searchDocs(false);
+        self.searchDW(false);
+        self.searchWEB(false);
+        self.searchDW(true);
+    };
+
+    // Show only results from search by WEB
+    self.showWEBResultsOnly = function () {
+        self.searchDocs(false);
+        self.searchDW(false);
+        self.searchWEB(false);
+        self.searchWEB(true);
+    };
+
+    // True if search by ALL group is selected
+    self.isALLSearch = ko.computed(function () {
+        if (self.searchDW() == true && self.searchWEB() == true && self.searchDocs() == true) {
+            return true;
+        }
+        return false;
+    });
+
+    // True if search by DOC group is selected
+    self.isDOCSearch = ko.computed(function () {
+        if (self.searchDW() == false && self.searchWEB() == false && self.searchDocs() == true) {
+            return true;
+        }
+        return false;
+    });
+
+    // True if search by DW group is selected
+    self.isDWSearch = ko.computed(function () {
+        if (self.searchDW() == true && self.searchWEB() == false && self.searchDocs() == false) {
+            return true;
+        }
+        return false;
+    });
+
+    // True if search by WEB group is selected
+    self.isWEBSearch = ko.computed(function () {
+        if (self.searchDW() == false && self.searchWEB() == true && self.searchDocs() == false) {
+            return true;
+        }
+        return false;
+    });
+
     // Search by EVERYTHING
     self.performSearch = function () {
         userID = self.loggedUser().id;
         query = self.searchQuery();
-        self.showSearchResults('Yes');
+        if (query == '') {
+            return;
+        }
 
-        self.searchDOC(query, userID);
+        self.showSearchResults(true);
+
+        self.performSearchDOC(query, userID);
+        self.performSearchDW(query, userID);
+        self.performSearchWEB(query, userID);
     };
 
     // Search by DOCUMENTS by given user
-    self.searchDOC = function (query, userID) {
+    self.performSearchDOC = function (query, userID) {
+        self.resultsDOC.removeAll();
+        self.searchDOCinProgress(true);
         dataServiceProvider.searchDOC(query, userID, function (documents) {
-            self.resultsDOC.removeAll();
             // Need to insert objects into 'ko.observableArray' and not to substitute the array
             $.each(documents, function (i, d) {
                 self.resultsDOC.push(d);
             });
+            self.searchDOCinProgress(false);
+        });
+    };
+
+    // Search by DATA WAREHOUSE by given user
+    self.performSearchDW = function (query, userID) {
+        self.resultsDW.removeAll();
+        self.searchDWinProgress(true);
+
+        setTimeout(function () {
+            self.searchDWinProgress(false);
+        }, 2000);
+    };
+
+    // Search by WEB by given user
+    self.performSearchWEB = function (query, userID) {
+        self.resultsWEB.removeAll();
+        self.searchWEBinProgress(true);
+
+        dataServiceProvider.searchWEB(query, userID, function (documents) {
+            // Need to insert objects into 'ko.observableArray' and not to substitute the array
+            $.each(documents, function (i, d) {
+                self.resultsWEB.push(d);
+            });
+            self.searchWEBinProgress(false);
         });
     };
 

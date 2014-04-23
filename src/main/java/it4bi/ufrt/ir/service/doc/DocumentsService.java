@@ -46,17 +46,16 @@ public class DocumentsService {
 	 private Integer userId = 0;
 	
 	 public List<DocumentRecord> find(String query, int userID) {
-		 
+		 this.userId = userID;
+		 docsList = new ArrayList<DocumentRecord>();		 
 		 
         // check for existence 
         File directoryLocation = new File(indexLocation);
         if(!directoryLocation.exists()) {
-        	LOGGER.debug("Directory does not exist: {}", indexLocation);
-        	return null;
+        	LOGGER.debug("Directory does not exist: {}. CREATE IT MANUALLY", indexLocation);
+        	return docsList;
         }
-        
-        this.userId = userID;
- 
+                 
 		// configure index properties
         EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_47);  
         Directory indexDir = null;
@@ -67,12 +66,12 @@ public class DocumentsService {
 			e1.printStackTrace();
 		}
 	
-		docsList = new ArrayList<DocumentRecord>();
 		DocumentSearchEngine searcher = null;
 		try {
 			searcher = new DocumentSearchEngine(indexDir, analyzer);
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.debug("Nothing to search in the directory. UPLOAD SOME DOCUMENT", indexLocation);
+        	return docsList;
 		}
 		
 		LOGGER.debug("---Query: " + query);
