@@ -1,0 +1,24 @@
+package it4bi.ufrt.ir.service.spell;
+
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:spellCheckerTestContext.xml")
+public class FifaSpellCheckerTest {
+
+	@Autowired
+	FIFASpellChecker spellChecker;
+
+	@Test
+	public void test() throws Exception {
+		String test = "barzil defende ronaldio";
+		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(test, true, 3);
+		assertEquals("brazil defender ronaldo", qr.getCorrectedQuery());
+	}
+}
