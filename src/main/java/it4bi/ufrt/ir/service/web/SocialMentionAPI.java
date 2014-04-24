@@ -1,6 +1,6 @@
 package it4bi.ufrt.ir.service.web;
 
-import it4bi.ufrt.ir.controller.SearchController;
+//import it4bi.ufrt.ir.controller.SearchController;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -38,8 +38,8 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -54,7 +54,7 @@ import javax.xml.bind.Unmarshaller;
 
 public class SocialMentionAPI {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(SocialMentionAPI.class);
+	//private static final Logger LOGGER = LoggerFactory.getLogger(SocialMentionAPI.class);
 	
 	private final static String url = "http://api2.socialmention.com/search";
 	private final static String format = "xml";
@@ -68,7 +68,7 @@ public class SocialMentionAPI {
 		String params = buildParamsQuert(format, language, searchQuery, type);	
 	    		
 		String paramURL = url+params;
-		LOGGER.info ("trying to connect to Social mention "+paramURL);
+	//	LOGGER.info ("trying to connect to Social mention "+paramURL);
 		String[] result;
 		
 		try {
@@ -78,7 +78,7 @@ public class SocialMentionAPI {
 			throw new SocialSearchException("Error in HTTP layer: "+e.getMessage());
 		}
 		
-		LOGGER.info ("results recieved from social mentin");
+	//	LOGGER.info ("results recieved from social mentin");
 		
 		StringBuilder xmlBuilder = new StringBuilder();
 		for(String str: result)
@@ -86,11 +86,9 @@ public class SocialMentionAPI {
 		
 		SocialMentionXMLResult searchResults =  parseSocialMentionXMLResults(xmlBuilder.toString());
 		
-		LOGGER.info(searchResults.getRecordsCount() + " Records returened");
+	//	LOGGER.info(searchResults.getRecordsCount() + " Records returened");
 		
-		for (int i=0; i<searchResults.getRecords().getRecords().size() ; i++ ){
-			System.out.println( searchResults.getRecords().getRecords().get(i).mapSocialSearchType().toString() );
-		}
+
 			
 		
 		return searchResults.getRecords();

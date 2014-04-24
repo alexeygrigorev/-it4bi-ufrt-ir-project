@@ -29,6 +29,8 @@ public class SocialSearchRecord {
 	
 	private SocialSearchType socialSource;
 	
+	private String sentiment;
+	
 	public SocialSearchRecord(){
 		
 	}
@@ -110,6 +112,8 @@ public class SocialSearchRecord {
 		builder.append(socialMentionType);
 		builder.append(", socialSource=");
 		builder.append(socialSource);
+		builder.append(", sentiment=");
+		builder.append(sentiment);
 		builder.append("]");
 		return builder.toString();
 	}
@@ -146,6 +150,16 @@ public class SocialSearchRecord {
 		
 		
 		return this;
+	}
+
+
+	public String getSentiment() {
+		return sentiment;
+	}
+
+
+	public void setSentiment(String sentiment) {
+		this.sentiment = sentiment;
 	}
 	
 	

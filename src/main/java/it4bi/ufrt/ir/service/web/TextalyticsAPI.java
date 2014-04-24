@@ -46,22 +46,20 @@ import org.w3c.dom.*;
  * This class implements POST request to the API
  */ 
 public class TextalyticsAPI {
-  private URL url;
-  String params;
+  private static URL url;
+  private static String params;
+  private static final String api = "http://textalytics.com/core/sentiment-1.1";
+  private static final String key = "a986d2dc15fecc28472712cd06207a5b";
  
-  public TextalyticsAPI (String api) throws MalformedURLException{
-    url = new URL(api);
-    params="";
-  }
   
-  public void addParameter (String name, String value) throws UnsupportedEncodingException{
+  private static void addParameter (String name, String value) throws UnsupportedEncodingException{
     if (params.length()>0)
       params += "&" + URLEncoder.encode(name, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8");
     else
       params += URLEncoder.encode(name, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8");
   }
  
-  public String getResponse() throws IOException {
+  private static String getResponse() throws IOException {
     String response = ""; 
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
     conn.setDoOutput(true);
@@ -89,51 +87,81 @@ public class TextalyticsAPI {
     return response;
    }
 
-  public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException {
+ 
+
+  /*
+   * Retrun a string [] of size 3 with
+   * 0:Call Status code
+   * 1:Call Status Description
+   * 2:Global Sentiment 
+   * 
+   */
+  public static String [] calculateSentiment(String txt) throws SocialSearchException  {
       // We define the variables needed to call the API
-      String api = "http://textalytics.com/core/sentiment-1.1";
-      String key = "a986d2dc15fecc28472712cd06207a5b";
-      String txt = "UFRT is a good school";
+   
+      DocumentBuilderFactory docBuilderFactory = null;
+      DocumentBuilder docBuilder = null;
+      Document doc = null;
+      Element response_node = null;
+      
+	  String response = null;
+	  NodeList status_list = null;
+      Node status =  null;
+      NamedNodeMap attributes = null;
+      Node code = null;
+      
+      NodeList score_tags = null;
+      
+      NodeList sd_tags =null;
+      NodeList subjectivities = null;
+      NodeList ironies = null;
+
+      String output = "";
+      Node score_tag = null;
+      Node sd_tag = null;
+      Node subjectivity = null;
+      Node irony = null;
+	  
+	  try{
+	  url = new URL(api);
+	  params = "";
+
+	  
       String model = "en-general"; // es-general/en-general/fr-general
+      addParameter("key", key);
+      addParameter("txt", txt);
+      addParameter("model", model);
+      addParameter("of", "xml");
+      response = getResponse();
       
-      TextalyticsAPI post = new TextalyticsAPI (api);
-      post.addParameter("key", key);
-      post.addParameter("txt", txt);
-      post.addParameter("model", model);
-      post.addParameter("of", "xml");
-      String response = post.getResponse();
       
-      // Show response
-      System.out.println("Response");
-      System.out.println("============");
-      System.out.println(response);
-      
-      // Prints the specific fields in the response (sentiment)
-      DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
-      Document doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
+      // parse the xml result
+      docBuilderFactory = DocumentBuilderFactory.newInstance();
+       docBuilder = docBuilderFactory.newDocumentBuilder();
+      doc = docBuilder.parse(new ByteArrayInputStream(response.getBytes()));
       doc.getDocumentElement().normalize();
-      Element response_node = doc.getDocumentElement();
-      System.out.println("\nSentiment:");
-      System.out.println("=============");
-      try {
-        NodeList status_list = response_node.getElementsByTagName("status");
-        Node status = status_list.item(0);
-        NamedNodeMap attributes = status.getAttributes();
-        Node code = attributes.item(0);
+      response_node = doc.getDocumentElement();
+      
+    
+        status_list = response_node.getElementsByTagName("status");
+         status = status_list.item(0);
+         attributes = status.getAttributes();
+         code = attributes.item(0);
         if(!code.getTextContent().equals("0")) {
           System.out.println("Not found");
         } else {    
-          NodeList score_tags = response_node.getElementsByTagName("score_tag");
-          NodeList sd_tags = response_node.getElementsByTagName("sd_tag");
-          NodeList subjectivities = response_node.getElementsByTagName("subjectivity");
-          NodeList ironies = response_node.getElementsByTagName("irony");
+           score_tags = response_node.getElementsByTagName("score_tag");
+          
+          
+           sd_tags = response_node.getElementsByTagName("sd_tag");
+          subjectivities = response_node.getElementsByTagName("subjectivity");
+           ironies = response_node.getElementsByTagName("irony");
 
-          String output = "";
-          Node score_tag = null;
-          Node sd_tag = null;
-          Node subjectivity = null;
-          Node irony = null;
+           output = "";
+           score_tag = null;
+           sd_tag = null;
+          subjectivity = null;
+           irony = null;
           if(score_tags.getLength()>0)
             score_tag = score_tags.item(0);
           if(sd_tags.getLength()>0)
@@ -151,18 +179,40 @@ public class TextalyticsAPI {
             output += "Subjectivity: " + subjectivity.getTextContent() + "\n";
           if(irony != null)
             output += "Irony: " + irony.getTextContent();
+          
+          /*
           if(output.isEmpty())
             System.out.println("Not found");
           else
             System.out.println(output);
+           */ 
+          
+          
+          
+          //aggregate the sentimnt values to Positive,Neutral,Negative
+          String [] results = new String [3];
+          results[0]= code.getTextContent();
+          results [1] = status.getTextContent();
+          if(score_tag != null)
+        	  results [2] = score_tag.getTextContent();
+          else
+        	  results [2] = "NEU"; //consider no polarity as neutral 
+          
+          
+          return results;
+          
+          
         }
       } catch (Exception e) {
-        System.out.println("Not found");
+        
+    	  throw new SocialSearchException("Error is Sentiment Analysis API "+e.getMessage());
       }
+      
+      return null;
    }
 
   
-  
+
 
 }
 
