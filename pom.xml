@@ -152,8 +152,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
-		
+				
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-app</artifactId>

@@ -160,10 +160,5 @@ public class SocialSearchRecord {
 
 	public void setSentiment(String sentiment) {
 		this.sentiment = sentiment;
-	}
-	
-	
-	
-	
-
+	}		
 }

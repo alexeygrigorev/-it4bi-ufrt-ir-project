@@ -39,6 +39,9 @@ public class SearchController {
 	@Autowired
 	private SocialSearchService web;
 	
+	@Value("${web.return.count}")
+	private int webReturnCount;
+	
 	@Value("${documents.score.query}")
 	private float queryScore;
 	
@@ -76,11 +79,10 @@ public class SearchController {
 		LOGGER.debug("social search query: {}, UserID: {}", query, userID);
 		
 		try {
-			return web.search(query, SocialSearchType.FACEBOOK);
+			return web.search(query, SocialSearchType.FACEBOOK, true, webReturnCount);
 		} catch (SocialSearchException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return new ArrayList<SocialSearchRecord>();
 		}
-		return null;
 	}
 }
