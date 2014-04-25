@@ -22,7 +22,6 @@ public class DocumentRecord {
 	private static int docIdCounter = 0;
 	private List<Tag> tags;
 	private String mime;
-
 	
 	public int getUploaderId() {
 		return uploaderId;
@@ -104,6 +103,10 @@ public class DocumentRecord {
 	
 	public String getMime() {
 		return this.mime;
+	}
+	
+	public void setMime(String mime) {
+		this.mime = mime;
 	}
 
 	public void setTags(List<Tag> tags) {

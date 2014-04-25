@@ -92,7 +92,7 @@ public class UploadController {
 	@Path("/get/{file}")
 	public Response getFile(@PathParam("docID") int docID) {
 		
-		LOGGER.debug("file download requerst for {}", docID);
+		LOGGER.debug("file download request for docID: {}", docID);
 		
 		File fileToSend = new File(docsDAO.getDocByDocId(docID).getDocPath());
 		if (fileToSend.exists()) {
@@ -109,6 +109,7 @@ public class UploadController {
 
 		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);
 		
+		// TODO: Check if already liked.
 		docsDAO.insertUserDocsAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
 		
 		DocumentRecord docRec = docsDAO.getDocByDocId(docID);
@@ -129,7 +130,10 @@ public class UploadController {
 			@FormDataParam("userID") int userID) {
 
 		
+		// Remove extension from the title
+		documentTitle = FilenameUtils.getBaseName(documentTitle);
 		LOGGER.debug("uploading file. UserID {}; Doc Title: {}", userID, documentTitle);
+		
 		
 		createDirectory(uploadLocation);
 		

@@ -180,7 +180,7 @@ html {
 
     .searchGroupLinkButton:hover {
         text-decoration: underline;
-        cursor: pointer
+        cursor: pointer;
     }
 
 .showMore {
@@ -271,3 +271,35 @@ html {
     font-size: 13px;
     color: #333;
 }
+
+.documentEntry {
+    height: 21px;
+    color: black;
+    text-decoration: none;
+    text-align: right;
+}
+
+    .documentEntry #docTitle {
+        float: left;
+    }
+
+    .documentEntry #docDownload {
+        visibility: hidden;
+    }
+
+    .documentEntry:hover {
+        color: #0033CC;
+        cursor: pointer;
+    }
+
+        .documentEntry:hover #docTitle {
+            color: #0033CC;
+            text-decoration: underline;
+        }
+
+        .documentEntry:hover #docDownload {
+            color: black;
+            visibility: visible;
+            text-decoration: none;
+            font-style: italic;
+        }

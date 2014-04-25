@@ -124,6 +124,14 @@ public class DocumentsService {
 	        	score1 = hits[docsList.indexOf(d1)].score*(1-personalizationCoef) + calcUserDocAffinity(userId, d1)*personalizationCoef;
 	        	score2 = hits[docsList.indexOf(d2)].score*(1-personalizationCoef) + calcUserDocAffinity(userId, d2)*personalizationCoef;
 	        	
+	        	// Quick fix of scores. 
+	        	if (d1.getUploaderId() == userId){
+	        		score1 = score1 + 0.25 * score1;  
+	        	}
+	        	if (d2.getUploaderId() == userId){
+	        		score2 = score2 + 0.25 * score2;  
+	        	}
+	        	
 	        	if (score1.equals(score2)) return 0;
 	        	
 	        	return (score2 < score1) ? -1 : 1; 	        	

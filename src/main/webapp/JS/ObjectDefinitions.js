@@ -47,10 +47,17 @@ function docInfo(spec) {
     self.docID = spec.docID;
     self.docPath = spec.docPath;
     self.docTitle = spec.docTitle;
-    self.docExtension = spec.docExtension;
+    self.mime = spec.mime;
     self.ownerID = spec.ownerID;
-    self.score = spec.score;
-    self.isLiked = spec.isLiked;
+    self.tags = spec.tags;
+    self.isLiked = ko.observable((spec.isLiked != undefined) ? true : -false);
+
+    self.getMime = function () {
+        switch (self.mime) {
+            case 'application/pdf': return 'application/pdf'; break;
+            default: return self.mime; break;
+        }
+    }
 
     return self;
 }

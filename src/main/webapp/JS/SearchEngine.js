@@ -86,6 +86,17 @@ function searchEngineViewModel() {
         });
     };
 
+    // On user chane reset all data
+    self.userChanged = function () {
+        self.showSearchResults(false);
+        self.resultsDOC([]);
+        self.resultsDW([]);
+        self.resultsWEBFacebook([]);
+        self.resultsWEBTwitter([]);
+        self.resultsWEBNews([]);
+        self.resultsWEBVideos([]);
+    };
+
     // Toggle displaying of debug information
     self.toggleDebug = function () {
         switch (self.showDebug()) {
@@ -419,6 +430,21 @@ function searchEngineViewModel() {
 
         return neutral;
     });
+    
+    // Like the document defined by 'this'. Knockout logic
+    self.likeDoc = function () {
+        dataServiceProvider.likeDOC(this.docID, self.loggedUser().id)
+        this.isLiked(true);
+    };
+
+    // Download the document
+    self.downloadDoc = function () {
+        var baseURL = dataServiceProvider.getDownalodDocBaseURL();
+        var URL = baseURL + this.docID;
+        //alert(URL);
+        var win = window.open(URL, '_blank');
+        win.focus();
+    };
 
     return self;
 }
