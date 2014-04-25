@@ -180,6 +180,7 @@ html {
 
     .searchGroupLinkButton:hover {
         text-decoration: underline;
+        cursor: pointer
     }
 
 .showMore {
@@ -207,6 +208,9 @@ html {
     overflow: hidden;
     position: relative;
     margin-bottom: 7px;
+    font-family: 'Times New Roman';
+    min-height: 39px;
+    text-align: justify;
 }
 
 .WEBResultsSeparator {
@@ -217,4 +221,53 @@ html {
     height: 32px;
     width: 32px;
     margin-top: 10px;
+}
+
+.smileEntry {
+    height: 32px;
+    width: 32px;
+    margin-top: 2px;
+}
+
+.expandCollapseButton {
+    height: 21px;
+    color: #0033CC;
+    text-decoration: none;
+    font-family: Consolas;
+    font-size: 14px;
+    float: right;
+}
+
+    .expandCollapseButton:hover {
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+.WEBuserLabel {
+    display: inline-table;
+    width: 210px;
+    font-family: Consolas;
+    font-size: 13px;
+    overflow: hidden;
+    overflow-x: hidden;
+}
+
+.WEBmicroblogsLabel {
+    height: 21px;
+    display: inline-block;
+    width: 200px;
+    font-family: Consolas;
+    font-size: 13px;
+}
+
+.WEBtimeLabel {
+    height: 21px;
+    font-family: Consolas;
+    font-size: 13px;
+}
+
+.autocorrectionDIV {
+    font-family: "Lucida Sans Unicode";
+    font-size: 13px;
+    color: #333;
 }

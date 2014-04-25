@@ -28,7 +28,10 @@ function searchEngineViewModel() {
     self.showSearchResults = ko.observable(false);
     self.searchDWinProgress = ko.observable(true);
     self.searchDOCinProgress = ko.observable(true);
-    self.searchWEBinProgress = ko.observable(true);
+    self.searchWEBFacebookinProgress = ko.observable(true);
+    self.searchWEBTwitterinProgress = ko.observable(true);
+    self.searchWEBNewsinProgress = ko.observable(true);
+    self.searchWEBVideosinProgress = ko.observable(true);
     self.displayLimit = 5;
     // Features
     self.users = ko.observableArray([]);
@@ -37,12 +40,37 @@ function searchEngineViewModel() {
     // Searching
     self.serverURL = ko.observable('');
     self.searchQuery = ko.observable('');
+    self.searchQueryAutocorrectedSelect = ko.observable();
+    self.searchQueryAutocorrected = ko.observable('');
     self.searchDocs = ko.observable(true);
-    self.searchWEB = ko.observable(true);
     self.searchDW = ko.observable(true);
+    self.searchWEB = ko.observable(true);
+    self.searchWEBFacebook = ko.observable(true);
+    self.searchWEBTwitter = ko.observable(false);
+    self.searchWEBNews = ko.observable(false);
+    self.searchWEBVideos = ko.observable(false);
     self.resultsDOC = ko.observableArray([]);
-    self.resultsWEB = ko.observableArray([]);
     self.resultsDW = ko.observableArray([]);
+    self.resultsWEBFacebook = ko.observableArray([]);
+    self.resultsWEBTwitter = ko.observableArray([]);
+    self.resultsWEBNews = ko.observableArray([]);
+    self.resultsWEBVideos = ko.observableArray([]);
+
+    // Return results depending on the chosen WEB search subsection
+    self.getWEBresults = function () {
+        if (self.searchWEBFacebook()) return self.resultsWEBFacebook;
+        if (self.searchWEBTwitter()) return self.resultsWEBTwitter;
+        if (self.searchWEBNews()) return self.resultsWEBNews;
+        if (self.searchWEBVideos()) return self.resultsWEBVideos;
+    };
+
+    // Return progress of the search on the chosen WEB search subsection
+    self.getWEBInProgress = function () {
+        if (self.searchWEBFacebook()) return self.searchWEBFacebookinProgress;
+        if (self.searchWEBTwitter()) return self.searchWEBTwitterinProgress;
+        if (self.searchWEBNews()) return self.searchWEBNewsinProgress;
+        if (self.searchWEBVideos()) return self.searchWEBVideosinProgress;
+    };
 
     self.initialize = function () {
 
@@ -160,6 +188,38 @@ function searchEngineViewModel() {
         self.searchWEB(true);
     };
 
+    // Show only results from search by WEB Facebook
+    self.showWEBFacebookResults = function () {
+        self.searchWEBFacebook(true);
+        self.searchWEBTwitter(false);
+        self.searchWEBNews(false);
+        self.searchWEBVideos(false);
+    };
+
+    // Show only results from search by WEB Facebook
+    self.showWEBTwitterResults = function () {
+        self.searchWEBTwitter(true);
+        self.searchWEBFacebook(false);
+        self.searchWEBNews(false);
+        self.searchWEBVideos(false);
+    };
+
+    // Show only results from search by WEB News
+    self.showWEBNewsResults = function () {
+        self.searchWEBNews(true);
+        self.searchWEBTwitter(false);
+        self.searchWEBFacebook(false);
+        self.searchWEBVideos(false);
+    };
+
+    // Show only results from search by WEB Videos
+    self.showWEBVideosResults = function () {
+        self.searchWEBVideos(true);
+        self.searchWEBNews(false);
+        self.searchWEBTwitter(false);
+        self.searchWEBFacebook(false);
+    };
+
     // True if search by ALL group is selected
     self.isALLSearch = ko.computed(function () {
         if (self.searchDW() == true && self.searchWEB() == true && self.searchDocs() == true) {
@@ -200,11 +260,36 @@ function searchEngineViewModel() {
             return;
         }
 
+        self.showSearchResults(false);
         self.showSearchResults(true);
+        self.performSearchAUTOCORRECTION(query);
 
         self.performSearchDOC(query, userID);
         self.performSearchDW(query, userID);
-        self.performSearchWEB(query, userID);
+        self.performSearchWEBFacebook(query, userID);
+        self.performSearchWEBTwitter(query, userID);
+        self.performSearchWEBNews(query, userID);
+        self.performSearchWEBVideos(query, userID);
+    };
+
+    // Perform query from autocorrection region
+    self.performSearchFromAutocorrection = function () {        
+        self.searchQuery(self.searchQueryAutocorrectedSelect());
+        self.performSearch();
+    };
+
+    // Search for AUTOCORRECTIONS
+    self.performSearchAUTOCORRECTION = function (query) {
+        dataServiceProvider.getAutocorrection(query, function (correctionRes) {
+            self.searchQueryAutocorrectedSelect(correctionRes.correctedQuery);
+            self.searchQueryAutocorrected(correctionRes);
+        });
+    };
+
+    // Hide AUTOCORRECTION results
+    self.hideAUTOCORRECTION = function (query) {
+        self.searchQueryAutocorrectedSelect('');
+        self.searchQueryAutocorrected('');
     };
 
     // Search by DOCUMENTS by given user
@@ -230,19 +315,110 @@ function searchEngineViewModel() {
         }, 2000);
     };
 
-    // Search by WEB by given user
-    self.performSearchWEB = function (query, userID) {
-        self.resultsWEB.removeAll();
-        self.searchWEBinProgress(true);
+    // Search by WEB Facebook by given user
+    self.performSearchWEBFacebook = function (query, userID) {
+        self.resultsWEBFacebook.removeAll();
+        self.searchWEBFacebookinProgress(true);
 
-        dataServiceProvider.searchWEB(query, userID, function (documents) {
+        dataServiceProvider.searchWEBFacebook(query, userID, function (documents) {
             // Need to insert objects into 'ko.observableArray' and not to substitute the array
             $.each(documents, function (i, d) {
-                self.resultsWEB.push(d);
+                // Filter empty elements
+                if (d.title != '' || d.description != '') {
+                    self.resultsWEBFacebook.push(d);
+                }
             });
-            self.searchWEBinProgress(false);
+
+            self.searchWEBFacebookinProgress(false);
         });
     };
+
+    // Search by WEB Twitter by given user
+    self.performSearchWEBTwitter = function (query, userID) {
+        self.resultsWEBTwitter.removeAll();
+        self.searchWEBTwitterinProgress(true);
+
+        dataServiceProvider.searchWEBTwitter(query, userID, function (documents) {
+            // Need to insert objects into 'ko.observableArray' and not to substitute the array
+            $.each(documents, function (i, d) {
+                // Filter empty elements
+                if (d.title != '' || d.description != '') {
+                    self.resultsWEBTwitter.push(d);
+                }
+            });
+
+            self.searchWEBTwitterinProgress(false);
+        });
+    };
+
+    // Search by WEB News by given user
+    self.performSearchWEBNews = function (query, userID) {
+        self.resultsWEBNews.removeAll();
+        self.searchWEBNewsinProgress(true);
+
+        dataServiceProvider.searchWEBNews(query, userID, function (documents) {
+            // Need to insert objects into 'ko.observableArray' and not to substitute the array
+            $.each(documents, function (i, d) {
+                // Filter empty elements
+                if (d.title != '' || d.description != '') {
+                    self.resultsWEBNews.push(d);
+                }
+            });
+
+            self.searchWEBNewsinProgress(false);
+        });
+    };
+
+    // Search by WEB Videos by given user
+    self.performSearchWEBVideos = function (query, userID) {
+        self.resultsWEBVideos.removeAll();
+        self.searchWEBVideosinProgress(true);
+
+        dataServiceProvider.searchWEBVideos(query, userID, function (documents) {
+            // Need to insert objects into 'ko.observableArray' and not to substitute the array
+            $.each(documents, function (i, d) {
+                // Filter empty elements
+                if (d.title != '' || d.description != '') {
+                    self.resultsWEBVideos.push(d);
+                }
+            });
+
+            self.searchWEBVideosinProgress(false);
+        });
+    };
+
+    self.WEBPositiveScore = ko.computed(function () {
+        var results = self.getWEBresults()();
+        var positive = 0;
+
+        $.each(results, function (i, d) {
+            positive = positive + d.isPositive();
+        });
+
+        return positive;
+    });
+
+    self.WEBNegativeScore = ko.computed(function () {
+        var results = self.getWEBresults()();
+        var negative = 0;
+
+        $.each(results, function (i, d) {
+            negative = negative + d.isNegative();
+        });
+
+        return negative;
+    });
+
+    self.WEBNeutralScore = ko.computed(function () {
+        var results = self.getWEBresults()();
+        var neutral = 0;
+
+        $.each(results, function (i, d) {
+            neutral = neutral + d.isNeutral();
+        });
+
+        return neutral;
+    });
 
     return self;
 }

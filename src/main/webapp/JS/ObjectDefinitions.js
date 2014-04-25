@@ -1,4 +1,20 @@
-﻿
+﻿function replaceAll(find, replace, str) {
+    return str.replace(new RegExp(find, 'g'), replace);
+};
+
+function filterNoENGText(text) {
+    var allowed = "0123456789 qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM+=_-)(*&^%$#@!{}:|<>?,./;'\[]";
+    var newText = '';
+
+    for (var i = 0; i < text.length; i++) {
+        var char = text[i];
+        if (allowed.indexOf(char) != -1) {
+            newText = newText + char;
+        }
+    }
+    return newText;
+};
+
 // USER
 function userInfo(spec) {
     var self = {};
@@ -44,45 +60,60 @@ function webInfo(spec) {
     var self = {};
 
     self.id = spec.id;
-    self.title = spec.title;
-    self.description = spec.description;
+    self.title = filterNoENGText(spec.title);
+    self.description = filterNoENGText(spec.description);
     self.link = spec.link;
     self.timestamp = spec.timestamp;
-    self.user = spec.user;
+    self.user = filterNoENGText(spec.user);
     self.userlink = spec.userlink;
     self.source = spec.source;
     self.type = spec.type;
-    self.socialSource = spec.socialSource;
-    self.isExpanded = ko.observable(false);
+    self.sentiment = spec.sentiment;
+    self.isExpanded = ko.observable(false);    
+
+    self.isPositive = function () {
+        switch (self.sentiment) {
+            case 'Positive': return 1; break;
+            default: return 0; break;
+        }
+    };
+
+    self.isNegative = function () {
+        switch (self.sentiment) {
+            case 'Negative': return 1; break;
+            default: return 0; break;
+        }
+    };
+
+    self.isNeutral = function () {
+        if (self.isPositive() != 1 && self.isNegative() != 1) {
+            return 1;
+        }
+        return 0;
+    };
 
     self.getTitle = function () {
-        var titleModified = self.title.replace("в", "");
-        titleModified = titleModified.replace("вЂњ", "");
-        titleModified = titleModified.replace("вЂ", "");
-        titleModified = titleModified.replace("в", "");
-        titleModified = titleModified.replace("Ђ", "");
-        titleModified = titleModified.replace("Ђ", "");
-        titleModified = titleModified.replace("в", "");
-        titleModified = titleModified.replace("Ђ", "");
-        titleModified = titleModified.replace("њ", "");
-        titleModified = titleModified.replace("ќ", "");
-        titleModified = titleModified.replace("�", "");        
-
-        if (titleModified != '') {
-            return titleModified + ' ' + self.description;
+        if (self.title != '') {
+            return self.title + ' ' + self.description;
         }
 
-        titleModified = self.description;
-        if (titleModified == '') {
-            titleModified = 'No title';
+        if (self.description != '') {
+            return self.description;            
         }
-        return titleModified;
+        return 'No title';
     };
 
     self.getSource = function () {
         switch (self.source) {
             case 'facebook':
             case 'FACEBOOK': return 'Facebook'; break;
+            case 'twitter': return 'Twitter '; break;
+            case 'dailymotion': return 'Dailymotion'; break;
+            case 'break': return 'Break'; break;
+            case 'google_news': return 'Google News'; break;
+            case 'youtube': return 'Youtube'; break;
+            case 'metacafe': return 'Metacafe'; break;
+            case 'Yahoo News': return 'Yahoo News'; break;
             default: return self.source; break;
         }
     };
@@ -92,10 +123,25 @@ function webInfo(spec) {
     };
 
     self.getIconURL = function () {
-        switch (self.socialSource) {
+        switch (self.source) {
             case 'facebook':
-            case 'FACEBOOK': return 'IMG/facebook.jpg'; break;
-            default: return 'IMG/question.jpg'; break;
+            case 'FACEBOOK': return 'IMG/Facebook.png'; break;
+            case 'twitter': return 'IMG/Twitter.png'; break;
+            case 'dailymotion': return 'IMG/Dailymotion.png'; break;
+            case 'break': return 'IMG/Break.png'; break;
+            case 'google_news': return 'IMG/GoogleNews.png'; break;
+            case 'youtube': return 'IMG/Youtube.png'; break;
+            case 'metacafe': return 'IMG/Metacafe.png'; break;
+            case 'Yahoo News': return 'IMG/YahooNews.png'; break;                
+            default: return 'IMG/question.png'; break;
+        }
+    };
+
+    self.getSmileIconURL = function () {
+        switch (self.sentiment) {
+            case 'Positive': return 'IMG/Positive.png'; break;
+            case 'Negative': return 'IMG/Negative.png'; break;
+            default: return 'IMG/Neutral.png'; break;
         }
     };
 
@@ -121,6 +167,18 @@ function webInfo(spec) {
     self.togleExpand = function () {
         self.isExpanded(self.isExpanded() ? false : true);
     };
+
+    return self;
+}
+
+// AUTOCORRECTION RESULT
+function autocorrectionInfo(spec) {
+    var self = {};
+
+    self.isCorrected = spec.isCorrected;
+    self.originalQuery = spec.originalQuery;
+    self.correctedQuery = spec.correctedQuery;
+    self.suggestions = spec.suggestions;
 
     return self;
 }

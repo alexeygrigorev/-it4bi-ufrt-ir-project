@@ -1,39 +1,39 @@
 package it4bi.ufrt.ir.service.web;
 
-// import it4bi.ufrt.ir.service.spell.FIFASpellChecker;
+import it4bi.ufrt.ir.service.spell.FIFASpellChecker;
 import it4bi.ufrt.ir.service.spell.QueryAutoCorrectionResult;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SocialSearchService {
+	
+	@Autowired
+	FIFASpellChecker s;
 
-	public List<SocialSearchRecord> search(String query, SocialSearchType type, boolean calcSentiment, int maxCount) 
-			throws SocialSearchException {
+	public List<SocialSearchRecord> search(String query, SocialSearchType type,
+			boolean calcSentiment, int maxCount) throws SocialSearchException {
 
 		try {
 
 			String correctedQuery = "";
-			// TODO: Uncomment
-			// FIFASpellChecker s = FIFASpellChecker.getInstance();
-			// QueryAutoCorrectionResult qr = s.autoCorrectQuery(query, true, 3);
+			QueryAutoCorrectionResult qr = s.autoCorrectQuery(query, true, 3);			
 
-			correctedQuery = query;
-
-			// TODO: Uncomment
-			// if (qr.isCorrected())
-			// correctedQuery = qr.getCorrectedQuery();
-			// else
-			// correctedQuery = query;
+			correctedQuery = query;			
+			if (qr.getIsCorrected()) {
+				correctedQuery = qr.getCorrectedQuery();
+			}
 
 			List<SocialSearchRecord> recs = SocialMentionAPI.search(correctedQuery, type).getRecords();
 
-			if (maxCount < recs.size() && maxCount > 0)
+			if (maxCount < recs.size() && maxCount > 0) {
 				recs = recs.subList(0, maxCount);
+			}
 
-			if (calcSentiment) {				
+			if (calcSentiment) {
 				calculateSentiment(recs);
 			}
 
@@ -42,8 +42,9 @@ public class SocialSearchService {
 			throw new SocialSearchException(ex.getMessage());
 		}
 	}
-	
-	private static void calculateSentiment(List<SocialSearchRecord> recs) throws SocialSearchException {
+
+	private static void calculateSentiment(List<SocialSearchRecord> recs)
+			throws SocialSearchException {
 		String[] sentimentResults = null;
 		String sentimentField = null;
 		for (SocialSearchRecord rec : recs) {
@@ -52,18 +53,20 @@ public class SocialSearchService {
 			if (sentimentField.equals("")) {
 				sentimentField = rec.getDescription();
 			}
-			
+
 			if (sentimentField.equals("")) {
 				rec.setSentiment(getHighlevelSentiment("undefined"));
 				continue;
 			}
-			
-			sentimentResults = TextalyticsAPI.calculateSentiment(sentimentField);
+
+			sentimentResults = TextalyticsAPI
+					.calculateSentiment(sentimentField);
 			// [0] code, [1] status description, [2] sentiment
 
 			System.out.println("Sentiment: " + sentimentResults[2]);
 			if (!sentimentResults[0].equalsIgnoreCase("0"))
-				throw new SocialSearchException("Sentiment Analysis API status code is no OK. Returned code "
+				throw new SocialSearchException(
+						"Sentiment Analysis API status code is no OK. Returned code "
 								+ sentimentResults[0] + ": "
 								+ sentimentResults[1]);
 

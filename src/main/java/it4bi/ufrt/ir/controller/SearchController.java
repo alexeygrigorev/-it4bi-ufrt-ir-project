@@ -6,6 +6,9 @@ import it4bi.ufrt.ir.service.doc.DocumentsService;
 import it4bi.ufrt.ir.service.doc.Tag;
 
 import java.util.ArrayList;
+
+import it4bi.ufrt.ir.service.spell.FIFASpellChecker;
+import it4bi.ufrt.ir.service.spell.QueryAutoCorrectionResult;
 import it4bi.ufrt.ir.service.web.SocialSearchException;
 import it4bi.ufrt.ir.service.web.SocialSearchRecord;
 import it4bi.ufrt.ir.service.web.SocialSearchService;
@@ -39,8 +42,14 @@ public class SearchController {
 	@Autowired
 	private SocialSearchService web;
 	
+	@Autowired
+	private FIFASpellChecker spellChecker;
+	
 	@Value("${web.return.count}")
 	private int webReturnCount;
+	
+	@Value("${web.semanticAnalysis}")
+	private boolean semanticAnalysis;
 	
 	@Value("${documents.score.query}")
 	private float queryScore;
@@ -75,14 +84,26 @@ public class SearchController {
 	@GET
 	@Path("/social")
 	@Produces("application/json; charset=UTF-8")
-	public List<SocialSearchRecord> web(@QueryParam("q") String query, @QueryParam("u") int userID) {
-		LOGGER.debug("social search query: {}, UserID: {}", query, userID);
-		
+	public List<SocialSearchRecord> web(@QueryParam("q") String query, @QueryParam("u") int userID, 
+			                            @QueryParam("source") int sourceID) {
+		LOGGER.debug("social search query: {}, UserID: {}, SourceID: {}", query, userID, sourceID);				
+				
 		try {
-			return web.search(query, SocialSearchType.FACEBOOK, true, webReturnCount);
+			SocialSearchType searchType = SocialSearchType.values()[sourceID];
+			return web.search(query, searchType, semanticAnalysis, webReturnCount);
 		} catch (SocialSearchException e) {
 			e.printStackTrace();
 			return new ArrayList<SocialSearchRecord>();
 		}
+	}
+	
+	@GET
+	@Path("/autocorrection")
+	@Produces("application/json; charset=UTF-8")
+	public QueryAutoCorrectionResult autocorrection(@QueryParam("q") String query) {
+		LOGGER.debug("get autocorrection for: {}", query);				
+				
+		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
+		return qr;
 	}
 }

@@ -54,17 +54,17 @@ function dataService() {
             callback(data);
         });
     };
-    
+
     // Perform search on WEB
-    self.searchWEB = function (query, userID, callback) {
-        var url = self.serverURL + "/rest/search/social?q=" + query + "&u=" + userID;
+    self.searchWEB = function (query, userID, callback, source) {
+        var url = self.serverURL + "/rest/search/social?q=" + query + "&u=" + userID + "&source=" + source;
 
         $.get(url, function (data) {
 
             // Map received fields to expected fields
             docs = $.map(data, function (d) {
                 return new webInfo({
-                	id: d.id,
+                    id: d.id,
                     title: d.title,
                     description: d.description,
                     link: d.link,
@@ -73,12 +73,50 @@ function dataService() {
                     userlink: d.userlink,
                     source: d.source,
                     type: d.type,
-                    socialSource: d.socialSource
+                    sentiment: d.sentiment
                 });
             });
 
             // Return results back to the caller
             callback(docs);
+        });
+    };
+
+    // Perform search on WEB FACEBOOK
+    self.searchWEBFacebook = function (query, userID, callback) {
+        self.searchWEB(query, userID, callback, 0);
+    };
+
+    // Perform search on WEB TWITTER
+    self.searchWEBTwitter = function (query, userID, callback) {
+        self.searchWEB(query, userID, callback, 1);
+    };
+
+    // Perform search on WEB Videos
+    self.searchWEBVideos = function (query, userID, callback) {
+        self.searchWEB(query, userID, callback, 2);
+    };
+
+    // Perform search on WEB News
+    self.searchWEBNews = function (query, userID, callback) {
+        self.searchWEB(query, userID, callback, 3);
+    };
+
+    // Get autocorrection for the query
+    self.getAutocorrection = function (query, callback) {
+        var URL = self.serverURL + "/rest/search/autocorrection?q=" + query;
+
+        $.get(URL, function (data) {
+            // Map received fields to expected fields
+            correctionRes = new autocorrectionInfo({
+                isCorrected: data.isCorrected,
+                originalQuery: data.originalQuery,
+                correctedQuery: data.correctedQuery,
+                suggestions: data.suggestions
+            });
+
+            // Return results back to the caller
+            callback(correctionRes);
         });
     };
 

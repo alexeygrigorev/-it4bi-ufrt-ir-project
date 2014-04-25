@@ -3,35 +3,47 @@ package it4bi.ufrt.ir.service.spell;
 import java.util.Arrays;
 
 public class QueryAutoCorrectionResult {
-	
+
 	private String originalQuery;
 	private boolean isCorrected;
 	private String correctedQuery;
-	private String [] suggestions;
+	private String[] suggestions;
+
+	public QueryAutoCorrectionResult() {
+	}
+
 	public String getOriginalQuery() {
 		return originalQuery;
 	}
+
 	public void setOriginalQuery(String originalQuery) {
 		this.originalQuery = originalQuery;
 	}
-	public boolean isCorrected() {
+
+	public boolean getIsCorrected() {
 		return isCorrected;
 	}
-	public void setCorrected(boolean isCorrected) {
+
+	public void setIsCorrected(boolean isCorrected) {
 		this.isCorrected = isCorrected;
 	}
+
 	public String getCorrectedQuery() {
 		return correctedQuery;
 	}
+
 	public void setCorrectedQuery(String correctedQuery) {
 		this.correctedQuery = correctedQuery;
 	}
+
 	public String[] getSuggestions() {
 		return suggestions;
 	}
+
 	public void setSuggestions(String[] suggestions) {
 		this.suggestions = suggestions;
 	}
+
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
@@ -46,7 +58,4 @@ public class QueryAutoCorrectionResult {
 		builder.append("]");
 		return builder.toString();
 	}
-	
-	
-
 }

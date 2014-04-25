@@ -35,13 +35,20 @@ import com.google.common.base.Throwables;
 public class FIFASpellChecker {
 
 	private static final Version VERSION = Version.LUCENE_47;
-	private static final Logger LOGGER = LoggerFactory.getLogger(FIFASpellChecker.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(FIFASpellChecker.class);
 
 	@Value("${spellchecker.dict.index.combined}")
 	private File combinedDictLuceneIndex;
 
 	@Value("${spellchecker.dict.index.fifa}")
 	private File fifaDictLuceneIndex;
+
+	@Value("${spellchecker.dict.location.combined}")
+	private String combinedDictSource;
+
+	@Value("${spellchecker.dict.location.fifa}")
+	private String fifaDictSource;
 
 	private SpellChecker spellChecker = null;
 	private SpellChecker fifaSpellChecker = null;
@@ -51,12 +58,11 @@ public class FIFASpellChecker {
 		Analyzer analyzer = new EnglishAnalyzer(VERSION);
 
 		createIndexFoldersIfNeeded();
-		
-		String combinedDictSource = "./Dictionaries/Combined_Dict_ANSI.txt";
-		spellChecker = initSpellChecker(analyzer, combinedDictSource, combinedDictLuceneIndex);
 
-		String fifaDictSource = "./Dictionaries/FIFA_DWH_Dictionary_ANSI.txt";
-		fifaSpellChecker = initSpellChecker(analyzer, fifaDictSource, fifaDictLuceneIndex);
+		spellChecker = initSpellChecker(analyzer, combinedDictSource,
+				combinedDictLuceneIndex);
+		fifaSpellChecker = initSpellChecker(analyzer, fifaDictSource,
+				fifaDictLuceneIndex);
 	}
 
 	private void createIndexFoldersIfNeeded() {
@@ -69,13 +75,16 @@ public class FIFASpellChecker {
 		}
 	}
 
-	private static SpellChecker initSpellChecker(Analyzer analyzer, String source, File luceneIndexDir)
-			throws UnsupportedEncodingException, FileNotFoundException, IOException {
+	private static SpellChecker initSpellChecker(Analyzer analyzer,
+			String source, File luceneIndexDir)
+			throws UnsupportedEncodingException, FileNotFoundException,
+			IOException {
 		LOGGER.info("Constructing dictionary from {}...", source);
 		IndexWriterConfig config = new IndexWriterConfig(VERSION, analyzer);
-		
-		PlainTextDictionary fifaDictionary = new PlainTextDictionary(utfFileReader(source));
-		
+
+		PlainTextDictionary fifaDictionary = new PlainTextDictionary(
+				utfFileReader(source));
+
 		FSDirectory directory = FSDirectory.open(luceneIndexDir);
 		SpellChecker spellChecker = new SpellChecker(directory);
 		spellChecker.indexDictionary(fifaDictionary, config, false);
@@ -84,8 +93,8 @@ public class FIFASpellChecker {
 		return spellChecker;
 	}
 
-	private static InputStreamReader utfFileReader(String combinedDictSource) throws UnsupportedEncodingException,
-			FileNotFoundException {
+	private static InputStreamReader utfFileReader(String combinedDictSource)
+			throws UnsupportedEncodingException, FileNotFoundException {
 		File file = new File(combinedDictSource);
 		return new InputStreamReader(new FileInputStream(file), "UTF-8");
 	}
@@ -121,29 +130,69 @@ public class FIFASpellChecker {
 		if (suggest && isCorrected) {
 			querySuggestions = new String[numberOfSuggestions];
 
-			for (int i = 0; i < numberOfSuggestions; i++) {
+			ArrayList<String> mySuggestions = new ArrayList<String>();
+			mySuggestions.add(searchQuery.toLowerCase());
 
-				String sugstion = searchQuery.toLowerCase();
-				// loop on all mistakes and get index number i of their
-				// suggestions and replace it in the original query
-				for (SpellCheckerResult r : wordCorrections) {
+			// Make all permutations
+			for (SpellCheckerResult r : wordCorrections) {
+				if (r.getSuggestions() == null)
+					continue;
 
-					if (r.getSuggestions() == null)
-						continue;
-
-					String suggestedWord = null;
-					if (r.getSuggestions().length > i)
-						suggestedWord = r.getSuggestions()[i];
-					else
-						suggestedWord = r.getSuggestions()[0];
-
-					sugstion = sugstion.replaceAll(r.getOriginalWord()
-							.toLowerCase(), suggestedWord.toLowerCase());
+				int size = mySuggestions.size();
+				for (int stri = 0; stri < size; stri++) {
+					for (int j2 = 0; j2 < r.getSuggestions().length; j2++) {
+						String str = mySuggestions.get(stri);
+						String suggestedWord = r.getSuggestions()[j2];
+						str = str.replaceAll(r.getOriginalWord().toLowerCase(),
+								suggestedWord.toLowerCase());
+						mySuggestions.add(str);
+					}
 				}
-
-				querySuggestions[i] = sugstion;
-
 			}
+
+			// Remove entries that contains correction words
+			ArrayList<String> mySuggestionsFilteres = new ArrayList<String>();
+
+			for (String correctedEntry : mySuggestions) {
+				boolean add = true;
+				for (SpellCheckerResult r : wordCorrections) {
+					if(!r.isCorrected()) continue;
+					
+					if (correctedEntry.contains(r.getOriginalWord().toLowerCase())) {
+						add = false;
+					}
+				}
+				if (add) {
+					mySuggestionsFilteres.add(correctedEntry);
+				}
+			}
+			
+			querySuggestions = mySuggestionsFilteres.toArray(new String[mySuggestionsFilteres.size()]);
+
+			// Karims old implementation
+//			for (int i = 0; i < numberOfSuggestions; i++) {
+//
+//				String sugstion = searchQuery.toLowerCase();
+//				// loop on all mistakes and get index number i of their
+//				// suggestions and replace it in the original query
+//				for (SpellCheckerResult r : wordCorrections) {
+//
+//					if (r.getSuggestions() == null)
+//						continue;
+//
+//					String suggestedWord = null;
+//					if (r.getSuggestions().length > i)
+//						suggestedWord = r.getSuggestions()[i];
+//					else
+//						suggestedWord = r.getSuggestions()[0];
+//
+//					sugstion = sugstion.replaceAll(r.getOriginalWord()
+//							.toLowerCase(), suggestedWord.toLowerCase());
+//				}
+//
+//				querySuggestions[i] = sugstion;
+//
+//			}
 		}
 
 		if (!isCorrected)
@@ -152,7 +201,7 @@ public class FIFASpellChecker {
 		QueryAutoCorrectionResult qr = new QueryAutoCorrectionResult();
 		qr.setOriginalQuery(searchQuery);
 		qr.setCorrectedQuery(correctedQuery);
-		qr.setCorrected(isCorrected);
+		qr.setIsCorrected(isCorrected);
 		qr.setSuggestions(querySuggestions);
 
 		return qr;
@@ -244,14 +293,17 @@ public class FIFASpellChecker {
 		}
 	}
 
-	private static List<String> tokenizeInner(String sentence) throws IOException {
+	private static List<String> tokenizeInner(String sentence)
+			throws IOException {
 		StringReader reader = new StringReader(sentence);
-		try (TokenStream stream = new StandardTokenizer(Version.LUCENE_47, reader)) {
+		try (TokenStream stream = new StandardTokenizer(Version.LUCENE_47,
+				reader)) {
 			stream.reset();
 			List<String> tokens = new ArrayList<String>();
 
 			while (stream.incrementToken()) {
-				String term = stream.getAttribute(CharTermAttribute.class).toString();
+				String term = stream.getAttribute(CharTermAttribute.class)
+						.toString();
 				tokens.add(term);
 			}
 			stream.end();
