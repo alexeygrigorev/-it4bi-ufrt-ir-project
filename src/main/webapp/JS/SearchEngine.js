@@ -271,6 +271,7 @@ function searchEngineViewModel() {
             return;
         }
 
+        self.hideAUTOCORRECTION();
         self.showSearchResults(false);
         self.showSearchResults(true);
         self.performSearchAUTOCORRECTION(query);
@@ -439,9 +440,8 @@ function searchEngineViewModel() {
 
     // Download the document
     self.downloadDoc = function () {
-        var baseURL = dataServiceProvider.getDownalodDocBaseURL();
-        var URL = baseURL + this.docID;
-        //alert(URL);
+        var baseURL = dataServiceProvider.getDownloadDocBaseURL();
+        var URL = baseURL + this.docID + this.getMimeShort();
         var win = window.open(URL, '_blank');
         win.focus();
     };

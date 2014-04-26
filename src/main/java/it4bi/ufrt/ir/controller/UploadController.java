@@ -60,65 +60,72 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.xml.sax.ContentHandler;
 
-
 import org.xml.sax.SAXException;
+
 @Component
 @Path("/upload")
 // TODO: needs renaming
 public class UploadController {
 	private static final int NOT_FOUND_STATUS = 404;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
+	private static final Logger LOGGER = LoggerFactory
+			.getLogger(UploadController.class);
 
 	@Autowired
 	private DocumentsDAO docsDAO;
-	
+
 	@Value("${documents.upload.folder}")
 	private String uploadLocation;
-	
+
 	@Value("${documents.index}")
 	private String indexLocation;
 
 	@Value("${documents.tagsPerDoc}")
 	private int tagsPerDoc;
-	
+
 	@Value("${documents.score.ownerScore}")
 	private float ownerScore;
-	
+
 	@Value("${documents.score.likeScore}")
 	private float likeScore;
-	
+
 	@GET
-	@Path("/get/{file}")
-	public Response getFile(@PathParam("docID") int docID) {
-		
-		LOGGER.debug("file download request for docID: {}", docID);
-		
-		File fileToSend = new File(docsDAO.getDocByDocId(docID).getDocPath());
-		if (fileToSend.exists()) {
-			return Response.ok(fileToSend, MediaType.APPLICATION_OCTET_STREAM).build();
-		} else {
-			return Response.status(NOT_FOUND_STATUS).build();
-		}
-	}	
-		
+	@Path("/get/{docID}")
+	public Response getFile(@PathParam("docID") String docIDStr) {
+		// Request is made in the form: id.extension
+		// Remove extension from the id
+		try {
+			docIDStr = FilenameUtils.getBaseName(docIDStr);
+			int docID = Integer.parseInt(docIDStr);
+
+			LOGGER.debug("file download request for docID: {}", docID);
+
+			File fileToSend = new File(docsDAO.getDocByDocId(docID).getDocPath());
+			if (fileToSend.exists()) {
+				return Response.ok(fileToSend, MediaType.APPLICATION_OCTET_STREAM).build();
+			}
+		} catch (Exception ex) { }
+		return Response.status(NOT_FOUND_STATUS).build();
+	}
+
 	@GET
 	@Path("/like")
 	@Produces("application/json; charset=UTF-8")
-	public Response likeDocument(@QueryParam("docID") int docID, @QueryParam("userID") int userID) {				
+	public Response likeDocument(@QueryParam("docID") int docID,
+			@QueryParam("userID") int userID) {
 
 		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);
-		
+
 		// TODO: Check if already liked.
 		docsDAO.insertUserDocsAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
-		
+
 		DocumentRecord docRec = docsDAO.getDocByDocId(docID);
 		docsDAO.updateTagScores(userID, docRec.getTags(), likeScore);
-		
+
 		String output = "File successfully liked";
 		return Response.status(200).entity(output).build();
 	}
-	
+
 	@POST
 	@Path("/doc")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
@@ -127,19 +134,18 @@ public class UploadController {
 			@FormDataParam("docTitle") String documentTitle,
 			@FormDataParam("userID") int userID) {
 
-		
 		// Remove extension from the title
 		documentTitle = FilenameUtils.getBaseName(documentTitle);
-		LOGGER.debug("uploading file. UserID {}; Doc Title: {}", userID, documentTitle);
-		
-		
+		LOGGER.debug("uploading file. UserID {}; Doc Title: {}", userID,
+				documentTitle);
+
 		createDirectory(uploadLocation);
-		
+
 		String clientFilePath = fileInfo.getFileName();
-		
+
 		String serverFilePath = createServerFilePath(clientFilePath);
 		saveFile(fileStream, serverFilePath);
-		
+
 		InputStream is = null;
 		File f = new File(serverFilePath);
 		try {
@@ -148,140 +154,140 @@ public class UploadController {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
+
 		ContentHandler contenthandler = new BodyContentHandler();
 		Metadata metadata = new Metadata();
-	    metadata.set(Metadata.RESOURCE_NAME_KEY, f.getName());
-	    Parser parser = new AutoDetectParser();
-	    // OOXMLParser parser = new OOXMLParser();
-	    
+		metadata.set(Metadata.RESOURCE_NAME_KEY, f.getName());
+		Parser parser = new AutoDetectParser();
+		// OOXMLParser parser = new OOXMLParser();
+
 		try {
 			parser.parse(is, contenthandler, metadata, new ParseContext());
 		} catch (IOException | SAXException | TikaException e2) {
 			e2.printStackTrace();
 		}
-		
-	    
-	    String mime = metadata.get(Metadata.CONTENT_TYPE);
-		
+
+		String mime = metadata.get(Metadata.CONTENT_TYPE);
+
 		try {
-			DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID, mime);
-			
-			
+			DocumentRecord documentRecord = new DocumentRecord(documentTitle,
+					serverFilePath, userID, mime);
+
 			documentRecord.index(indexLocation);
-			
+
 			MMapDirectory indexDir = null;
 			try {
 				indexDir = new MMapDirectory(new File(indexLocation));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			
-			
+
 			// Update Tags
 			List<String> tagTexts = extractTags(documentRecord, indexLocation);
 			List<Tag> tags = new ArrayList<Tag>();
 			// Obtain tags from the doc
-			
-			for(String tagText : tagTexts) {
+
+			for (String tagText : tagTexts) {
 				tags.add(new Tag(tagText));
 			}
-			
-			
-			
+
 			documentRecord.setTags(tags);
-			
+
 			docsDAO.insertDocumentRecord(documentRecord);
-			docsDAO.insertUserDocsAssociation(documentRecord.getDocId(),userID,DOCUSER_ASSOC.OWNS);
-			docsDAO.updateTags(tags);  // with the new docsDAO this will be handled in insertDocdumentRecord!
+			docsDAO.insertUserDocsAssociation(documentRecord.getDocId(),
+					userID, DOCUSER_ASSOC.OWNS);
+			docsDAO.updateTags(tags); // with the new docsDAO this will be
+										// handled in insertDocdumentRecord!
 			docsDAO.updateTagScores(userID, tags, ownerScore);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
 
 		String output = "File saved to location: " + serverFilePath;
 		return Response.status(200).entity(output).build();
 	}
 
 	private void analyseFile(File f) {
-		
-		
-		
+
 	}
 
-	public void getTF(IndexReader reader, int docID, List<Pair<String, Integer>> termFreqs) throws IOException
-	{
-	    Fields f = reader.getTermVectors(docID);
-	    
-	    Iterator<String> it = f.iterator();
-	    
-	    while(it.hasNext()) {
-	    	Terms t = f.terms("content");
-	    	TermsEnum it2 = t.iterator(null);
-	    	
-	    	while(it2.next() != null) {
-	    		
-	    		//System.out.println(it2.term().utf8ToString() + " " + it2.totalTermFreq());
-	    		termFreqs.add(new ImmutablePair<String, Integer>(it2.term().utf8ToString(), (int) it2.totalTermFreq()));
-	    	}
-	    	
-	    	break;
-	    }
-	    
+	public void getTF(IndexReader reader, int docID,
+			List<Pair<String, Integer>> termFreqs) throws IOException {
+		Fields f = reader.getTermVectors(docID);
+
+		Iterator<String> it = f.iterator();
+
+		while (it.hasNext()) {
+			Terms t = f.terms("content");
+			TermsEnum it2 = t.iterator(null);
+
+			while (it2.next() != null) {
+
+				// System.out.println(it2.term().utf8ToString() + " " +
+				// it2.totalTermFreq());
+				termFreqs.add(new ImmutablePair<String, Integer>(it2.term()
+						.utf8ToString(), (int) it2.totalTermFreq()));
+			}
+
+			break;
+		}
+
 	}
-	
-	private List<String> extractTags(DocumentRecord docRecord, String indexLocation) {
-		
-		List<Pair<String, Integer>> termFreqs = new ArrayList<Pair<String,Integer>>();
+
+	private List<String> extractTags(DocumentRecord docRecord,
+			String indexLocation) {
+
+		List<Pair<String, Integer>> termFreqs = new ArrayList<Pair<String, Integer>>();
 		List<String> tags = new ArrayList<String>();
-		
+
 		try {
-			getTF(DirectoryReader.open(MMapDirectory.open(new File(indexLocation))), docRecord.getDocId(), termFreqs);
+			getTF(DirectoryReader.open(MMapDirectory.open(new File(
+					indexLocation))), docRecord.getDocId(), termFreqs);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		Collections.sort(termFreqs,  new Comparator<Pair<String, Integer>>() {
-			public int compare(Pair<String, Integer> p1, Pair<String, Integer> p2) {
-	        	if (p2.getRight() == p1.getRight()) return 0;
-	        	else return (p2.getRight() < p1.getRight()) ? -1 : 1; 	        	
-	        }
+
+		Collections.sort(termFreqs, new Comparator<Pair<String, Integer>>() {
+			public int compare(Pair<String, Integer> p1,
+					Pair<String, Integer> p2) {
+				if (p2.getRight() == p1.getRight())
+					return 0;
+				else
+					return (p2.getRight() < p1.getRight()) ? -1 : 1;
+			}
 		});
 
 		int ctr = 0;
-		for(Pair<String, Integer> tfs : termFreqs) {
+		for (Pair<String, Integer> tfs : termFreqs) {
 			String temp = tfs.getLeft();
-			if(isNumerical(temp) == false) {
+			if (isNumerical(temp) == false) {
 				ctr++;
 				tags.add(temp);
 			}
-			if(ctr == tagsPerDoc) break;
+			if (ctr == tagsPerDoc)
+				break;
 		}
-		
-		//TFIDFSimilarity tfidfSIM = new DefaultSimilarity();
-		//Map<String, Float> tf_Idf_Weights = new HashMap<>();
-		//Map<String, Float> termFrequencies = new HashMap<>();
-		
+
+		// TFIDFSimilarity tfidfSIM = new DefaultSimilarity();
+		// Map<String, Float> tf_Idf_Weights = new HashMap<>();
+		// Map<String, Float> termFrequencies = new HashMap<>();
+
 		return tags;
-		
+
 	}
-	
-	public static boolean isNumerical (String input)  
-	{  
-	   try  
-	   {  
-	      Integer.parseInt(input);
-	      Double.parseDouble(input);
-	      Date.parse(input);
-	      return true;  
-	   }  
-	   catch(Exception e)  
-	   {  
-	      return false;  
-	   }  
-	}  
+
+	public static boolean isNumerical(String input) {
+		try {
+			Integer.parseInt(input);
+			Double.parseDouble(input);
+			Date.parse(input);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 
 	private void createDirectory(String directory) {
 		File folder = new File(directory);
@@ -289,7 +295,7 @@ public class UploadController {
 		// if the directory does not exist, create it
 		if (!folder.exists()) {
 			LOGGER.debug("creating directory: {}", directory);
-			
+
 			boolean result = folder.mkdir();
 			if (result) {
 				LOGGER.debug("directory is created");
@@ -299,29 +305,32 @@ public class UploadController {
 		}
 	}
 
-	private String createServerFilePath(String clientFilePath){	
+	private String createServerFilePath(String clientFilePath) {
 		String clientFileName = FilenameUtils.getName(clientFilePath);
-		String serverFileName = clientFileName.replace(" ", "_").replace(":", "_");
+		String serverFileName = clientFileName.replace(" ", "_").replace(":",
+				"_");
 		String extension = FilenameUtils.getExtension(serverFileName);
-		String baseName = FilenameUtils.getBaseName(serverFileName);		
-		
+		String baseName = FilenameUtils.getBaseName(serverFileName);
+
 		File document = new File(uploadLocation, serverFileName);
 		if (document.exists()) {
 			int i = 0;
 			do {
 				i++;
-				document = new File(uploadLocation, baseName + "_" + i + "." + extension);
-			} while (document.exists());			
+				document = new File(uploadLocation, baseName + "_" + i + "."
+						+ extension);
+			} while (document.exists());
 		}
-		return document.getAbsolutePath();		
+		return document.getAbsolutePath();
 	}
-	
- 	private void saveFile(InputStream uploadedInputStream, String serverLocation) {
+
+	private void saveFile(InputStream uploadedInputStream, String serverLocation) {
 		try {
 			int read = 0;
 			byte[] bytes = new byte[1024];
 
-			OutputStream outpuStream = new FileOutputStream(new File(serverLocation));
+			OutputStream outpuStream = new FileOutputStream(new File(
+					serverLocation));
 			while ((read = uploadedInputStream.read(bytes)) != -1) {
 				outpuStream.write(bytes, 0, read);
 			}
@@ -330,5 +339,5 @@ public class UploadController {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}	
+	}
 }

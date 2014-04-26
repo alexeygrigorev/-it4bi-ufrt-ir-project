@@ -60,11 +60,17 @@ public class SearchController {
 	@Produces("application/json; charset=UTF-8")
 	public List<DocumentSearchResultRow> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {				
 		LOGGER.debug("document search. UserID {}; Query: {}", userID, query);
-		List<DocumentSearchResultRow> resultSet = documents.find(query, userID);
+		
+		// Query auto-correction
+		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
+		String correctedQuery = (qr.getIsCorrected() ? qr.getCorrectedQuery() : query);
+		
+		// Document search
+		List<DocumentSearchResultRow> resultSet = documents.find(correctedQuery, userID);
 		
 		//update user profile based on the search terms
 		String delims = " ,";
-		String[] tokens = query.split(delims);
+		String[] tokens = correctedQuery.split(delims);
 		
 		List<Tag> tagList = new ArrayList<Tag>();
 		

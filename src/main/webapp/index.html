@@ -152,14 +152,14 @@
                                 <tbody data-bind="foreach: resultsDOC">
                                     <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isDOCSearch()">
                                         <td style="width: 60px">
-                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: ownerID == $parent.loggedUser().id">My</span>
-                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: (isLiked() && ownerID != $parent.loggedUser().id)">Liked</span>
-                                            <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.likeDoc, visible: (!isLiked() && ownerID != $parent.loggedUser().id)">Like!</a>
+                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: isOwner">My</span>
+                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: (isLiked() && !isOwner)">Liked</span>
+                                            <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.likeDoc, visible: (!isLiked() && !isOwner)">Like!</a>
                                         </td>
                                         <td>
                                             <div class="documentEntry" data-bind="click: $parent.downloadDoc">
                                                 <span id="docTitle" data-bind="text: docTitle"></span>
-                                                <span style="float: right; font-style: italic; width: 110px" data-bind="text: getMime()"></span>
+                                                <span style="float: right; font-style: italic; width: 120px" data-bind="text: getMime()"></span>
                                                 <label id="docDownload">(click to download)</label>
                                             </div>
                                         </td>
