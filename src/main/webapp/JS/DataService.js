@@ -5,8 +5,8 @@ function dataService() {
     var self = {};
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
-    // self.serverURL = window.location.href;
-    self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
+    self.serverURL = window.location.href;
+    //self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
     self.getUsers = function (callback) {
@@ -33,26 +33,42 @@ function dataService() {
 
     // Perform search on DOCUMENTS
     self.searchDOC = function (query, userID, callback) {
-        var url = self.serverURL + "/rest/search/doc?q=" + query + "&u=" + userID;
-
+        // Stamp is added to avoid caching
+        var url = self.serverURL + "/rest/search/doc?q=" + query + "&u=" + userID + "&stamp=" + new Date().getTime();
         $.get(url, function (data) {
-
             // Map received fields to expected fields
             docs = $.map(data, function (d) {
                 return new docInfo({
                     docID: d.docId,
                     docPath: d.docPath,
                     docTitle: d.docTitle,
-                    docExtension: d.docExtension,
+                    tags: d.tags,                    
                     ownerID: d.uploaderId,
-                    isLiked: d.isLiked,
-                    score: d.score
+                    mime: d.mime,
+                    isLiked: d.isLiked
                 });
             });
 
             // Return results back to the caller
-            callback(data);
+            callback(docs);
         });
+    };
+
+    // LIKE the document
+    self.likeDOC = function (docID, userID, callback) {
+        // Stamp is added to avoid caching
+        var url = self.serverURL + "/rest/upload/like?docID=" + docID + "&userID=" + userID + "&stamp=" + new Date().getTime();
+        $.get(url, function (data) {
+            alert('1');
+            if (callback != undefined) {
+                callback(data);
+            }            
+        });
+    };
+
+    self.getDownalodDocBaseURL = function () {
+        var url = self.serverURL + "/rest/upload/get/";
+        return url;
     };
 
     // Perform search on WEB

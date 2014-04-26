@@ -32,7 +32,7 @@
 <body>
     <div id="menuBorder">
         <a class="menuBorderButtonLeft" href="javascript:void(0)" data-bind="click: showSearchPage">Football Search Engine</a>
-        <select class="menuBorderUserList" data-bind="options: users, value: loggedUser, optionsText: function(item) { return item.userFullName() }"></select>
+        <select class="menuBorderUserList" data-bind="options: users, value: loggedUser, event: { change: userChanged } , optionsText: function(item) { return item.userFullName() }"></select>
         <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyProfile">My Profile</a>
         <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyFiles">My Files</a>
         <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showUploadFile">Upload File</a>
@@ -151,11 +151,17 @@
                             <table style="width: 100%" data-bind="visible: resultsDOC().length > 0">
                                 <tbody data-bind="foreach: resultsDOC">
                                     <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isDOCSearch()">
-                                        <td>
-                                            Status
+                                        <td style="width: 60px">
+                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: ownerID == $parent.loggedUser().id">My</span>
+                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: (isLiked() && ownerID != $parent.loggedUser().id)">Liked</span>
+                                            <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.likeDoc, visible: (!isLiked() && ownerID != $parent.loggedUser().id)">Like!</a>
                                         </td>
                                         <td>
-                                            <label data-bind="text: docPath"></label>
+                                            <div class="documentEntry" data-bind="click: $parent.downloadDoc">
+                                                <span id="docTitle" data-bind="text: docTitle"></span>
+                                                <span style="float: right; font-style: italic; width: 110px" data-bind="text: getMime()"></span>
+                                                <label id="docDownload">(click to download)</label>
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>

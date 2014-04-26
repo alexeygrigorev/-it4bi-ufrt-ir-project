@@ -104,6 +104,10 @@ public class DocumentRecord {
 	public String getMime() {
 		return this.mime;
 	}
+	
+	public void setMime(String mime) {
+		this.mime = mime;
+	}
 
 	public void setTags(List<Tag> tags) {
 		this.tags = tags;
