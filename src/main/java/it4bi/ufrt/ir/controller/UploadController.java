@@ -114,8 +114,6 @@ public class UploadController {
 		DocumentRecord docRec = docsDAO.getDocByDocId(docID);
 		docsDAO.updateTagScores(userID, docRec.getTags(), likeScore);
 		
-		
-		//TODO: ANIL
 		String output = "File successfully liked";
 		return Response.status(200).entity(output).build();
 	}
@@ -191,7 +189,7 @@ public class UploadController {
 			
 			docsDAO.insertDocumentRecord(documentRecord);
 			docsDAO.insertUserDocsAssociation(documentRecord.getDocId(),userID,DOCUSER_ASSOC.OWNS);
-			docsDAO.updateTags(tags);
+			docsDAO.updateTags(tags);  // with the new docsDAO this will be handled in insertDocdumentRecord!
 			docsDAO.updateTagScores(userID, tags, ownerScore);
 			
 		} catch (Exception e) {

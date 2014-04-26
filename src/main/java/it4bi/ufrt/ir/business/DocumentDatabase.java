@@ -20,7 +20,9 @@ public class DocumentDatabase {
     private static Map<String,Tag> tagDictionary = new HashMap<String,Tag>();
     private static Map<Pair<Integer,Integer>, Float> tagsUsersTable = new HashMap<Pair<Integer,Integer>, Float>();
     private static Map<Pair<Integer,Integer>, DOCUSER_ASSOC> docsUsersTable = new HashMap<Pair<Integer,Integer>, DOCUSER_ASSOC>();
-	public static int currentTagDictionarySize() {
+	
+    
+    public static int currentTagDictionarySize() {
 		return tagDictionary.size();
 	}
 	
@@ -86,6 +88,14 @@ public class DocumentDatabase {
 		
 		return documents.get(docId);
 		
+	}
+
+
+
+	public static DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
+		
+		ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(docID, userID);
+		return docsUsersTable.get(key);
 	}
 }
 

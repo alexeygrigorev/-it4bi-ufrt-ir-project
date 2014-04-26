@@ -7,6 +7,8 @@ import java.util.Vector;
 
 import org.springframework.stereotype.Component;
 
+
+
 @Component
 public class DocumentsDAO {
 
@@ -86,6 +88,11 @@ public class DocumentsDAO {
 
 	public float calculateUserDocAffinity(List<Tag> tags, Integer userId) {
 		return DocumentDatabase.calculateUserDocAffinity(tags, userId);
+	}
+
+	public DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
+		
+		return DocumentDatabase.getUserDocAssociation(docID, userID);
 	}
 	
 }

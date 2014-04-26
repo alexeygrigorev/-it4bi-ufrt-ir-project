@@ -42,18 +42,18 @@ public class DocumentsService {
      }
 	 
 	 private ScoreDoc[] hits = null;
-	 private List<DocumentRecord> docsList = null;
+	 private List<DocumentSearchResultRow> resultSet = null;
 	 private Integer userId = 0;
 	
-	 public List<DocumentRecord> find(String query, int userID) {
+	 public List<DocumentSearchResultRow> find(String query, int userID) {
 		 this.userId = userID;
-		 docsList = new ArrayList<DocumentRecord>();		 
+		 resultSet = new ArrayList<DocumentSearchResultRow>();		 
 		 
         // check for existence 
         File directoryLocation = new File(indexLocation);
         if(!directoryLocation.exists()) {
         	LOGGER.debug("Directory does not exist: {}. CREATE IT MANUALLY", indexLocation);
-        	return docsList;
+        	return resultSet;
         }
                  
 		// configure index properties
@@ -71,7 +71,7 @@ public class DocumentsService {
 			searcher = new DocumentSearchEngine(indexDir, analyzer);
 		} catch (IOException e) {
 			LOGGER.debug("Nothing to search in the directory. UPLOAD SOME DOCUMENT", indexLocation);
-        	return docsList;
+        	return resultSet;
 		}
 		
 		LOGGER.debug("---Query: " + query);
@@ -95,41 +95,41 @@ public class DocumentsService {
 				e.printStackTrace();
 			}
 						
-			String docID = doc.get("id");
+			int docID = Integer.parseInt(doc.get("id"));
 			String docTitle = doc.get("title");
 			int uploaderID = Integer.parseInt(doc.get("uploaderId"));
 			float score = hits[i].score;
 														
-			DocumentRecord docRecord = docsDAO.getDocByDocId(Integer.parseInt(docID));
+			DocumentRecord docRecord = docsDAO.getDocByDocId(docID);
+			DocumentSearchResultRow resultRow = new DocumentSearchResultRow(docRecord, score);
+			DOCUSER_ASSOC assocType = docsDAO.getUserDocAssociation(docID, userID);
+			
+			if(assocType == DOCUSER_ASSOC.LIKES) resultRow.setLiked(true);
+			if(assocType == DOCUSER_ASSOC.OWNS) resultRow.setOwned(true);
 			
 			
-			
-			// TODO: ANIL: DocExtension and check docTitle.
-			// docRecord.setDocExtension("TODO extension");
-						
-		    docsList.add(docRecord);
+			resultSet.add(resultRow);
 		    LOGGER.debug(docTitle + ", " + uploaderID + " - score: " + score);
 		}
-		System.out.println("---end of query results");
 		
 		
 		
 		
 		// Sort documents by score DESCENDING
-		Collections.sort(docsList,  new Comparator<DocumentRecord>() {
+		Collections.sort(resultSet,  new Comparator<DocumentSearchResultRow>() {
 			
-	        public int compare(DocumentRecord d1, DocumentRecord d2) {
+	        public int compare(DocumentSearchResultRow d1, DocumentSearchResultRow d2) {
 	        	Double score1, score2;
 	        	
-	        	score1 = hits[docsList.indexOf(d1)].score*(1-personalizationCoef) + calcUserDocAffinity(userId, d1)*personalizationCoef;
-	        	score2 = hits[docsList.indexOf(d2)].score*(1-personalizationCoef) + calcUserDocAffinity(userId, d2)*personalizationCoef;
+	        	score1 = d1.getScore()*(1-personalizationCoef) + calcUserDocAffinity(userId, d1)*personalizationCoef;
+	        	score2 = d2.getScore()*(1-personalizationCoef) + calcUserDocAffinity(userId, d2)*personalizationCoef;
 	        	
 	        	if (score1.equals(score2)) return 0;
 	        	
 	        	return (score2 < score1) ? -1 : 1; 	        	
 	        }
 
-			private double calcUserDocAffinity(Integer userId, DocumentRecord docRec) {
+			private double calcUserDocAffinity(Integer userId, DocumentSearchResultRow docRec) {
 				// TODO Auto-generated method stub
 				
 				return docsDAO.calculateUserDocAffinity(docRec.getTags(), userId);
@@ -137,7 +137,7 @@ public class DocumentsService {
 			}
 	    });
 		
-		return docsList;
+		return resultSet;
 	}
 	
 	

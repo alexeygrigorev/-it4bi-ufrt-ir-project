@@ -1,6 +1,7 @@
 package it4bi.ufrt.ir.controller;
 
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
+import it4bi.ufrt.ir.service.doc.DocumentSearchResultRow;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
 import it4bi.ufrt.ir.service.doc.Tag;
@@ -57,9 +58,9 @@ public class SearchController {
 	@GET
 	@Path("/doc")
 	@Produces("application/json; charset=UTF-8")
-	public List<DocumentRecord> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {				
+	public List<DocumentSearchResultRow> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {				
 		LOGGER.debug("document search. UserID {}; Query: {}", userID, query);
-		List<DocumentRecord> resultSet = documents.find(query, userID);
+		List<DocumentSearchResultRow> resultSet = documents.find(query, userID);
 		
 		//update user profile based on the search terms
 		String delims = " ,";

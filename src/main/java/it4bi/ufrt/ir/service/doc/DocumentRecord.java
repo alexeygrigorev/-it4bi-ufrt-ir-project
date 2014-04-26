@@ -22,7 +22,6 @@ public class DocumentRecord {
 	private static int docIdCounter = 0;
 	private List<Tag> tags;
 	private String mime;
-
 	
 	public int getUploaderId() {
 		return uploaderId;
