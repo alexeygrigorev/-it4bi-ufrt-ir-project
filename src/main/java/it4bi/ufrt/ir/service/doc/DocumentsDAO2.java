@@ -1,8 +1,6 @@
 package it4bi.ufrt.ir.service.doc;
 
-import it4bi.ufrt.ir.service.users.User;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,15 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.ParameterMapper;
-import org.springframework.jdbc.core.ResultSetExtractor;
+
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -69,8 +66,41 @@ public class DocumentsDAO2 {
 	}
 	
 	
+	public void test() {
+		System.out.println("test");
+	}
 	
-	//public void insertUserDocAssociation(int)
+	
+	public void updateUserTagScore(int userID, int tagID, int deltaScore) {
+		
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("userID", userID);
+		parameters.put("tagID", tagID);
+		parameters.put("deltaScore", deltaScore);
+		
+		this.jdbcTemplate.update(
+				"update UserTags set score = score + :deltaScore where userID = :userID and tagID = :tagID", parameters);
+		
+	}
+	
+	public void insertUserDocAssociation(int docID, int userID, DOCUSER_ASSOC assocType) {
+		
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("docID", new Integer(docID));
+		parameters.put("userID", new Integer(userID));
+		if(assocType.equals(DOCUSER_ASSOC.LIKES)) {
+			parameters.put("isLiked", new Boolean(true));
+			parameters.put("isOwned", new Boolean(false));
+		}
+		else if(assocType.equals(DOCUSER_ASSOC.OWNS)) {
+			parameters.put("isLiked", new Boolean(false));
+			parameters.put("isOwned", new Boolean(true));
+		}
+		
+		this.jdbcTemplate.update(
+				"insert into UserDocs values (:docID, :userID, :isOwned, :isLiked)", parameters);
+		
+	}
 	
 	public void insertDocumentRecord(DocumentRecord documentRecord) {
 		

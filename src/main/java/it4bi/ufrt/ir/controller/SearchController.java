@@ -3,6 +3,7 @@ package it4bi.ufrt.ir.controller;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentSearchResultRow;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
+import it4bi.ufrt.ir.service.doc.DocumentsDAO2;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
 import it4bi.ufrt.ir.service.doc.Tag;
 
@@ -36,6 +37,8 @@ public class SearchController {
 	
 	@Autowired
 	private DocumentsDAO docsDAO;
+	
+	
 	
 	@Autowired
 	private DocumentsService documents;

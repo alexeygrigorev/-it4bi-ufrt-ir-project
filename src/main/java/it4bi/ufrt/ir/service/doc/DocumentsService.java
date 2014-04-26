@@ -104,8 +104,8 @@ public class DocumentsService {
 			DocumentSearchResultRow resultRow = new DocumentSearchResultRow(docRecord, score);
 			DOCUSER_ASSOC assocType = docsDAO.getUserDocAssociation(docID, userID);
 			
-			if(assocType == DOCUSER_ASSOC.LIKES) resultRow.setLiked(true);
-			if(assocType == DOCUSER_ASSOC.OWNS) resultRow.setOwned(true);
+			if(assocType.equals(DOCUSER_ASSOC.LIKES)) resultRow.setLiked(true);
+			if(assocType.equals(DOCUSER_ASSOC.OWNS)) resultRow.setOwned(true);
 			
 			
 			resultSet.add(resultRow);

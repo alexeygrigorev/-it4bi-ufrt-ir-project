@@ -17,6 +17,7 @@
 	<bean id="appJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
 		<constructor-arg name="dataSource" ref="appDataSource" />
 	</bean>
+	
 
 	<bean id="dwhDataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
 		<property name="driverClassName" value="#{db['dwh.jdbc.driver']}" />

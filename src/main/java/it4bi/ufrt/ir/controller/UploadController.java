@@ -3,6 +3,7 @@ package it4bi.ufrt.ir.controller;
 import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
+import it4bi.ufrt.ir.service.doc.DocumentsDAO2;
 import it4bi.ufrt.ir.service.doc.Tag;
 
 import java.io.File;
@@ -59,8 +60,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.xml.sax.ContentHandler;
-
-
 import org.xml.sax.SAXException;
 @Component
 @Path("/upload")
@@ -72,6 +71,9 @@ public class UploadController {
 
 	@Autowired
 	private DocumentsDAO docsDAO;
+	
+	@Autowired
+	private DocumentsDAO2 docsDAO2;
 	
 	@Value("${documents.upload.folder}")
 	private String uploadLocation;
@@ -127,6 +129,9 @@ public class UploadController {
 			@FormDataParam("docTitle") String documentTitle,
 			@FormDataParam("userID") int userID) {
 
+		
+		
+		docsDAO2.test();  // REMOVE!
 		
 		// Remove extension from the title
 		documentTitle = FilenameUtils.getBaseName(documentTitle);
