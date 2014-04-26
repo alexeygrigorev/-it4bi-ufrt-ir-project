@@ -45,17 +45,27 @@ function docInfo(spec) {
     var self = {};
 
     self.docID = spec.docID;
-    self.docPath = spec.docPath;
     self.docTitle = spec.docTitle;
     self.mime = spec.mime;
-    self.ownerID = spec.ownerID;
     self.tags = spec.tags;
-    self.isLiked = ko.observable((spec.isLiked != undefined) ? true : -false);
+    self.isOwner = spec.isOwner;
+    self.isLiked = ko.observable(spec.isLiked);
 
     self.getMime = function () {
         switch (self.mime) {
             case 'application/pdf': return 'application/pdf'; break;
+            case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': return 'application/docx'; break;
+            case 'text/plain; charset=windows-1252': return 'text/plain'; break;
             default: return self.mime; break;
+        }
+    }
+
+    self.getMimeShort = function () {
+        switch (self.mime) {
+            case 'application/pdf': return '.pdf'; break;
+            case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': return '.docx'; break;
+            case 'text/plain; charset=windows-1252': return '.txt'; break;
+            default: return ''; break;
         }
     }
 

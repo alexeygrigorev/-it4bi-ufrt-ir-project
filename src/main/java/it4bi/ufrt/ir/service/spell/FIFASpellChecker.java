@@ -128,7 +128,6 @@ public class FIFASpellChecker {
 		// construct n query suggestions
 		String[] querySuggestions = null;
 		if (suggest && isCorrected) {
-			querySuggestions = new String[numberOfSuggestions];
 
 			ArrayList<String> mySuggestions = new ArrayList<String>();
 			mySuggestions.add(searchQuery.toLowerCase());
@@ -167,7 +166,11 @@ public class FIFASpellChecker {
 				}
 			}
 			
-			querySuggestions = mySuggestionsFilteres.toArray(new String[mySuggestionsFilteres.size()]);
+			if (mySuggestionsFilteres.size() == 0) {
+				mySuggestionsFilteres.add(correctedQuery);
+			}
+			
+			querySuggestions = mySuggestionsFilteres.toArray(new String[mySuggestionsFilteres.size()]);			
 
 			// Karims old implementation
 //			for (int i = 0; i < numberOfSuggestions; i++) {
@@ -195,9 +198,10 @@ public class FIFASpellChecker {
 //			}
 		}
 
-		if (!isCorrected)
+		if (!isCorrected) {
 			correctedQuery = null;
-
+		}
+				
 		QueryAutoCorrectionResult qr = new QueryAutoCorrectionResult();
 		qr.setOriginalQuery(searchQuery);
 		qr.setCorrectedQuery(correctedQuery);

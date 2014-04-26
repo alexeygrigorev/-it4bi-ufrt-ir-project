@@ -40,12 +40,11 @@ function dataService() {
             docs = $.map(data, function (d) {
                 return new docInfo({
                     docID: d.docId,
-                    docPath: d.docPath,
                     docTitle: d.docTitle,
-                    tags: d.tags,                    
-                    ownerID: d.uploaderId,
+                    tags: d.tags,
                     mime: d.mime,
-                    isLiked: d.isLiked
+                    isOwner: d.owned,
+                    isLiked: d.liked
                 });
             });
 
@@ -59,14 +58,13 @@ function dataService() {
         // Stamp is added to avoid caching
         var url = self.serverURL + "/rest/upload/like?docID=" + docID + "&userID=" + userID + "&stamp=" + new Date().getTime();
         $.get(url, function (data) {
-            alert('1');
             if (callback != undefined) {
                 callback(data);
-            }            
+            }
         });
     };
 
-    self.getDownalodDocBaseURL = function () {
+    self.getDownloadDocBaseURL = function () {
         var url = self.serverURL + "/rest/upload/get/";
         return url;
     };
