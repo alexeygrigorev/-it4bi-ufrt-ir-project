@@ -70,7 +70,7 @@ public class DocumentsDAO2 {
 	
 	
 	
-	public void insertUserDocAssociation(int)
+	//public void insertUserDocAssociation(int)
 	
 	public void insertDocumentRecord(DocumentRecord documentRecord) {
 		

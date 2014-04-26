@@ -125,12 +125,13 @@ public class DocumentsService {
 	        	score2 = d2.getScore()*(1-personalizationCoef) + calcUserDocAffinity(userId, d2)*personalizationCoef;
 	        	
 	        	// Quick fix of scores. 
+	        	/*
 	        	if (d1.getUploaderId() == userId){
 	        		score1 = score1 + 0.25 * score1;  
 	        	}
 	        	if (d2.getUploaderId() == userId){
 	        		score2 = score2 + 0.25 * score2;  
-	        	}
+	        	}*/
 	        	
 	        	if (score1.equals(score2)) return 0;
 	        	
