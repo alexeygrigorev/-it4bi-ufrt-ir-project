@@ -1,24 +1,29 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
+import it4bi.ufrt.ir.service.dw.UserQuery;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractionAttempt;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.Validate;
+
+import com.google.common.collect.Sets;
 
 public class QueryTemplate {
 
 	private final int id;
-	private final String keywords;
+	private final Set<String> keywords;
 	private final String sqlTemplate;
 	private final String name;
 	private final List<QueryParameter> parameters;
 
-	public QueryTemplate(int id, String keywords, String sqlTemplate, String name,
+	public QueryTemplate(int id, Collection<String> keywords, String sqlTemplate, String name,
 			List<QueryParameter> parameters) {
 		this.id = id;
-		this.keywords = keywords;
+		this.keywords = Sets.newLinkedHashSet(keywords);
 		this.sqlTemplate = sqlTemplate;
 		this.name = name;
 		this.parameters = parameters;
@@ -32,7 +37,7 @@ public class QueryTemplate {
 		}
 	}
 
-	public EvaluationResult evaluate(String query, GlobalEvaluationContext context) {
+	public EvaluationResult evaluate(UserQuery query, GlobalEvaluationContext context) {
 		EvaluationResult result = context.createResultFor(this);
 
 		for (QueryParameter parameter : parameters) {
@@ -56,7 +61,7 @@ public class QueryTemplate {
 		return id;
 	}
 
-	public String getKeywords() {
+	public Set<String> getKeywords() {
 		return keywords;
 	}
 

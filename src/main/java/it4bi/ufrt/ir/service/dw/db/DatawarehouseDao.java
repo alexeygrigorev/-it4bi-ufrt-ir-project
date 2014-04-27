@@ -11,6 +11,8 @@ import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.google.common.base.Optional;
+
 @Repository
 public class DatawarehouseDao {
 
@@ -29,15 +31,15 @@ public class DatawarehouseDao {
 	}
 
 	@Cacheable(value = "canonicalCountry", key = "country")
-	public String canonicalCountry(String country) {
+	public Optional<String> canonicalCountry(String country) {
 		ImmutableMap<String, String> parameters = ImmutableMap.of("countryName", country);
 		List<String> result = jdbcTemplate.query(CANONICAL_COUNTRIES_QUERY, parameters, STRING_ROW_MAPPER);
 
 		if (result.isEmpty()) {
-			return null;
+			return Optional.absent();
 		}
 
-		return result.get(0);
+		return Optional.of(result.get(0));
 	}
 
 }

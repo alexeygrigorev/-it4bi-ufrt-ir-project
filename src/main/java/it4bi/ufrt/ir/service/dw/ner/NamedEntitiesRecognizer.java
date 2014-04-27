@@ -41,7 +41,12 @@ public class NamedEntitiesRecognizer {
 	 * @param query free text user query
 	 * @return all found entities
 	 */
-	public List<NamedEntity> recognize(String query) {
+	public RecognizedNamedEntities recognize(String query) {
+		List<NamedEntity> namedEntities = recognizeAsList(query);
+		return RecognizedNamedEntities.from(namedEntities);
+	}
+
+	public List<NamedEntity> recognizeAsList(String query) {
 		List<List<CoreLabel>> out = classifier.classify(query);
 		List<List<CoreLabel>> groups = groupAllByClass(out);
 		return extractNamedEntities(groups);

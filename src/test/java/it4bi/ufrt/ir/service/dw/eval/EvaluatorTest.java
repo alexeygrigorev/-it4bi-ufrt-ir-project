@@ -1,6 +1,9 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
 import static org.junit.Assert.*;
+import it4bi.ufrt.ir.service.dw.MatchedQueryTemplate;
+import it4bi.ufrt.ir.service.dw.UserQuery;
+import it4bi.ufrt.ir.service.dw.nlp.QueryPreprocessor;
 
 import java.util.List;
 
@@ -17,13 +20,18 @@ public class EvaluatorTest {
 	@Autowired
 	Evaluator evaluator;
 
+	@Autowired
+	QueryPreprocessor queryPreprocessor;
+
 	@Test
 	public void test() {
-		AllEvaluationResults results = evaluator.evaluate("Matches of Russia");
-		List<Query> queries = results.getQueries();
-		Query query = queries.get(0);
-		assertEquals(1, query.getQueryTemplateId());
-		assertEquals("Standings of Russian Federation by cups", query.getTitle());
+		UserQuery userTextQuery = queryPreprocessor.preprocess("Matches of Russia");
+		AllEvaluationResults results = evaluator.evaluate(userTextQuery);
+		List<MatchedQueryTemplate> queries = results.getMatchedTemplates();
+		MatchedQueryTemplate matchedDwhQuery = queries.get(0);
+
+		assertEquals(1, matchedDwhQuery.getTemplateId());
+		assertEquals("Standings of Russian Federation by cups", matchedDwhQuery.getName());
 	}
 
 }

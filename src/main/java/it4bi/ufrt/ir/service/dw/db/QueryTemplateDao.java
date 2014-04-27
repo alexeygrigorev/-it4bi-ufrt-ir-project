@@ -3,6 +3,7 @@ package it4bi.ufrt.ir.service.dw.db;
 import it4bi.ufrt.ir.service.dw.eval.QueryParameter;
 import it4bi.ufrt.ir.service.dw.eval.QueryTemplate;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
+import it4bi.ufrt.ir.service.dw.nlp.Tokenizer;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,10 +32,13 @@ public class QueryTemplateDao {
 	private static final String QUERY_TEMPLATE_QUERY = "SELECT id, keywords, query, name FROM QueryTemplate;";
 
 	private final NamedParameterJdbcTemplate jdbcTemplate;
+	private final Tokenizer tokenizer;
 
 	@Autowired
-	public QueryTemplateDao(@Qualifier("appJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate) {
+	public QueryTemplateDao(@Qualifier("appJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate,
+			Tokenizer tokenizer) {
 		this.jdbcTemplate = jdbcTemplate;
+		this.tokenizer = tokenizer;
 	}
 
 	@Cacheable("templates")
@@ -44,8 +48,8 @@ public class QueryTemplateDao {
 
 		Multimap<Integer, QueryParameter> index = indexByTemplateId(parameters);
 
-		List<QueryTemplate> templates = jdbcTemplate.query(QUERY_TEMPLATE_QUERY, 
-				new QueryTemplateMapper(index));
+		List<QueryTemplate> templates = jdbcTemplate.query(QUERY_TEMPLATE_QUERY, new QueryTemplateMapper(
+				index));
 
 		return templates;
 	}
@@ -58,7 +62,7 @@ public class QueryTemplateDao {
 		return index;
 	}
 
-	private final class QueryTemplateMapper implements RowMapper<QueryTemplate> {
+	private class QueryTemplateMapper implements RowMapper<QueryTemplate> {
 		private final Multimap<Integer, QueryParameter> index;
 
 		private QueryTemplateMapper(Multimap<Integer, QueryParameter> index) {
@@ -68,7 +72,9 @@ public class QueryTemplateDao {
 		@Override
 		public QueryTemplate mapRow(ResultSet rs, int idx) throws SQLException {
 			int id = rs.getInt(1);
-			String keywords = rs.getString(2);
+			String keywordsRaw = rs.getString(2);
+			List<String> keywords = tokenizer.tokenizeAndStem(keywordsRaw);
+
 			String sqlTemplate = rs.getString(3);
 			String name = rs.getString(4);
 			List<QueryParameter> parameters = Lists.newArrayList(index.get(id));
@@ -76,7 +82,7 @@ public class QueryTemplateDao {
 		}
 	}
 
-	private final static class QueryTemplateParametersMapper implements RowMapper<QueryTemplateParameter> {
+	private static class QueryTemplateParametersMapper implements RowMapper<QueryTemplateParameter> {
 		@Override
 		public QueryTemplateParameter mapRow(ResultSet rs, int rowNum) throws SQLException {
 			int queryTemplateId = rs.getInt(1);

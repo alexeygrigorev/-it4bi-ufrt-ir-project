@@ -1,5 +1,6 @@
 package it4bi.ufrt.ir.service.dw.eval.extractor;
 
+import it4bi.ufrt.ir.service.dw.UserQuery;
 import it4bi.ufrt.ir.service.dw.eval.EvaluationResult;
 import it4bi.ufrt.ir.service.dw.eval.QueryParameter;
 
@@ -19,6 +20,6 @@ public interface ParameterExtractor {
 	 * @param result evaluation context
 	 * @return attempt, successful or not
 	 */
-	ExtractionAttempt tryExtract(String query, QueryParameter queryParameter, EvaluationResult result);
+	ExtractionAttempt tryExtract(UserQuery query, QueryParameter queryParameter, EvaluationResult result);
 
 }

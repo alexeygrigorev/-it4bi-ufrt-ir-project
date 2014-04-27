@@ -1,21 +1,16 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
+import it4bi.ufrt.ir.service.dw.UserQuery;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractorInstantiator;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
-import it4bi.ufrt.ir.service.dw.ner.NamedEntity;
-import it4bi.ufrt.ir.service.dw.ner.RecognizedNamedEntities;
-
-import java.util.Collections;
-import java.util.List;
 
 // TODO consider renaming
 public class GlobalEvaluationContext {
 
-	private final String query;
+	private final UserQuery query;
 	private final ExtractorInstantiator extractorInstantiator;
-	private List<NamedEntity> namedEntities = Collections.emptyList();
 
-	public GlobalEvaluationContext(String query, ExtractorInstantiator extractorInstantiator) {
+	public GlobalEvaluationContext(UserQuery query, ExtractorInstantiator extractorInstantiator) {
 		this.query = query;
 		this.extractorInstantiator = extractorInstantiator;
 	}
@@ -24,20 +19,12 @@ public class GlobalEvaluationContext {
 		return extractorInstantiator.instantiate(parameter);
 	}
 
-	public String getQuery() {
+	public UserQuery getQuery() {
 		return query;
 	}
 
-	public void setNamedEntities(List<NamedEntity> namedEntities) {
-		this.namedEntities = namedEntities;
-	}
-
-	public RecognizedNamedEntities namedEntities() {
-		return RecognizedNamedEntities.from(namedEntities);
-	}
-
 	public EvaluationResult createResultFor(QueryTemplate queryTemplate) {
-		return new EvaluationResult(queryTemplate, namedEntities());
+		return new EvaluationResult(queryTemplate, query);
 	}
 
 }

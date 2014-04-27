@@ -1,5 +1,7 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
+import it4bi.ufrt.ir.service.dw.MatchedQueryTemplate;
+
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -13,20 +15,21 @@ import com.google.common.collect.Lists;
 public class AllEvaluationResults {
 
 	private final List<EvaluationResult> successful = Lists.newArrayList();
-	private final List<Query> queries = Lists.newArrayList();
+	private final List<MatchedQueryTemplate> matchedTemplates = Lists.newArrayList();
 	private final List<EvaluationResult> notSuccessful = Lists.newArrayList();
 
 	public void add(EvaluationResult result) {
 		if (result.isSatisfied()) {
 			successful.add(result);
-			queries.add(result.toQueryWithFoundParameters());
+			matchedTemplates.add(result.asDto());
 		} else {
 			notSuccessful.add(result);
 		}
 	}
 
-	public List<Query> getQueries() {
-		return queries;
+	public List<MatchedQueryTemplate> getMatchedTemplates() {
+		return matchedTemplates;
 	}
+
 
 }

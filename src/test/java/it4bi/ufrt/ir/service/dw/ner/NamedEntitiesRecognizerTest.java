@@ -13,7 +13,7 @@ public class NamedEntitiesRecognizerTest {
 	@Test
 	public void justOne() {
 		String query = "Matches of Diego Maradonna";
-		List<NamedEntity> results = nerRecognizer.recognize(query);
+		List<NamedEntity> results = nerRecognizer.recognizeAsList(query);
 		assertContains(results, "Diego Maradonna", NamedEntityClass.PERSON);
 	}
 
@@ -24,7 +24,7 @@ public class NamedEntitiesRecognizerTest {
 	@Test
 	public void namesCommaSeparated() {
 		String query = "Matches of Diego Maradonna, Guus Hiddink and David Beckham";
-		List<NamedEntity> results = nerRecognizer.recognize(query);
+		List<NamedEntity> results = nerRecognizer.recognizeAsList(query);
 		assertContains(results, "Diego Maradonna", NamedEntityClass.PERSON);
 		assertContains(results, "Guus Hiddink", NamedEntityClass.PERSON);
 		assertContains(results, "David Beckham", NamedEntityClass.PERSON);
@@ -33,21 +33,21 @@ public class NamedEntitiesRecognizerTest {
 	@Test
 	public void nameWithTypo() {
 		String query = "Matches of David Bekham";
-		List<NamedEntity> results = nerRecognizer.recognize(query);
+		List<NamedEntity> results = nerRecognizer.recognizeAsList(query);
 		assertContains(results, "David Bekham", NamedEntityClass.PERSON);
 	}
 
 	@Test
 	public void countryName() {
 		String query = "Matches of England";
-		List<NamedEntity> results = nerRecognizer.recognize(query);
+		List<NamedEntity> results = nerRecognizer.recognizeAsList(query);
 		assertContains(results, "England", NamedEntityClass.LOCATION);
 	}
 
 	@Test
 	public void twoCountries() {
 		String query = "Matches of England vs Russia";
-		List<NamedEntity> results = nerRecognizer.recognize(query);
+		List<NamedEntity> results = nerRecognizer.recognizeAsList(query);
 		assertContains(results, "England", NamedEntityClass.LOCATION);
 		assertContains(results, "Russia", NamedEntityClass.LOCATION);
 	}

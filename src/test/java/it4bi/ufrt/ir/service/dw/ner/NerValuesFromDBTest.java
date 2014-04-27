@@ -56,7 +56,7 @@ public class NerValuesFromDBTest {
 		for (String player : players) {
 			LOGGER.debug("trying {}", player);
 			String query = "Matches of " + player;
-			List<NamedEntity> recognzed = nerRecognizer.recognize(query);
+			List<NamedEntity> recognzed = nerRecognizer.recognizeAsList(query);
 			NamedEntity expected = new NamedEntity(player, NamedEntityClass.PERSON);
 			if (!recognzed.contains(expected)) {
 				LOGGER.debug("{} is not recognized, found {}", player, recognzed);
