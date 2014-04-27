@@ -80,7 +80,7 @@ public class DocumentsDAO2 {
 						
 						if(Boolean.valueOf(rs.getString("isOwned"))) return DOCUSER_ASSOC.OWNS;
 						else if(Boolean.valueOf(rs.getString("isLiked"))) return DOCUSER_ASSOC.LIKES;
-						else return null;// THIS SHOULDN'T HAPPEN (means no association)
+						else return null;// means no association
 					}
 				});
 		

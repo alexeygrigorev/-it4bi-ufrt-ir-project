@@ -121,6 +121,17 @@ public class UploadController {
 
 		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);
 
+		DOCUSER_ASSOC assoc_type = documentsDAO.getUserDocAssociation(docID, userID);
+		
+		if(assoc_type != null && assoc_type.equals(DOCUSER_ASSOC.LIKES)) {
+			String output = "Already Liked";
+			return Response.status(200).entity(output).build();
+		}
+		else if(assoc_type != null && assoc_type.equals(DOCUSER_ASSOC.OWNS)) {
+			String output = "Self-Favoriting is not allowed";
+			return Response.status(200).entity(output).build();
+		}
+		
 		//docsDAO.insertUserDocsAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
 		documentsDAO.insertUserDocAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
 
@@ -130,7 +141,7 @@ public class UploadController {
 		//docsDAO.updateTagScores(userID, docRec.getTags(), likeScore);
 		documentsDAO.updateUserTagsScores(userID, docRec.getTags(), likeScore);
 
-		String output = "File successfully liked";
+		String output = "Document successfully liked";
 		return Response.status(200).entity(output).build();
 	}
 
