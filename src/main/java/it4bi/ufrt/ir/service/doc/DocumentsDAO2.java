@@ -1,8 +1,7 @@
 package it4bi.ufrt.ir.service.doc;
 
 
-import it4bi.ufrt.ir.service.users.User;
-
+import java.security.acl.Owner;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -12,18 +11,12 @@ import java.util.Map;
 
 
 
-
-
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import ch.qos.logback.classic.Logger;
 
 @Repository
 public class DocumentsDAO2 {
@@ -164,38 +157,6 @@ public class DocumentsDAO2 {
 		//System.out.println(docID);
 		documentRecord.setDocId(docID);
 		
-		for(Tag tag : documentRecord.getTags()) {
-			
-			Tag curTag = null;
-			try {
-				curTag = getTagByTagText(tag.tag);
-			}
-			catch (EmptyResultDataAccessException e) { // means tag doesn't exist in the db, inserting tags
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("tagText", tag.getTag());
-					
-				this.jdbcTemplate.update(
-						"insert into Tags (tagText) values (:tagText) ", params);
-					
-				curTag = getTagByTagText(tag.tag);
-			}
-			finally {
-				// now curTag cannot be null
-				// updating TagsDocs association table
-				
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("docID", documentRecord.getDocId());
-				params.put("tagID", curTag.getTagId());
-				
-				
-				this.jdbcTemplate.update(
-						"insert into DocTags values (:docID, :tagID)", params);
-			}
-			
-		}
-		
-		
-		
 	}
 
 	public DocumentRecord getDocByID(int docID) {
@@ -214,8 +175,14 @@ public class DocumentsDAO2 {
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("tagText", tagText);
 		
-		Tag tag = (Tag) this.jdbcTemplate.queryForObject(
-				"select * from Tags where tagText = :tagText", parameters, new TagRowMapper());
+		Tag tag = null;
+		try {
+			tag = (Tag) this.jdbcTemplate.queryForObject(
+					"select * from Tags where tagText = :tagText", parameters, new TagRowMapper());
+		}
+		catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 		
 		return tag;
 	}
@@ -239,6 +206,34 @@ public class DocumentsDAO2 {
 		}
 				
 		return tags;
+	}
+
+	public void updateTags(List<Tag> tags, int docID) {
+		
+		for(Tag tag : tags) {
+			
+			Map<String, Object> params = new HashMap<String, Object>();
+			params.put("tagText", tag.getTag());
+					
+			Integer tagID = this.jdbcTemplate.queryForObject(
+						"if not exists (select * from Tags where tagText = :tagText)"
+						+ " insert into Tags (tagText) values (:tagText); select tagID from Tags where tagText = :tagText", params, Integer.class);
+					
+			
+			//Integer tagID = this.jdbcTemplate.queryForObject("select IDENT_CURRENT('Tags')", params, Integer.class); 
+			tag.setTagId(tagID);
+			
+			// now curTag cannot be null
+			// updating TagsDocs association table
+					
+			params = new HashMap<String, Object>();
+			params.put("docID", docID);
+			params.put("tagID", tagID);
+					
+			this.jdbcTemplate.update("insert into DocTags values (:docID, :tagID)", params);
+		
+		}
+			
 	}
 	
 	

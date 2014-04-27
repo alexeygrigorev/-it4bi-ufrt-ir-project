@@ -75,7 +75,7 @@ public class UploadController {
 	private DocumentsDAO docsDAO;
 	
 	@Autowired
-	private DocumentsDAO2 docsDAO2;
+	private DocumentsDAO2 documentsDAO;
 	
 	@Value("${documents.upload.folder}")
 	private String uploadLocation;
@@ -103,7 +103,9 @@ public class UploadController {
 
 			LOGGER.debug("file download request for docID: {}", docID);
 
-			File fileToSend = new File(docsDAO.getDocByDocId(docID).getDocPath());
+			//File fileToSend = new File(docsDAO.getDocByDocId(docID).getDocPath());
+			File fileToSend = new File(documentsDAO.getDocByID(docID).getDocPath());
+			
 			if (fileToSend.exists()) {
 				return Response.ok(fileToSend, MediaType.APPLICATION_OCTET_STREAM).build();
 			}
@@ -119,11 +121,14 @@ public class UploadController {
 
 		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);
 
-		// TODO: Check if already liked.
-		docsDAO.insertUserDocsAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
+		//docsDAO.insertUserDocsAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
+		documentsDAO.insertUserDocAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
 
-		DocumentRecord docRec = docsDAO.getDocByDocId(docID);
-		docsDAO.updateTagScores(userID, docRec.getTags(), likeScore);
+		//DocumentRecord docRec = docsDAO.getDocByDocId(docID);
+		DocumentRecord docRec = documentsDAO.getDocByID(docID);
+		
+		//docsDAO.updateTagScores(userID, docRec.getTags(), likeScore);
+		documentsDAO.updateUserTagsScores(userID, docRec.getTags(), likeScore);
 
 		String output = "File successfully liked";
 		return Response.status(200).entity(output).build();
@@ -198,12 +203,16 @@ public class UploadController {
 
 			documentRecord.setTags(tags);
 
-			docsDAO.insertDocumentRecord(documentRecord);
-			docsDAO.insertUserDocsAssociation(documentRecord.getDocId(),
-					userID, DOCUSER_ASSOC.OWNS);
-			docsDAO.updateTags(tags); // with the new docsDAO this will be
-										// handled in insertDocdumentRecord!
-			docsDAO.updateTagScores(userID, tags, ownerScore);
+			//docsDAO.insertDocumentRecord(documentRecord);
+			documentsDAO.insertDocumentRecord(documentRecord);
+			
+			//docsDAO.insertUserDocsAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
+			documentsDAO.insertUserDocAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
+			
+			documentsDAO.updateTags(tags, documentRecord.getDocId());
+			
+			//docsDAO.updateTagScores(userID, tags, ownerScore);
+			documentsDAO.updateUserTagsScores(userID, tags, ownerScore);
 
 		} catch (Exception e) {
 			e.printStackTrace();

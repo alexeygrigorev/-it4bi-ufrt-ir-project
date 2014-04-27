@@ -38,7 +38,8 @@ public class SearchController {
 	@Autowired
 	private DocumentsDAO docsDAO;
 	
-	
+	@Autowired
+	private DocumentsDAO2 documentsDAO;
 	
 	@Autowired
 	private DocumentsService documents;
@@ -78,14 +79,16 @@ public class SearchController {
 		List<Tag> tagList = new ArrayList<Tag>();
 		
 		for(int ctr = 0; ctr < tokens.length; ctr++) {
-			Tag tag = docsDAO.getTag(tokens[ctr]); 
+			//Tag tag = docsDAO.getTag(tokens[ctr]);
+			Tag tag = documentsDAO.getTagByTagText(tokens[ctr]);
 			if(tag != null) {
 				tagList.add(tag);
 			}
 		}
 		
 		if(!tagList.isEmpty()) {
-			docsDAO.updateTagScores(userID, tagList, queryScore);
+			//docsDAO.updateTagScores(userID, tagList, queryScore);
+			documentsDAO.updateUserTagsScores(userID, tagList, queryScore);
 		}
 		
 		return resultSet;

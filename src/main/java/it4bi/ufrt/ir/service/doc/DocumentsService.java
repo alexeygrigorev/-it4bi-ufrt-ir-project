@@ -1,11 +1,9 @@
 package it4bi.ufrt.ir.service.doc;
 
-import it4bi.ufrt.ir.business.DocumentDatabase;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,7 +26,7 @@ import org.springframework.stereotype.Component;
 public class DocumentsService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentsService.class);
-	public DocumentsDAO docsDAO;
+	public DocumentsDAO2 documentsDAO;
 	
 	@Value("${documents.index}")
 	private String indexLocation;
@@ -37,8 +35,8 @@ public class DocumentsService {
 	private double personalizationCoef;
 	
 	 @Autowired
-     public DocumentsService(DocumentsDAO docsDAO) {
-		 this.docsDAO = docsDAO;            
+     public DocumentsService(DocumentsDAO2 documentsDAO) {
+		 this.documentsDAO = documentsDAO;            
      }
 	 
 	 private ScoreDoc[] hits = null;
@@ -100,9 +98,9 @@ public class DocumentsService {
 			int uploaderID = Integer.parseInt(doc.get("uploaderId"));
 			float score = hits[i].score;
 														
-			DocumentRecord docRecord = docsDAO.getDocByDocId(docID);
+			DocumentRecord docRecord = documentsDAO.getDocByID(docID);
 			DocumentSearchResultRow resultRow = new DocumentSearchResultRow(docRecord, score);
-			DOCUSER_ASSOC assocType = docsDAO.getUserDocAssociation(docID, userID);
+			DOCUSER_ASSOC assocType = documentsDAO.getUserDocAssociation(docID, userID);
 			
 			if(assocType != null) {
 				if(assocType.equals(DOCUSER_ASSOC.LIKES)) resultRow.setLiked(true);
@@ -110,7 +108,7 @@ public class DocumentsService {
 			}
 			
 			resultSet.add(resultRow);
-		    LOGGER.debug(docTitle + ", " + uploaderID + " - score: " + score);
+		    LOGGER.debug(docTitle + ", " + uploaderID + " - not personalized score: " + score);
 		}
 		
 		
@@ -144,7 +142,7 @@ public class DocumentsService {
 				float agg_score = 0f;
 				
 				for(Tag tag : docRec.getTags()) {
-					agg_score += docsDAO.getUserTagScore(tag.getTagId(), userId);
+					agg_score += documentsDAO.getUserTagScore(tag.getTagId(), userId);
 				}
 				
 				return agg_score;
@@ -157,7 +155,7 @@ public class DocumentsService {
 	
 	 
 	 
-	public void rebuildDocsIndex() throws Exception {
+	/*public void rebuildDocsIndex() throws Exception {
 
 		// configure index properties
 		EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_47);  
@@ -173,5 +171,5 @@ public class DocumentsService {
 			//documentRecord.setDocPath();
 			documentRecord.index(indexLocation);
 		}
-	}		
+	}*/		
 }
