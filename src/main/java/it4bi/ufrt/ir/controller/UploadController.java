@@ -190,21 +190,27 @@ public class UploadController {
 
 		String mime = metadata.get(Metadata.CONTENT_TYPE);
 
+		DocumentRecord documentRecord = new DocumentRecord(documentTitle, serverFilePath, userID, mime);
+		
+		//docsDAO.insertDocumentRecord(documentRecord);
+		documentsDAO.insertDocumentRecord(documentRecord);
+		
+		List<String> tagTexts = null;
+		
 		try {
-			DocumentRecord documentRecord = new DocumentRecord(documentTitle,
-					serverFilePath, userID, mime);
-
 			documentRecord.index(indexLocation);
 
 			MMapDirectory indexDir = null;
-			try {
-				indexDir = new MMapDirectory(new File(indexLocation));
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			
+			indexDir = new MMapDirectory(new File(indexLocation));
 
 			// Update Tags
-			List<String> tagTexts = extractTags(documentRecord, indexLocation);
+			tagTexts = extractTags(documentRecord, indexLocation);
+			
+			indexDir.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 			List<Tag> tags = new ArrayList<Tag>();
 			// Obtain tags from the doc
 
@@ -214,9 +220,6 @@ public class UploadController {
 
 			documentRecord.setTags(tags);
 
-			//docsDAO.insertDocumentRecord(documentRecord);
-			documentsDAO.insertDocumentRecord(documentRecord);
-			
 			//docsDAO.insertUserDocsAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
 			documentsDAO.insertUserDocAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
 			
@@ -225,9 +228,7 @@ public class UploadController {
 			//docsDAO.updateTagScores(userID, tags, ownerScore);
 			documentsDAO.updateUserTagsScores(userID, tags, ownerScore);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
 
 		String output = "File saved to location: " + serverFilePath;
 		return Response.status(200).entity(output).build();

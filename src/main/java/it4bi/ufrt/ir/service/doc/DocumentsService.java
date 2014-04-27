@@ -108,7 +108,7 @@ public class DocumentsService {
 			}
 			
 			resultSet.add(resultRow);
-		    LOGGER.debug(docTitle + ", " + uploaderID + " - not personalized score: " + score);
+		    LOGGER.debug(docTitle + ", " + uploaderID + " - non-personalized score: " + score);
 		}
 		
 		

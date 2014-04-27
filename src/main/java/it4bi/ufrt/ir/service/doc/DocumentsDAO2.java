@@ -68,21 +68,28 @@ public class DocumentsDAO2 {
 	
 
 	public DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
+		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("docID", new Integer(docID));
 		parameters.put("userID", new Integer(userID));
 		
-		DOCUSER_ASSOC assoc_type = this.jdbcTemplate.queryForObject(
-				"select * from UserDocs where userID = :userID and docID = :docID", parameters, new RowMapper<DOCUSER_ASSOC>() {
+		DOCUSER_ASSOC assoc_type = null;
+		try {
+			assoc_type = this.jdbcTemplate.queryForObject(
+					"select * from UserDocs where userID = :userID and docID = :docID", parameters, new RowMapper<DOCUSER_ASSOC>() {
 
-					@Override
-					public DOCUSER_ASSOC mapRow(ResultSet rs, int rowNum) throws SQLException {
-						
-						if(Boolean.valueOf(rs.getString("isOwned"))) return DOCUSER_ASSOC.OWNS;
-						else if(Boolean.valueOf(rs.getString("isLiked"))) return DOCUSER_ASSOC.LIKES;
-						else return null;// means no association
-					}
-				});
+						@Override
+						public DOCUSER_ASSOC mapRow(ResultSet rs, int rowNum) throws SQLException {
+							
+							if(rs.getString("isOwned").equals("1")) return DOCUSER_ASSOC.OWNS;
+							else if(rs.getString("isLiked").equals("1")) return DOCUSER_ASSOC.LIKES;
+							else return null;// shouldn't happen
+						}
+					});
+		}
+		catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 		
 		return assoc_type;
 	}
@@ -101,8 +108,14 @@ public class DocumentsDAO2 {
 		parameters.put("tagID", tagID);
 		parameters.put("userID", userID);
 		
-		float score = this.jdbcTemplate.queryForObject(
-				"select score from UserTags where userID = :userID, tagID = :tagID", parameters, Float.class);
+		float score = 0f;
+		try {
+			score = this.jdbcTemplate.queryForObject(
+					"select score from UserTags where userID = :userID and tagID = :tagID", parameters, Float.class);
+		}
+		catch (EmptyResultDataAccessException e) {
+			return score; 
+		}
 		
 		return score;
 	}
@@ -195,7 +208,7 @@ public class DocumentsDAO2 {
 		
 		List<Tag> tags = new ArrayList<Tag>();
 		List<Map<String, Object>> rows = this.jdbcTemplate.queryForList(
-				"select (tagText, tagID) from TagDocs,Tags where TagDocs.tagID = Tags.tagID and TagDocs.docID = :docID",
+				"select tagText, Tags.tagID from DocTags,Tags where DocTags.tagID = Tags.tagID and DocTags.docID = :docID",
 				parameters);
 		
 		for(Map row : rows) {
@@ -236,5 +249,8 @@ public class DocumentsDAO2 {
 			
 	}
 	
-	
+	//needed for a secondary functionality
+	public void getUploadedDocs(int userID) {
+		
+	}
 }
