@@ -3,6 +3,8 @@ package it4bi.ufrt.ir.business;
 import it4bi.ufrt.ir.service.users.User;
 import it4bi.ufrt.ir.service.users.UserSex;
 
+// OBSOLETE. REPLACED BY A TABLE IN DB! CAN BE REMOVED.
+
 public class UserDatabase {
 
 	private static final User[] users = {

@@ -104,9 +104,10 @@ public class DocumentsService {
 			DocumentSearchResultRow resultRow = new DocumentSearchResultRow(docRecord, score);
 			DOCUSER_ASSOC assocType = docsDAO.getUserDocAssociation(docID, userID);
 			
-			if(assocType.equals(DOCUSER_ASSOC.LIKES)) resultRow.setLiked(true);
-			if(assocType.equals(DOCUSER_ASSOC.OWNS)) resultRow.setOwned(true);
-			
+			if(assocType != null) {
+				if(assocType.equals(DOCUSER_ASSOC.LIKES)) resultRow.setLiked(true);
+				if(assocType.equals(DOCUSER_ASSOC.OWNS)) resultRow.setOwned(true);
+			}
 			
 			resultSet.add(resultRow);
 		    LOGGER.debug(docTitle + ", " + uploaderID + " - score: " + score);
@@ -139,10 +140,14 @@ public class DocumentsService {
 	        }
 
 			private double calcUserDocAffinity(Integer userId, DocumentSearchResultRow docRec) {
-				// TODO Auto-generated method stub
 				
-				return docsDAO.calculateUserDocAffinity(docRec.getTags(), userId);
+				float agg_score = 0f;
 				
+				for(Tag tag : docRec.getTags()) {
+					agg_score += docsDAO.getUserTagScore(tag.getTagId(), userId);
+				}
+				
+				return agg_score;
 			}
 	    });
 		

@@ -75,7 +75,7 @@ public class DocumentDatabase {
 		
 		for(Tag tag : tags) {
 			ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(tag.getTagId(), userId);
-			if(tagsUsersTable.containsKey(key)) score += tagsUsersTable.remove(key);
+			if(tagsUsersTable.containsKey(key)) score += tagsUsersTable.get(key);
 					
 		}
 		
@@ -96,6 +96,15 @@ public class DocumentDatabase {
 		
 		ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(docID, userID);
 		return docsUsersTable.get(key);
+	}
+
+
+
+	public static float getUserTagScore(Integer tagID, Integer userID) {
+		
+		ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(tagID, userID);
+		if(tagsUsersTable.containsKey(key)) return tagsUsersTable.get(key);  
+		else return 0f;
 	}
 }
 

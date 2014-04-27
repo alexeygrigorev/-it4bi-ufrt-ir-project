@@ -3,7 +3,7 @@ package it4bi.ufrt.ir.service.doc;
 public class Tag {
 
 	public int tagId;
-	static public int tagIdCounter = 10000;
+	static public int tagIdCounter = 50000;
 	public String tag;
 	
 	public Tag() {

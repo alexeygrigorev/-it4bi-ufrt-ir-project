@@ -31,12 +31,14 @@ public class DocumentsDAO {
 
 	}
 
+	//Migrated to getDocByID
 	public DocumentRecord getDocByDocId(int docId) {
 		
 		return DocumentDatabase.getDocByDocId(docId);
 
 	}
 
+	//Migrated to insertDocumentRecord
 	public void insertDocumentRecord(DocumentRecord documentRecord) {
 
 		// Implement logic for document insertion to database. Careful: new
@@ -49,7 +51,6 @@ public class DocumentsDAO {
 		
 	}
 
-
 	public List<DocumentRecord> getAllDocuments() {
 
 		// Implement Business Logic For retrieving all document records
@@ -61,6 +62,7 @@ public class DocumentsDAO {
 
 	}
 
+	// OBSOLETE -- tag insertion is handled within document insertion
 	public void updateTags(List<Tag> tags) {
 		
 		for(Tag tag : tags) {
@@ -70,6 +72,7 @@ public class DocumentsDAO {
 		
 	}
 
+	//Migrated to updateUserTagsScores
 	public void updateTagScores(int userID, List<Tag> tags, float delta) {
 		for(Tag tag : tags) {
 			DocumentDatabase.updateTagUserValue(tag.tagId, userID, delta);
@@ -77,19 +80,28 @@ public class DocumentsDAO {
 		
 	}
 
+	//Migrated to getTagByTagText
 	public Tag getTag(String tagText) {
 		 return DocumentDatabase.getTag(tagText);
 	 }
 	
+	//Migrated to insertUserDocAssociation
 	public void insertUserDocsAssociation(int docId, int userID, DOCUSER_ASSOC type) {
 		
 		DocumentDatabase.insertDocUserValue(docId, userID, type);
 	}
 
+	// OBSOLETE -- score aggregation should be done in application layer rather than DB
 	public float calculateUserDocAffinity(List<Tag> tags, Integer userId) {
 		return DocumentDatabase.calculateUserDocAffinity(tags, userId);
 	}
+	
+	// Migrated to getUserTagScore
+	public float getUserTagScore(Integer tagID, Integer userID) {
+		return DocumentDatabase.getUserTagScore(tagID, userID);
+	}
 
+	//Migrated to getUserDocAssociation
 	public DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
 		
 		return DocumentDatabase.getUserDocAssociation(docID, userID);

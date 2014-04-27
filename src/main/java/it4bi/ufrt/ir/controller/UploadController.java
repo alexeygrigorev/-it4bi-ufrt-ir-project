@@ -137,8 +137,6 @@ public class UploadController {
 			@FormDataParam("docTitle") String documentTitle,
 			@FormDataParam("userID") int userID) {
 
-		
-		docsDAO2.test();  // REMOVE!
 
 		// Remove extension from the title
 		documentTitle = FilenameUtils.getBaseName(documentTitle);
@@ -161,10 +159,11 @@ public class UploadController {
 			e1.printStackTrace();
 		}
 
-		ContentHandler contenthandler = new BodyContentHandler();
+		ContentHandler contenthandler = new BodyContentHandler(500000);
 		Metadata metadata = new Metadata();
 		metadata.set(Metadata.RESOURCE_NAME_KEY, f.getName());
 		Parser parser = new AutoDetectParser();
+		
 		// OOXMLParser parser = new OOXMLParser();
 
 		try {
@@ -214,10 +213,6 @@ public class UploadController {
 		return Response.status(200).entity(output).build();
 	}
 
-	private void analyseFile(File f) {
-
-	}
-
 	public void getTF(IndexReader reader, int docID,
 			List<Pair<String, Integer>> termFreqs) throws IOException {
 		Fields f = reader.getTermVectors(docID);
@@ -265,20 +260,21 @@ public class UploadController {
 			}
 		});
 
+		String extracted = "";
 		int ctr = 0;
 		for (Pair<String, Integer> tfs : termFreqs) {
 			String temp = tfs.getLeft();
 			if (isNumerical(temp) == false) {
 				ctr++;
 				tags.add(temp);
+				extracted += temp;
 			}
 			if (ctr == tagsPerDoc)
 				break;
+			extracted += ", ";
 		}
 
-		// TFIDFSimilarity tfidfSIM = new DefaultSimilarity();
-		// Map<String, Float> tf_Idf_Weights = new HashMap<>();
-		// Map<String, Float> termFrequencies = new HashMap<>();
+		LOGGER.debug("extracted tags: " + extracted);
 
 		return tags;
 

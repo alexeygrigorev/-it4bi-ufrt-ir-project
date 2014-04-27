@@ -1,6 +1,8 @@
 package it4bi.ufrt.ir.service.doc;
 
 
+import it4bi.ufrt.ir.service.users.User;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,13 +12,18 @@ import java.util.Map;
 
 
 
+
+
+
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
 import org.springframework.stereotype.Repository;
+
+import ch.qos.logback.classic.Logger;
 
 @Repository
 public class DocumentsDAO2 {
@@ -37,7 +44,7 @@ public class DocumentsDAO2 {
 			Tag tag = new Tag();
 			tag.setTag(rs.getString("tagText"));
 			tag.setTagId(Integer.parseInt(rs.getString("tagID")));
-			return null;
+			return tag;
 		}
 		
 	}
@@ -60,18 +67,54 @@ public class DocumentsDAO2 {
 			
 			docRecord.setTags(tags);
 			
-			return null;
+			return docRecord;
 		}
 		
 	}
 	
 	
-	public void test() {
-		System.out.println("test");
+
+	public DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("docID", new Integer(docID));
+		parameters.put("userID", new Integer(userID));
+		
+		DOCUSER_ASSOC assoc_type = this.jdbcTemplate.queryForObject(
+				"select * from UserDocs where userID = :userID and docID = :docID", parameters, new RowMapper<DOCUSER_ASSOC>() {
+
+					@Override
+					public DOCUSER_ASSOC mapRow(ResultSet rs, int rowNum) throws SQLException {
+						
+						if(Boolean.valueOf(rs.getString("isOwned"))) return DOCUSER_ASSOC.OWNS;
+						else if(Boolean.valueOf(rs.getString("isLiked"))) return DOCUSER_ASSOC.LIKES;
+						else return null;// THIS SHOULDN'T HAPPEN (means no association)
+					}
+				});
+		
+		return assoc_type;
 	}
 	
+	public void updateUserTagsScores(int userID, List<Tag> tags, float deltaScore) {
+		
+		for(Tag tag : tags) {
+			updateUserTagScore(userID, tag.tagId, deltaScore);
+		}
 	
-	public void updateUserTagScore(int userID, int tagID, int deltaScore) {
+	}
+	
+	public float getUserTagScore(int userID, int tagID) {
+		
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("tagID", tagID);
+		parameters.put("userID", userID);
+		
+		float score = this.jdbcTemplate.queryForObject(
+				"select score from UserTags where userID = :userID, tagID = :tagID", parameters, Float.class);
+		
+		return score;
+	}
+	
+	public void updateUserTagScore(int userID, int tagID, float deltaScore) {
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("userID", userID);
@@ -79,7 +122,9 @@ public class DocumentsDAO2 {
 		parameters.put("deltaScore", deltaScore);
 		
 		this.jdbcTemplate.update(
-				"update UserTags set score = score + :deltaScore where userID = :userID and tagID = :tagID", parameters);
+				"if not exists (select * from UserTags where userID = :userID and tagID = :tagID)"
+				+ "insert into UserTags values (:userID, :tagID, :deltaScore)"
+				+ "else update UserTags set score = score + :deltaScore where userID = :userID and tagID = :tagID", parameters);
 		
 	}
 	
@@ -111,38 +156,48 @@ public class DocumentsDAO2 {
 		parameters.put("mime", documentRecord.getMime());
 		
 		this.jdbcTemplate.update(
-				"insert into Documents (docTitle, docPath, uploaderID, mime) values (:docTitle, docPath, :uploaderID, :mime)", parameters);
+				"insert into Documents (docTitle, docPath, uploaderID, mime) values (:docTitle, :docPath, :uploaderID, :mime)", parameters);
 		
+		//Integer docID = this.jdbcTemplate.queryForObject("select SCOPE_IDENTITY()", parameters, Integer.class);  // this doesn't work probably due to multi-threading facilities of Spring..
+		Integer docID = this.jdbcTemplate.queryForObject("select IDENT_CURRENT('Documents')", parameters, Integer.class);
 		
+		//System.out.println(docID);
+		documentRecord.setDocId(docID);
 		
 		for(Tag tag : documentRecord.getTags()) {
-			Tag curTag = getTagByTagText(tag.tag);
-			if(curTag == null) {  // means tag doesn't exist in the db, inserting tags
-				Map<String, Object> params = new HashMap<String, Object>();
-				params.put("tagText", tag.getTag());
-				
-				this.jdbcTemplate.update(
-						"insert into Tags (tagText) values (:tagText) ", params);
-				
+			
+			Tag curTag = null;
+			try {
 				curTag = getTagByTagText(tag.tag);
 			}
-			
-			// now curTag cannot be null
-			// updating TagsDocs association table
-			
-			Map<String, Object> params = new HashMap<String, Object>();
-			params.put("docID", documentRecord.getDocId());
-			params.put("tagID", curTag.getTagId());
-			
-			this.jdbcTemplate.update(
-					"insert into TagDocs values (:docID, :tagID)", params);
+			catch (EmptyResultDataAccessException e) { // means tag doesn't exist in the db, inserting tags
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("tagText", tag.getTag());
+					
+				this.jdbcTemplate.update(
+						"insert into Tags (tagText) values (:tagText) ", params);
+					
+				curTag = getTagByTagText(tag.tag);
+			}
+			finally {
+				// now curTag cannot be null
+				// updating TagsDocs association table
+				
+				Map<String, Object> params = new HashMap<String, Object>();
+				params.put("docID", documentRecord.getDocId());
+				params.put("tagID", curTag.getTagId());
+				
+				
+				this.jdbcTemplate.update(
+						"insert into DocTags values (:docID, :tagID)", params);
+			}
 			
 		}
 		
 		
 		
 	}
-	
+
 	public DocumentRecord getDocByID(int docID) {
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
