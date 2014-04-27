@@ -33,6 +33,7 @@ public class Evaluator {
 		AllEvaluationResults allResults = new AllEvaluationResults();
 		List<QueryTemplate> templates = queryTemplateDao.all();
 		for (QueryTemplate template : templates) {
+			LOGGER.debug("evaluating \"{}\" against {}", query.getFreeTextQuery(), template);
 			EvaluationResult evaluationResult = template.evaluate(query, context);
 			allResults.add(evaluationResult);
 		}

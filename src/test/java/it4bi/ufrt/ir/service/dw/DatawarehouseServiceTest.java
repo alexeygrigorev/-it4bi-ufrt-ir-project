@@ -26,17 +26,18 @@ public class DatawarehouseServiceTest {
 	
 	@Test
 	public void test() {
-		String freeTextQuery = "Matches of Russia";
+		String freeTextQuery = "All standings of Russia";
 		User user = UserDatabase.getUsers()[0];
 		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
 		List<MatchedQueryTemplate> matched = res.getMatched();
-		
+
 		LOGGER.debug("Obtained result: {}", matched);
 
 		MatchedQueryTemplate first = matched.get(0);
 
 		assertEquals(1, first.getTemplateId());
 		assertEquals("Standings of Russian Federation by cups", first.getName());
+		assertEquals(1, first.getRelevance()); // "standings" should match
 	}
 
 }
