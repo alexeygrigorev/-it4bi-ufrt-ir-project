@@ -16,10 +16,10 @@ public interface ParameterExtractor {
 	 * From the given text query tries to extract parameter
 	 * 
 	 * @param query to parse
-	 * @param queryParameter to extract
+	 * @param parameter to extract
 	 * @param result evaluation context
 	 * @return attempt, successful or not
 	 */
-	ExtractionAttempt tryExtract(UserQuery query, QueryParameter queryParameter, EvaluationResult result);
+	ExtractionAttempt tryExtract(UserQuery query, QueryParameter parameter, EvaluationResult result);
 
 }

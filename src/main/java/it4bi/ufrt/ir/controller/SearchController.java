@@ -1,16 +1,19 @@
 package it4bi.ufrt.ir.controller;
 
-import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentSearchResultRow;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO2;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
 import it4bi.ufrt.ir.service.doc.Tag;
+import it4bi.ufrt.ir.service.dw.DatawarehouseService;
+import it4bi.ufrt.ir.service.dw.DwhDtoResults;
 
 import java.util.ArrayList;
 
 import it4bi.ufrt.ir.service.spell.FIFASpellChecker;
 import it4bi.ufrt.ir.service.spell.QueryAutoCorrectionResult;
+import it4bi.ufrt.ir.service.users.User;
+import it4bi.ufrt.ir.service.users.UsersService;
 import it4bi.ufrt.ir.service.web.SocialSearchException;
 import it4bi.ufrt.ir.service.web.SocialSearchRecord;
 import it4bi.ufrt.ir.service.web.SocialSearchService;
@@ -49,6 +52,12 @@ public class SearchController {
 	
 	@Autowired
 	private FIFASpellChecker spellChecker;
+	
+	@Autowired
+	private DatawarehouseService datawarehouseService;
+	
+	@Autowired
+	private UsersService usersService;
 	
 	@Value("${web.return.count}")
 	private int webReturnCount;
@@ -119,4 +128,14 @@ public class SearchController {
 		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
 		return qr;
 	}
+
+	@GET
+	@Path("/dwh")
+	@Produces("application/json; charset=UTF-8")
+	public DwhDtoResults fifaDwh(@QueryParam("q") String query, @QueryParam("u") int userId) {
+		LOGGER.debug("dwh query \"{}\" for user {}", query, userId);
+		User user = usersService.userById(userId);
+		return datawarehouseService.find(query, user);
+	}
+
 }

@@ -13,16 +13,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URLConnection;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -39,12 +35,8 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.search.similarities.DefaultSimilarity;
-import org.apache.lucene.search.similarities.TFIDFSimilarity;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -68,8 +60,7 @@ import org.xml.sax.SAXException;
 public class UploadController {
 	private static final int NOT_FOUND_STATUS = 404;
 
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(UploadController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
 	@Autowired
 	private DocumentsDAO docsDAO;

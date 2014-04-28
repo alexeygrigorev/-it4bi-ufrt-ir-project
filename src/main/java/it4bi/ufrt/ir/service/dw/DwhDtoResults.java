@@ -2,6 +2,12 @@ package it4bi.ufrt.ir.service.dw;
 
 import java.util.List;
 
+/**
+ * The result of matching user queries against the query templates. Also contains recommendations for an user
+ * of other query templates, ones that are not matched directly, but can be potentially interesting. <br>
+ * <br>
+ * This is a dto object and to be passed to the client side
+ */
 public class DwhDtoResults {
 
 	private List<MatchedQueryTemplate> matched;

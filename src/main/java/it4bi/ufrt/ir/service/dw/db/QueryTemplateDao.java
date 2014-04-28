@@ -17,10 +17,15 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
+/**
+ * Data access layer object for getting the data about Query Templates
+ * 
+ * @see QueryTemplate
+ */
 @Repository
 public class QueryTemplateDao {
 
@@ -31,15 +36,12 @@ public class QueryTemplateDao {
 
 	private static final String QUERY_TEMPLATE_QUERY = "SELECT id, keywords, query, name FROM QueryTemplate;";
 
-	private final NamedParameterJdbcTemplate jdbcTemplate;
-	private final Tokenizer tokenizer;
+	@Autowired
+	@Qualifier("appJdbcTemplate")
+	private NamedParameterJdbcTemplate jdbcTemplate;
 
 	@Autowired
-	public QueryTemplateDao(@Qualifier("appJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate,
-			Tokenizer tokenizer) {
-		this.jdbcTemplate = jdbcTemplate;
-		this.tokenizer = tokenizer;
-	}
+	private Tokenizer tokenizer;
 
 	@Cacheable("templates")
 	public List<QueryTemplate> all() {
@@ -55,7 +57,7 @@ public class QueryTemplateDao {
 	}
 
 	private Multimap<Integer, QueryParameter> indexByTemplateId(List<QueryTemplateParameter> parameters) {
-		Multimap<Integer, QueryParameter> index = HashMultimap.create();
+		Multimap<Integer, QueryParameter> index = LinkedHashMultimap.create();
 		for (QueryTemplateParameter qp : parameters) {
 			index.put(qp.queryTemplateId, qp.parameter);
 		}

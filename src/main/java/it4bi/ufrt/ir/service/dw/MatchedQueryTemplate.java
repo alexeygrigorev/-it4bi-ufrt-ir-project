@@ -1,5 +1,8 @@
 package it4bi.ufrt.ir.service.dw;
 
+import it4bi.ufrt.ir.service.dw.eval.QueryTemplate;
+
+import java.util.Collections;
 import java.util.Map;
 
 import org.apache.commons.lang3.Validate;
@@ -7,6 +10,13 @@ import org.apache.commons.lang3.Validate;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Maps;
 
+/**
+ * Result of a successful match of user's query with some query template. <br>
+ * <br>
+ * This is a dto object and to be passed to and from the client side
+ * 
+ * @see QueryTemplate
+ */
 public class MatchedQueryTemplate implements Comparable<MatchedQueryTemplate> {
 
 	private int templateId;
@@ -60,9 +70,8 @@ public class MatchedQueryTemplate implements Comparable<MatchedQueryTemplate> {
 	public int compareTo(MatchedQueryTemplate o) {
 		Validate.notNull(o);
 		return ComparisonChain.start()
-			.compare(parameters.size(), o.parameters.size())
-			.compare(relevance, o.relevance)
-			.result();
+				.compare(parameters.size(), o.parameters.size(), Collections.reverseOrder())
+				.compare(relevance, o.relevance, Collections.reverseOrder()).result();
 	}
 
 	@Override

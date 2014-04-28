@@ -11,5 +11,6 @@
 	<context:property-placeholder location="classpath:custom.properties"  />
 
 	<import resource="classpath:dataSources.xml" />
+	<import resource="classpath:cacheContext.xml" />
 
  </beans>

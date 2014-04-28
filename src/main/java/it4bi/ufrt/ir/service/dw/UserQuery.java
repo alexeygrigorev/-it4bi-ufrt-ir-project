@@ -4,6 +4,12 @@ import java.util.List;
 
 import it4bi.ufrt.ir.service.dw.ner.RecognizedNamedEntities;
 
+/**
+ * Query issued by an user along with some pre-processed stuff for this query
+ * 
+ * @see RecognizedNamedEntities
+ * 
+ */
 public class UserQuery {
 
 	private final String query;
