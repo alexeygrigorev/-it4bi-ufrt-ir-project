@@ -50,8 +50,8 @@ public class DocumentsDAO2Tester {
 	        docsDAO.insertUserDocAssociation(7656, 24543, DOCUSER_ASSOC.OWNS);
 	        docsDAO.insertUserDocAssociation(1826, 13543, DOCUSER_ASSOC.LIKES);
 	        
-	        docsDAO.updateUserTagScore(3826, 34, 2.4f);
-	        docsDAO.updateUserTagScore(3826, 34, -0.2f);
+	        //docsDAO.updateUserTagScore(3826, 34, 2.4f);
+	        //docsDAO.updateUserTagScore(3826, 34, -0.2f);
 	        
 	        
 	        

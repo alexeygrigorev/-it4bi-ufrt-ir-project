@@ -1,7 +1,6 @@
 package it4bi.ufrt.ir.service.doc;
 
 
-import java.security.acl.Owner;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,12 +17,17 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+
+
 @Repository
 public class DocumentsDAO2 {
 
 	
 	private final NamedParameterJdbcTemplate jdbcTemplate;
+	
 
+	
+	
 	@Autowired
 	public DocumentsDAO2(@Qualifier("appJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
@@ -96,9 +100,16 @@ public class DocumentsDAO2 {
 	
 	public void updateUserTagsScores(int userID, List<Tag> tags, float deltaScore) {
 		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
+		params.put("deltaScore", deltaScore);
+		
+		int ctr = 0;
 		for(Tag tag : tags) {
-			updateUserTagScore(userID, tag.tagId, deltaScore);
+			params.put("tag" + ++ctr, tag.getTag());
 		}
+		
+		this.jdbcTemplate.update("updateUserTagScores :userID, :deltaScore, :tag1, :tag2, :tag3, :tag4", params);
 	
 	}
 	
@@ -120,7 +131,7 @@ public class DocumentsDAO2 {
 		return score;
 	}
 	
-	public void updateUserTagScore(int userID, int tagID, float deltaScore) {
+	public void updateUserTagScore(int userID, String tagID, float deltaScore) {
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("userID", userID);
@@ -222,6 +233,20 @@ public class DocumentsDAO2 {
 	}
 
 	public void updateTags(List<Tag> tags, int docID) {
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("docID", docID);
+		
+		int ctr = 0;
+		for(Tag tag : tags) {
+			params.put("tag" + ++ctr, tag.getTag());
+		}
+		
+		
+		this.jdbcTemplate.update("updateDocTags :docID, :tag1, :tag2, :tag3, :tag4", params);
+	}
+	
+	public void updateTags_slow(List<Tag> tags, int docID) {
 		
 		for(Tag tag : tags) {
 			

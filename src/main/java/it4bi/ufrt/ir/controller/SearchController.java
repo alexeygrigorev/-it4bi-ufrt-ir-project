@@ -38,6 +38,7 @@ public class SearchController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SearchController.class);
 	
+	
 	@Autowired
 	private DocumentsDAO docsDAO;
 	

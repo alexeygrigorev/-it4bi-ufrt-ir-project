@@ -4,10 +4,12 @@ package it4bi.ufrt.ir.service.doc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
@@ -16,6 +18,23 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Version;
+/*
+import org.apache.mahout.cf.taste.common.Refreshable;
+import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
+import org.apache.mahout.cf.taste.impl.common.FastIDSet;
+import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
+import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
+import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.model.DataModel;
+import org.apache.mahout.cf.taste.model.JDBCDataModel;
+import org.apache.mahout.cf.taste.model.PreferenceArray;
+import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
+import org.apache.mahout.cf.taste.recommender.Recommender;
+import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
+import org.apache.mahout.cf.taste.similarity.UserSimilarity;*/
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +45,19 @@ import org.springframework.stereotype.Component;
 public class DocumentsService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentsService.class);
+	
 	public DocumentsDAO2 documentsDAO;
+	
+	//Recommendation Stuff
+	
+	
+	//private JDBCDataModel datamodel;
+	//private UserBasedRecommender recommender;
+	//private UserSimilarity similarity;
+	//private UserNeighborhood neighborhood;
+	
+	
+	
 	
 	@Value("${documents.index}")
 	private String indexLocation;
@@ -36,12 +67,28 @@ public class DocumentsService {
 	
 	 @Autowired
      public DocumentsService(DocumentsDAO2 documentsDAO) {
-		 this.documentsDAO = documentsDAO;            
+		 this.documentsDAO = documentsDAO;
+		 
+		 /*
+		 datamodel = new RecommenderDataModel(documentsDAO);
+		 try {
+			similarity = new PearsonCorrelationSimilarity(datamodel);
+		} catch (TasteException e) {
+			e.printStackTrace();
+		}
+		 neighborhood = new ThresholdUserNeighborhood(0.1, similarity, datamodel);
+		 recommender = new GenericUserBasedRecommender(datamodel, neighborhood, similarity);*/
+		 
      }
+	 
+	 
 	 
 	 private ScoreDoc[] hits = null;
 	 private List<DocumentSearchResultRow> resultSet = null;
 	 private Integer userId = 0;
+	 
+	 
+	 
 	
 	 public List<DocumentSearchResultRow> find(String query, int userID) {
 		 this.userId = userID;
@@ -153,6 +200,12 @@ public class DocumentsService {
 	}
 	
 	
+	 public List<DocumentSearchResultRow> getRecommendations(int userID) {
+		 
+		 
+		return null;
+		 
+	 }
 	 
 	 
 	/*public void rebuildDocsIndex() throws Exception {

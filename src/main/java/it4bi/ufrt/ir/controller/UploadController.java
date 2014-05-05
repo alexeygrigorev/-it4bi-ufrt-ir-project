@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -54,6 +56,8 @@ import org.springframework.stereotype.Component;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
+import com.googlecode.mp4parser.h264.Debug;
+
 @Component
 @Path("/upload")
 // TODO: needs renaming
@@ -62,6 +66,8 @@ public class UploadController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
 
+	
+	
 	@Autowired
 	private DocumentsDAO docsDAO;
 	
@@ -83,6 +89,8 @@ public class UploadController {
 	@Value("${documents.score.likeScore}")
 	private float likeScore;
 
+	private Long start_ms, end_ms;
+	
 	@GET
 	@Path("/get/{docID}")
 	public Response getFile(@PathParam("docID") String docIDStr) {
@@ -210,14 +218,30 @@ public class UploadController {
 			}
 
 			documentRecord.setTags(tags);
-
+			
+			start_ms = System.currentTimeMillis();
+			
 			//docsDAO.insertUserDocsAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
 			documentsDAO.insertUserDocAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
 			
+			end_ms = System.currentTimeMillis();
+			
+			LOGGER.debug("Benchmark: Insertion User-Document Association took: " + (end_ms - start_ms)/1000.0f + "ms");
+			start_ms = System.currentTimeMillis();
+			
 			documentsDAO.updateTags(tags, documentRecord.getDocId());
+			
+			end_ms = System.currentTimeMillis();
+			
+			LOGGER.debug("Benchmark: Updating Tags took: " + (end_ms - start_ms)/1000.0f + "ms");
+			start_ms = System.currentTimeMillis();
 			
 			//docsDAO.updateTagScores(userID, tags, ownerScore);
 			documentsDAO.updateUserTagsScores(userID, tags, ownerScore);
+			
+			end_ms = System.currentTimeMillis();
+			
+			LOGGER.debug("Benchmark: Updating User-Tag Scores took: " + (end_ms - start_ms)/1000.0f + "ms");
 
 		
 
