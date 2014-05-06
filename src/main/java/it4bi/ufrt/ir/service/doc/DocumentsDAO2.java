@@ -98,18 +98,23 @@ public class DocumentsDAO2 {
 		return assoc_type;
 	}
 	
+	
 	public void updateUserTagsScores(int userID, List<Tag> tags, float deltaScore) {
+		
+		StringBuilder query = new StringBuilder();
 		
 		Map<String, Object> params = new HashMap<String, Object>();
 		params.put("userID", userID);
 		params.put("deltaScore", deltaScore);
 		
-		int ctr = 0;
-		for(Tag tag : tags) {
-			params.put("tag" + ++ctr, tag.getTag());
+		
+		for(int ctr = 0; ctr < tags.size(); ctr++) {
+			String tagText = tags.get(ctr).getTag();
+			query.append("exec updateUserTagScore :userID, :deltaScore, '" + tagText + "'\n");
 		}
 		
-		this.jdbcTemplate.update("updateUserTagScores :userID, :deltaScore, :tag1, :tag2, :tag3, :tag4", params);
+		
+		this.jdbcTemplate.update(query.toString(), params);
 	
 	}
 	
