@@ -75,6 +75,7 @@ public class DocumentIndexer {
          doc.add(new StoredField("id", documentRecord.getDocId()));
          doc.add(new StoredField("uploaderId", documentRecord.getUploaderId()));
          doc.add(new TextField("title", documentRecord.getDocTitle(), Field.Store.YES));
+         doc.add(new TextField("mime", documentRecord.getMime(), Field.Store.YES));
          //doc.add(new TextField("content", documentRecord.getFullText() , Field.Store.NO));
          doc.add(new Field("content", documentRecord.getFullText(), type));
          writer.addDocument(doc);

@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.lucene.search.ScoreDoc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -46,6 +46,8 @@ public class DocumentsDAO2 {
 		
 	}
 	
+	
+	
 	private class DocumentRecordRowMapper implements RowMapper {
 		public int docID;
 		
@@ -71,22 +73,22 @@ public class DocumentsDAO2 {
 	
 	
 
-	public DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
+	public DOCUSER_ASSOC_TYPE getUserDocAssociation(int docID, int userID) {
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("docID", new Integer(docID));
 		parameters.put("userID", new Integer(userID));
 		
-		DOCUSER_ASSOC assoc_type = null;
+		DOCUSER_ASSOC_TYPE assoc_type = null;
 		try {
 			assoc_type = this.jdbcTemplate.queryForObject(
-					"select * from UserDocs where userID = :userID and docID = :docID", parameters, new RowMapper<DOCUSER_ASSOC>() {
+					"select * from UserDocs where userID = :userID and docID = :docID", parameters, new RowMapper<DOCUSER_ASSOC_TYPE>() {
 
 						@Override
-						public DOCUSER_ASSOC mapRow(ResultSet rs, int rowNum) throws SQLException {
+						public DOCUSER_ASSOC_TYPE mapRow(ResultSet rs, int rowNum) throws SQLException {
 							
-							if(rs.getString("isOwned").equals("1")) return DOCUSER_ASSOC.OWNS;
-							else if(rs.getString("isLiked").equals("1")) return DOCUSER_ASSOC.LIKES;
+							if(rs.getString("isOwned").equals("1")) return DOCUSER_ASSOC_TYPE.OWNS;
+							else if(rs.getString("isLiked").equals("1")) return DOCUSER_ASSOC_TYPE.LIKES;
 							else return null;// shouldn't happen
 						}
 					});
@@ -136,7 +138,7 @@ public class DocumentsDAO2 {
 		return score;
 	}
 	
-	public void updateUserTagScore(int userID, String tagID, float deltaScore) {
+	public void updateUserTagScore(int userID, int tagID, float deltaScore) {
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("userID", userID);
@@ -150,16 +152,16 @@ public class DocumentsDAO2 {
 		
 	}
 	
-	public void insertUserDocAssociation(int docID, int userID, DOCUSER_ASSOC assocType) {
+	public void insertUserDocAssociation(int docID, int userID, DOCUSER_ASSOC_TYPE assocType) {
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
 		parameters.put("docID", new Integer(docID));
 		parameters.put("userID", new Integer(userID));
-		if(assocType.equals(DOCUSER_ASSOC.LIKES)) {
+		if(assocType.equals(DOCUSER_ASSOC_TYPE.LIKES)) {
 			parameters.put("isLiked", new Boolean(true));
 			parameters.put("isOwned", new Boolean(false));
 		}
-		else if(assocType.equals(DOCUSER_ASSOC.OWNS)) {
+		else if(assocType.equals(DOCUSER_ASSOC_TYPE.OWNS)) {
 			parameters.put("isLiked", new Boolean(false));
 			parameters.put("isOwned", new Boolean(true));
 		}
@@ -282,5 +284,179 @@ public class DocumentsDAO2 {
 	//needed for a secondary functionality
 	public void getUploadedDocs(int userID) {
 		
+	}
+
+
+	public int getTagCount() {
+		
+		return this.jdbcTemplate.queryForObject("select count(*) from Tags", new HashMap<String, Object>(), Integer.class);
+		
+	}
+
+
+	public int getUserCount() {
+		return this.jdbcTemplate.queryForObject("select count(*) from Documents", new HashMap<String, Object>(), Integer.class);
+		
+	}
+
+
+	public float getUserDocAffinity(int userID, int docID) { // HERE WE HAVE PERFORMANCE LEAK!
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("docID", docID);
+		params.put("userID", userID);
+		
+		Float affinity = this.jdbcTemplate.queryForObject("select avg(score) from Documents doc, DocTags doctags, UserTags usertags where doc.docID = :docID and doc.docID = doctags.docID and doctags.tagID = usertags.tagID and usertags.userID = :userID", params, Float.class);
+		
+		if(affinity == null) affinity = 0f;
+		return affinity/5f;
+		
+	}
+
+
+	public List<Long> getAllUserIDs() {
+		
+		List<Map<String, Object>> rows;
+		List<Long> userIDs = new ArrayList<Long>();
+		
+		rows = this.jdbcTemplate.queryForList("select userID from Users", new HashMap<String, Object>());
+		
+		
+		for(Map<String, Object> row : rows) {
+			//Integer userID = Integer.parseInt(String.valueOf(row.get("userID")));
+			Integer userID = (Integer) (row.get("userID"));
+			userIDs.add((long) userID);
+		}
+		
+		return userIDs;
+	}
+
+
+	public List<ImmutablePair<Integer, Float>> getTagScoresByUserID(int userID) {
+		
+		List<Map<String, Object>> rows;
+		List<ImmutablePair<Integer, Float>> tagScores = new ArrayList<ImmutablePair<Integer, Float>>();
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
+		
+		rows = this.jdbcTemplate.queryForList("select tagID, score from UserTags where userID = :userID", params);
+		
+		for(Map<String, Object> row : rows) {
+			Integer tagID = (Integer) row.get("tagID");
+			Float score = (Float) row.get("score");
+			
+			ImmutablePair<Integer, Float> tagScore = new ImmutablePair<>(tagID, score);
+			tagScores.add(tagScore);
+		}
+		
+		return tagScores;
+		
+	}
+
+
+	public List<Long> getAllTagIDs() {
+		List<Map<String, Object>> rows;
+		List<Long> tagIDs = new ArrayList<Long>();
+		
+		rows = this.jdbcTemplate.queryForList("select tagID from Tags", new HashMap<String, Object>());
+		
+		
+		for(Map<String, Object> row : rows) {
+			//Integer userID = Integer.parseInt(String.valueOf(row.get("userID")));
+			Integer tagID = (Integer) (row.get("tagID"));
+			tagIDs.add((long) tagID);
+		}
+		
+		return tagIDs;
+		
+	}
+
+
+	public List<ImmutablePair<Integer, Float>> getAllTagScoresByTagID(int tagID) {
+		
+		List<Map<String, Object>> rows;
+		List<ImmutablePair<Integer, Float>> tagScores = new ArrayList<ImmutablePair<Integer, Float>>();
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("tagID", tagID);
+		
+		rows = this.jdbcTemplate.queryForList("select userID, score from UserTags where tagID = :tagID", params);
+		
+		for(Map<String, Object> row : rows) {
+			Integer userID = (Integer) row.get("userID");
+			Float score = (Float) row.get("score");
+			
+			ImmutablePair<Integer, Float> tagScore = new ImmutablePair<>(userID, score);
+			tagScores.add(tagScore);
+		}
+		
+		return tagScores;
+	}
+
+
+
+	public int getNumUsersRankedACertainTag(int tagID) {
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("tagID", tagID);
+		
+		return this.jdbcTemplate.queryForObject("select count(userID) from UserTags where tagID = :tagID", params, Integer.class);
+	}
+
+
+	public int getNumUsersRankedACertainTagPair(int tagID1, int tagID2) {
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("tagID1", tagID1);
+		params.put("tagID2", tagID2);
+		
+		return this.jdbcTemplate.queryForObject("select count(userID) from UserTags u1, UserTags u2 where u1.tagID = :tagID1 and u2.tagID = :tagID2 and u1.userID = u2.userID", params, Integer.class);
+		
+	}
+
+
+	public void removeUserTagScore(int userID, int tagID) {
+		
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("userID", userID);
+		parameters.put("tagID", tagID);
+		
+		this.jdbcTemplate.update(
+				"if exists (select * from UserTags where userID = :userID and tagID = :tagID)"
+				+ "delete from UserTags where userID = :userID and tagID = :tagID", parameters);
+		
+		
+	}
+
+
+	public List<DocUserAssociation> getUserDocAssociationSummary(int userID, ScoreDoc[] hits) {
+		
+		List<DocUserAssociation> docUserAssociationList = new ArrayList<DocUserAssociation>();
+		
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
+		
+		for(int ctr = 0; ctr < hits.length; ctr++) {
+			params.put("docID", hits[ctr].doc);
+			DocUserAssociation doc_user_assoc = this.jdbcTemplate.queryForObject("getUserDocAssoc :userID, :docID", params, new RowMapper<DocUserAssociation>() {
+
+				@Override
+				public DocUserAssociation mapRow(ResultSet rs, int rowNum) throws SQLException {
+					Float affinity = Float.parseFloat(rs.getString("affinity"));
+					String assoc_type_string = rs.getString("assoc_type");
+					DOCUSER_ASSOC_TYPE assoc_type = null;
+					if(assoc_type_string.equals("Likes")) assoc_type = DOCUSER_ASSOC_TYPE.LIKES;
+					else if(assoc_type_string.equals("Owns")) assoc_type = DOCUSER_ASSOC_TYPE.OWNS;
+					
+					return new DocUserAssociation(assoc_type, affinity);
+				}
+			});
+			
+			docUserAssociationList.add(doc_user_assoc);
+			
+		}
+		
+		return docUserAssociationList;
 	}
 }

@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
-import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC;
+import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC_TYPE;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.Tag;
 
@@ -19,7 +19,7 @@ public class DocumentDatabase {
 	private static Map<Integer, DocumentRecord> documents = new HashMap<Integer, DocumentRecord>();
     private static Map<String,Tag> tagDictionary = new HashMap<String,Tag>();
     private static Map<Pair<Integer,Integer>, Float> tagsUsersTable = new HashMap<Pair<Integer,Integer>, Float>();
-    private static Map<Pair<Integer,Integer>, DOCUSER_ASSOC> docsUsersTable = new HashMap<Pair<Integer,Integer>, DOCUSER_ASSOC>();
+    private static Map<Pair<Integer,Integer>, DOCUSER_ASSOC_TYPE> docsUsersTable = new HashMap<Pair<Integer,Integer>, DOCUSER_ASSOC_TYPE>();
 	
     
     public static int currentTagDictionarySize() {
@@ -63,7 +63,7 @@ public class DocumentDatabase {
 
 
 
-	public static void insertDocUserValue(int docId, int userID,DOCUSER_ASSOC type) {
+	public static void insertDocUserValue(int docId, int userID,DOCUSER_ASSOC_TYPE type) {
 		docsUsersTable.put(new ImmutablePair<Integer, Integer>(docId, userID), type);
 		
 	}
@@ -92,7 +92,7 @@ public class DocumentDatabase {
 
 
 
-	public static DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
+	public static DOCUSER_ASSOC_TYPE getUserDocAssociation(int docID, int userID) {
 		
 		ImmutablePair<Integer, Integer> key = new ImmutablePair<Integer, Integer>(docID, userID);
 		return docsUsersTable.get(key);

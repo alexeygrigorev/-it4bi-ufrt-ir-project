@@ -1,6 +1,6 @@
 package it4bi.ufrt.ir.controller;
 
-import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC;
+import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC_TYPE;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO;
 import it4bi.ufrt.ir.service.doc.DocumentsDAO2;
@@ -120,19 +120,19 @@ public class UploadController {
 
 		LOGGER.debug("like file. UserID {}; DocID: {}", userID, docID);
 
-		DOCUSER_ASSOC assoc_type = documentsDAO.getUserDocAssociation(docID, userID);
+		DOCUSER_ASSOC_TYPE assoc_type = documentsDAO.getUserDocAssociation(docID, userID);
 		
-		if(assoc_type != null && assoc_type.equals(DOCUSER_ASSOC.LIKES)) {
+		if(assoc_type != null && assoc_type.equals(DOCUSER_ASSOC_TYPE.LIKES)) {
 			String output = "Already Liked";
 			return Response.status(200).entity(output).build();
 		}
-		else if(assoc_type != null && assoc_type.equals(DOCUSER_ASSOC.OWNS)) {
+		else if(assoc_type != null && assoc_type.equals(DOCUSER_ASSOC_TYPE.OWNS)) {
 			String output = "Self-Favoriting is not allowed";
 			return Response.status(200).entity(output).build();
 		}
 		
 		//docsDAO.insertUserDocsAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
-		documentsDAO.insertUserDocAssociation(docID, userID, DOCUSER_ASSOC.LIKES);
+		documentsDAO.insertUserDocAssociation(docID, userID, DOCUSER_ASSOC_TYPE.LIKES);
 
 		//DocumentRecord docRec = docsDAO.getDocByDocId(docID);
 		DocumentRecord docRec = documentsDAO.getDocByID(docID);
@@ -222,7 +222,7 @@ public class UploadController {
 			start_ms = System.currentTimeMillis();
 			
 			//docsDAO.insertUserDocsAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
-			documentsDAO.insertUserDocAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC.OWNS);
+			documentsDAO.insertUserDocAssociation(documentRecord.getDocId(), userID, DOCUSER_ASSOC_TYPE.OWNS);
 			
 			end_ms = System.currentTimeMillis();
 			

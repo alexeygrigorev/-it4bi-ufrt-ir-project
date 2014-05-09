@@ -86,7 +86,7 @@ public class DocumentsDAO {
 	 }
 	
 	//Migrated to insertUserDocAssociation
-	public void insertUserDocsAssociation(int docId, int userID, DOCUSER_ASSOC type) {
+	public void insertUserDocsAssociation(int docId, int userID, DOCUSER_ASSOC_TYPE type) {
 		
 		DocumentDatabase.insertDocUserValue(docId, userID, type);
 	}
@@ -102,7 +102,7 @@ public class DocumentsDAO {
 	}
 
 	//Migrated to getUserDocAssociation
-	public DOCUSER_ASSOC getUserDocAssociation(int docID, int userID) {
+	public DOCUSER_ASSOC_TYPE getUserDocAssociation(int docID, int userID) {
 		
 		return DocumentDatabase.getUserDocAssociation(docID, userID);
 	}

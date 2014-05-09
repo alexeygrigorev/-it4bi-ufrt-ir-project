@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -18,6 +20,15 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Version;
+import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
+import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
+import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.model.JDBCDataModel;
+import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
+import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
+import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 /*
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -41,6 +52,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import edu.stanford.nlp.util.ArrayMap;
+
 @Component
 public class DocumentsService {
 
@@ -51,10 +64,10 @@ public class DocumentsService {
 	//Recommendation Stuff
 	
 	
-	//private JDBCDataModel datamodel;
-	//private UserBasedRecommender recommender;
-	//private UserSimilarity similarity;
-	//private UserNeighborhood neighborhood;
+	private JDBCDataModel datamodel;
+	private UserBasedRecommender recommender;
+	private UserSimilarity similarity;
+	private UserNeighborhood neighborhood;
 	
 	
 	
@@ -63,13 +76,12 @@ public class DocumentsService {
 	private String indexLocation;
 
 	@Value("${documents.resultranking.personalization}")
-	private double personalizationCoef;
+	private float personalizationCoef;
 	
 	 @Autowired
      public DocumentsService(DocumentsDAO2 documentsDAO) {
 		 this.documentsDAO = documentsDAO;
 		 
-		 /*
 		 datamodel = new RecommenderDataModel(documentsDAO);
 		 try {
 			similarity = new PearsonCorrelationSimilarity(datamodel);
@@ -77,16 +89,15 @@ public class DocumentsService {
 			e.printStackTrace();
 		}
 		 neighborhood = new ThresholdUserNeighborhood(0.1, similarity, datamodel);
-		 recommender = new GenericUserBasedRecommender(datamodel, neighborhood, similarity);*/
-		 
+		 recommender = new GenericUserBasedRecommender(datamodel, neighborhood, similarity);
      }
 	 
 	 
 	 
 	 private ScoreDoc[] hits = null;
 	 private List<DocumentSearchResultRow> resultSet = null;
+	 private List<DocUserAssociation> associationSummaryList = null;
 	 private Integer userId = 0;
-	 
 	 
 	 
 	
@@ -129,6 +140,16 @@ public class DocumentsService {
 		}
 		
 		LOGGER.debug("---Results found: " + hits.length);
+		
+		long start_ms, end_ms;
+		start_ms = System.currentTimeMillis();
+		
+		associationSummaryList = this.documentsDAO.getUserDocAssociationSummary(userID, hits);
+		
+		end_ms = System.currentTimeMillis();
+		System.out.println((end_ms-start_ms)/1000f + "sec");
+		
+		
 		for(int i=0; i < hits.length; ++i) {
 			int docId = hits[i].doc;
 		    Document doc = null;
@@ -143,57 +164,51 @@ public class DocumentsService {
 			int docID = Integer.parseInt(doc.get("id"));
 			String docTitle = doc.get("title");
 			int uploaderID = Integer.parseInt(doc.get("uploaderId"));
-			float score = hits[i].score;
-														
-			DocumentRecord docRecord = documentsDAO.getDocByID(docID);
+			String docMime = doc.get("mime");
+			
+			DocumentRecord docRecord = new DocumentRecord(docID, docTitle, uploaderID, docMime); //documentsDAO.getDocByID(docID);
+			  
+			float raw_score = hits[i].score;
+			
+			
+			
+			//float personalization_score = documentsDAO.getUserDocAffinity(userId, docID);
+			
+			float personalization_score = associationSummaryList.get(i).affinity;
+			float score = (1-personalizationCoef)*raw_score + personalizationCoef*personalization_score;
+			
+			
 			DocumentSearchResultRow resultRow = new DocumentSearchResultRow(docRecord, score);
-			DOCUSER_ASSOC assocType = documentsDAO.getUserDocAssociation(docID, userID);
+			//DOCUSER_ASSOC_TYPE assocType = documentsDAO.getUserDocAssociation(docID, userID);
+			DOCUSER_ASSOC_TYPE assocType = associationSummaryList.get(i).assocType;
+			
+			
 			
 			if(assocType != null) {
-				if(assocType.equals(DOCUSER_ASSOC.LIKES)) resultRow.setLiked(true);
-				if(assocType.equals(DOCUSER_ASSOC.OWNS)) resultRow.setOwned(true);
+				if(assocType.equals(DOCUSER_ASSOC_TYPE.LIKES)) resultRow.setLiked(true);
+				if(assocType.equals(DOCUSER_ASSOC_TYPE.OWNS)) resultRow.setOwned(true);
 			}
 			
 			resultSet.add(resultRow);
-		    LOGGER.debug(docTitle + ", " + uploaderID + " - non-personalized score: " + score);
+		    LOGGER.debug(docTitle + ", " + uploaderID + " - personalized score: " + score);
 		}
 		
+		//List<Float> userDocScores = new ArrayList<Float>();
+		/*Map<Integer,Float> userDocScores = new HashMap<Integer,Float>();
 		
-		
+		for(DocumentSearchResultRow row : resultSet) {
+			Integer docID = row.getDocId();
+			Float score = documentsDAO.getUserDocAffinity(userId, docID);
+			userDocScores.put(docID, score);
+		}*/
 		
 		// Sort documents by score DESCENDING
 		Collections.sort(resultSet,  new Comparator<DocumentSearchResultRow>() {
 			
-	        public int compare(DocumentSearchResultRow d1, DocumentSearchResultRow d2) {
-	        	Double score1, score2;
-	        	
-	        	score1 = d1.getScore()*(1-personalizationCoef) + calcUserDocAffinity(userId, d1)*personalizationCoef;
-	        	score2 = d2.getScore()*(1-personalizationCoef) + calcUserDocAffinity(userId, d2)*personalizationCoef;
-	        	
-	        	// Quick fix of scores. 
-	        	/*
-	        	if (d1.getUploaderId() == userId){
-	        		score1 = score1 + 0.25 * score1;  
-	        	}
-	        	if (d2.getUploaderId() == userId){
-	        		score2 = score2 + 0.25 * score2;  
-	        	}*/
-	        	
-	        	if (score1.equals(score2)) return 0;
-	        	
-	        	return (score2 < score1) ? -1 : 1; 	        	
+			public int compare(DocumentSearchResultRow d1, DocumentSearchResultRow d2) {
+	        	if (d1.getScore() == d2.getScore()) return 0;
+	        	return (d2.getScore() < d1.getScore()) ? -1 : 1; 	        	
 	        }
-
-			private double calcUserDocAffinity(Integer userId, DocumentSearchResultRow docRec) {
-				
-				float agg_score = 0f;
-				
-				for(Tag tag : docRec.getTags()) {
-					agg_score += documentsDAO.getUserTagScore(tag.getTagId(), userId);
-				}
-				
-				return agg_score;
-			}
 	    });
 		
 		return resultSet;
@@ -201,6 +216,14 @@ public class DocumentsService {
 	
 	
 	 public List<DocumentSearchResultRow> getRecommendations(int userID) {
+		 
+		 List<RecommendedItem> recommended = new ArrayList<RecommendedItem>(); 
+		 
+		 try {
+			recommended = recommender.recommend(userID, 1);
+		} catch (TasteException e) {
+			e.printStackTrace();
+		}
 		 
 		 
 		return null;

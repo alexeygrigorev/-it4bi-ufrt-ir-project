@@ -69,6 +69,8 @@ public class SearchController {
 	@Value("${documents.score.query}")
 	private float queryScore;
 	
+	private long start_ms, end_ms;
+	
 	@GET
 	@Path("/doc")
 	@Produces("application/json; charset=UTF-8")
@@ -79,6 +81,8 @@ public class SearchController {
 		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
 		String correctedQuery = (qr.getIsCorrected() ? qr.getCorrectedQuery() : query);
 		
+		start_ms = System.currentTimeMillis();
+		
 		// Document search
 		List<DocumentSearchResultRow> resultSet = documents.find(correctedQuery, userID);
 		
@@ -88,6 +92,11 @@ public class SearchController {
 		
 		List<Tag> tagList = new ArrayList<Tag>();
 		
+		end_ms = System.currentTimeMillis();
+		
+		LOGGER.debug("Benchmark: Retrieving Result set took: " + (end_ms - start_ms)/1000.0f + "ms");
+		start_ms = System.currentTimeMillis();
+		
 		for(int ctr = 0; ctr < tokens.length; ctr++) {
 			//Tag tag = docsDAO.getTag(tokens[ctr]);
 			Tag tag = documentsDAO.getTagByTagText(tokens[ctr]);
@@ -96,10 +105,19 @@ public class SearchController {
 			}
 		}
 		
+		end_ms = System.currentTimeMillis();
+		
+		LOGGER.debug("Benchmark: Retrieving TagIDs from search-terms took: " + (end_ms - start_ms)/1000.0f + "ms");
+		start_ms = System.currentTimeMillis();
+		
 		if(!tagList.isEmpty()) {
 			//docsDAO.updateTagScores(userID, tagList, queryScore);
 			documentsDAO.updateUserTagsScores(userID, tagList, queryScore);
 		}
+		
+		end_ms = System.currentTimeMillis();
+		
+		LOGGER.debug("Benchmark: Updating User-Tag Scores took: " + (end_ms - start_ms)/1000.0f + "ms");
 		
 		return resultSet;
 	}	

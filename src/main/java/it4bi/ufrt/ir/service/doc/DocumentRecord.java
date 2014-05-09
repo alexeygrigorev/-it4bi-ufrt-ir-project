@@ -36,7 +36,7 @@ public class DocumentRecord {
 	}
 	
 	public DocumentRecord(int docId, String docTitle, int uploaderId, String mime) {
-		this.docId = docIdCounter++;
+		this.docId = docId;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
 		this.mime = mime;

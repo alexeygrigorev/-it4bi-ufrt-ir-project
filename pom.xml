@@ -200,6 +200,20 @@
 			<version>4.1.0</version>
 		</dependency>
             
+            
+        <!-- Recommendation -->
+        <dependency>
+			<groupId>org.apache.mahout</groupId>
+			<artifactId>mahout-core</artifactId>
+			<version>0.9</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-core</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+                
 
 		<!-- Tests -->
 		<dependency>
