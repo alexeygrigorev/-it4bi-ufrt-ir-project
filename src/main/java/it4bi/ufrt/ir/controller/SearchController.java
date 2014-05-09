@@ -26,6 +26,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,17 @@ public class SearchController {
 	private float queryScore;
 	
 	private long start_ms, end_ms;
+	
+	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/rec?u=408311
+	@GET
+	@Path("/rec")
+	@Produces("application/json; charset=UTF-8")
+	public List<RecommendedItem> recommendations(@QueryParam("u") int userID) {				
+		LOGGER.debug("get recommendations. UserID {}", userID);
+		
+		return documents.getRecommendations(userID);
+		
+	}
 	
 	@GET
 	@Path("/doc")

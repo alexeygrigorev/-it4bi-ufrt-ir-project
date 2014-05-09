@@ -345,7 +345,9 @@ public class DocumentsDAO2 {
 		
 		for(Map<String, Object> row : rows) {
 			Integer tagID = (Integer) row.get("tagID");
-			Float score = (Float) row.get("score");
+			Float score = ((Double) row.get("score")).floatValue();  // damn tricky!
+			
+			
 			
 			ImmutablePair<Integer, Float> tagScore = new ImmutablePair<>(tagID, score);
 			tagScores.add(tagScore);
@@ -386,7 +388,7 @@ public class DocumentsDAO2 {
 		
 		for(Map<String, Object> row : rows) {
 			Integer userID = (Integer) row.get("userID");
-			Float score = (Float) row.get("score");
+			Float score = ((Double) row.get("score")).floatValue();  // damn tricky!
 			
 			ImmutablePair<Integer, Float> tagScore = new ImmutablePair<>(userID, score);
 			tagScores.add(tagScore);

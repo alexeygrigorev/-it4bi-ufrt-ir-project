@@ -88,7 +88,7 @@ public class DocumentsService {
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
-		 neighborhood = new ThresholdUserNeighborhood(0.1, similarity, datamodel);
+		 neighborhood = new ThresholdUserNeighborhood(0.0001, similarity, datamodel);
 		 recommender = new GenericUserBasedRecommender(datamodel, neighborhood, similarity);
      }
 	 
@@ -215,7 +215,7 @@ public class DocumentsService {
 	}
 	
 	
-	 public List<DocumentSearchResultRow> getRecommendations(int userID) {
+	 public List<RecommendedItem> getRecommendations(int userID) {
 		 
 		 List<RecommendedItem> recommended = new ArrayList<RecommendedItem>(); 
 		 
@@ -225,8 +225,12 @@ public class DocumentsService {
 			e.printStackTrace();
 		}
 		 
+		 for(RecommendedItem item : recommended) {
+			 LOGGER.debug("Recommender: " + item.getItemID() + " is recommended");
+		 }
 		 
-		return null;
+		 
+		return recommended;
 		 
 	 }
 	 

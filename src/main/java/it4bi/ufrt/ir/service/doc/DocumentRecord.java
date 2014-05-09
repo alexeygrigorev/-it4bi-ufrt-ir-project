@@ -19,7 +19,6 @@ public class DocumentRecord {
 	private String docPath;
 	private int docId;
 	private int uploaderId;
-	private static int docIdCounter = 0;
 	private List<Tag> tags;
 	private String mime;
 	
@@ -43,14 +42,12 @@ public class DocumentRecord {
 	}
 	
 	public DocumentRecord(String docTitle, int uploaderId, String mime) {
-		this.docId = docIdCounter++;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;
 		this.mime = mime;
 	}
 	
 	public DocumentRecord(String docTitle, String docPath, int uploaderId, String mime) {
-		this.docId = docIdCounter++;
 		this.docPath = docPath;
 		this.docTitle = docTitle;
 		this.uploaderId = uploaderId;

@@ -1,15 +1,18 @@
 package it4bi.ufrt.ir.service.doc;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.common.FastByIDMap;
 import org.apache.mahout.cf.taste.impl.common.FastIDSet;
+import org.apache.mahout.cf.taste.impl.common.LongPrimitiveArrayIterator;
 import org.apache.mahout.cf.taste.impl.common.LongPrimitiveIterator;
 import org.apache.mahout.cf.taste.impl.model.GenericUserPreferenceArray;
 import org.apache.mahout.cf.taste.model.JDBCDataModel;
@@ -29,7 +32,10 @@ public class RecommenderDataModel implements JDBCDataModel {
 	public LongPrimitiveIterator getUserIDs() throws TasteException {
 		
 		List<Long> userIDs = docsDao.getAllUserIDs();
-		LongPrimitiveIterator longPrimitiveIt = (LongPrimitiveIterator) userIDs.iterator();
+		
+		long[] array = ArrayUtils.toPrimitive((Long[]) userIDs.toArray(new Long[userIDs.size()]));
+		
+		LongPrimitiveIterator longPrimitiveIt = new LongPrimitiveArrayIterator(array);
 		
 		return longPrimitiveIt;
 	}
@@ -50,7 +56,7 @@ public class RecommenderDataModel implements JDBCDataModel {
 			ctr++;
 		}
 		
-		return null;
+		return preferenceArray;
 	}
 
 	@Override
@@ -69,7 +75,13 @@ public class RecommenderDataModel implements JDBCDataModel {
 	@Override
 	public LongPrimitiveIterator getItemIDs() throws TasteException {
 		
-		return (LongPrimitiveIterator) docsDao.getAllTagIDs().iterator();
+		List<Long> tagIDs = docsDao.getAllTagIDs();
+		
+		long[] array = ArrayUtils.toPrimitive((Long[]) tagIDs.toArray(new Long[tagIDs.size()]));
+		
+		LongPrimitiveIterator longPrimitiveIt = new LongPrimitiveArrayIterator(array);
+		
+		return longPrimitiveIt; 
 	}
 
 	@Override
