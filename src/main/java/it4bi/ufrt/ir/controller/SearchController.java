@@ -1,8 +1,7 @@
 package it4bi.ufrt.ir.controller;
 
 import it4bi.ufrt.ir.service.doc.DocumentSearchResultRow;
-import it4bi.ufrt.ir.service.doc.DocumentsDAO;
-import it4bi.ufrt.ir.service.doc.DocumentsDAO2;
+import it4bi.ufrt.ir.service.doc.DocumentsDao;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
 import it4bi.ufrt.ir.service.doc.Tag;
 import it4bi.ufrt.ir.service.dw.DatawarehouseService;
@@ -41,10 +40,7 @@ public class SearchController {
 	
 	
 	@Autowired
-	private DocumentsDAO docsDAO;
-	
-	@Autowired
-	private DocumentsDAO2 documentsDAO;
+	private DocumentsDao documentsDAO;
 	
 	@Autowired
 	private DocumentsService documents;

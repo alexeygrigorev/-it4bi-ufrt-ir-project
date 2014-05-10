@@ -23,6 +23,7 @@ import org.apache.lucene.util.Version;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
+import org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.JDBCDataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
@@ -59,7 +60,7 @@ public class DocumentsService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentsService.class);
 	
-	public DocumentsDAO2 documentsDAO;
+	public DocumentsDao documentsDAO;
 	
 	//Recommendation Stuff
 	
@@ -79,17 +80,19 @@ public class DocumentsService {
 	private float personalizationCoef;
 	
 	 @Autowired
-     public DocumentsService(DocumentsDAO2 documentsDAO) {
+     public DocumentsService(DocumentsDao documentsDAO) {
 		 this.documentsDAO = documentsDAO;
 		 
 		 datamodel = new RecommenderDataModel(documentsDAO);
 		 try {
-			similarity = new PearsonCorrelationSimilarity(datamodel);
+			//similarity = new PearsonCorrelationSimilarity(datamodel);
+			similarity = new EuclideanDistanceSimilarity(datamodel);
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
 		 neighborhood = new ThresholdUserNeighborhood(0.0001, similarity, datamodel);
-		 recommender = new GenericUserBasedRecommender(datamodel, neighborhood, similarity);
+		 recommender = new MyUserBasedRecommender(datamodel, neighborhood, similarity, 0.0001f);
+		 
      }
 	 
 	 
@@ -217,22 +220,29 @@ public class DocumentsService {
 	
 	 public List<RecommendedItem> getRecommendations(int userID) {
 		 
-		 List<RecommendedItem> recommended = new ArrayList<RecommendedItem>(); 
+		 List<RecommendedItem> recommended = null;
 		 
 		 try {
-			recommended = recommender.recommend(userID, 1);
+			recommended = ((MyUserBasedRecommender) recommender).recommend_custom(userID);
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
 		 
-		 for(RecommendedItem item : recommended) {
-			 LOGGER.debug("Recommender: " + item.getItemID() + " is recommended");
+		 for(RecommendedItem recommendedDoc : recommended) {
+			 LOGGER.debug("Recommender: Doc wth docID " + recommendedDoc.getItemID() + " is recommended with " + recommendedDoc.getValue()*100f + "% confidence");
 		 }
 		 
 		 
 		return recommended;
 		 
 	 }
+
+
+	private void updateRecommendedDocIDs(List<Long> recommendedDocIDs,
+			int userID2, Long neigbouringUser) {
+		// TODO Auto-generated method stub
+		
+	}
 	 
 	 
 	/*public void rebuildDocsIndex() throws Exception {

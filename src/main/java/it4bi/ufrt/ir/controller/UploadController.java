@@ -2,8 +2,7 @@ package it4bi.ufrt.ir.controller;
 
 import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC_TYPE;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
-import it4bi.ufrt.ir.service.doc.DocumentsDAO;
-import it4bi.ufrt.ir.service.doc.DocumentsDAO2;
+import it4bi.ufrt.ir.service.doc.DocumentsDao;
 import it4bi.ufrt.ir.service.doc.Tag;
 
 import java.io.File;
@@ -65,14 +64,9 @@ public class UploadController {
 	private static final int NOT_FOUND_STATUS = 404;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UploadController.class);
-
-	
 	
 	@Autowired
-	private DocumentsDAO docsDAO;
-	
-	@Autowired
-	private DocumentsDAO2 documentsDAO;
+	private DocumentsDao documentsDAO;
 	
 	@Value("${documents.upload.folder}")
 	private String uploadLocation;

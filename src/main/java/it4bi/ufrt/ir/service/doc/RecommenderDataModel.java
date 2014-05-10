@@ -22,10 +22,29 @@ import org.apache.mahout.cf.taste.model.PreferenceArray;
 
 public class RecommenderDataModel implements JDBCDataModel {
 
-	private DocumentsDAO2 docsDao;
+	private DocumentsDao docsDao;
 	
-	public RecommenderDataModel(DocumentsDAO2 docsDao) {
+	public RecommenderDataModel(DocumentsDao docsDao) {
 		this.docsDao = docsDao;
+	}
+	
+	public DOCUSER_ASSOC_TYPE getUserDocAssociation(long itemID, long userID) {
+		return docsDao.getUserDocAssociation((int) itemID, (int) userID);
+	}
+	
+	public float getUserDocAffinity(long userID, long docID) {
+		return docsDao.getUserDocAffinity((int)userID, (int)docID);
+	}
+	
+	public LongPrimitiveIterator getAssociatedDocIDs(long userID) throws TasteException {
+		
+		List<Long> associatedDocIDs = docsDao.getAssociateddocsIDs((int) userID);
+		
+		long[] array = ArrayUtils.toPrimitive((Long[]) associatedDocIDs.toArray(new Long[associatedDocIDs.size()]));
+		
+		LongPrimitiveIterator longPrimitiveIt = new LongPrimitiveArrayIterator(array);
+		
+		return longPrimitiveIt;
 	}
 	
 	@Override

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class DocumentsDAO2 {
+public class DocumentsDao {
 
 	
 	private final NamedParameterJdbcTemplate jdbcTemplate;
@@ -30,7 +30,7 @@ public class DocumentsDAO2 {
 	
 	
 	@Autowired
-	public DocumentsDAO2(@Qualifier("appJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate) {
+	public DocumentsDao(@Qualifier("appJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 	
@@ -281,10 +281,55 @@ public class DocumentsDAO2 {
 		}
 			
 	}
-	
-	//needed for a secondary functionality
-	public void getUploadedDocs(int userID) {
+
+	public List<Long> getAssociateddocsIDs(int userID) {
+		List<Map<String, Object>> rows;
+		List<Long> associatedDocs = new ArrayList<Long>();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
 		
+		rows = this.jdbcTemplate.queryForList("select docID from UserDocs where userID = :userID", params);
+		
+		for(Map<String, Object> row : rows) {
+			Long docID = ((Integer) row.get("docID")).longValue();
+			associatedDocs.add(docID);
+		}
+		
+		return associatedDocs;
+	}
+	
+	public List<Long> getLikedDocIDs(int userID) {
+		
+		List<Map<String, Object>> rows;
+		List<Long> likedDocs = new ArrayList<Long>();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
+		
+		rows = this.jdbcTemplate.queryForList("select docID from UserDocs where userID = :userID and isLiked = 1 and isOwned = 0", params);
+		
+		for(Map<String, Object> row : rows) {
+			Long docID = ((Integer) row.get("docID")).longValue();
+			likedDocs.add(docID);
+		}
+		
+		return likedDocs;
+	}
+	
+	public List<Long> getUploadedDocIDs(int userID) {
+		
+		List<Map<String, Object>> rows;
+		List<Long> uploadedDocs = new ArrayList<Long>();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
+		
+		rows = this.jdbcTemplate.queryForList("select docID from Documents where uploaderID = :userID", params);
+		
+		for(Map<String, Object> row : rows) {
+			Long docID = ((Integer) row.get("docID")).longValue();
+			uploadedDocs.add(docID);
+		}
+		
+		return uploadedDocs;
 	}
 
 

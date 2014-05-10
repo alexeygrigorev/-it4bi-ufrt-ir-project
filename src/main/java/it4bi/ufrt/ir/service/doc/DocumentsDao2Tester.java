@@ -1,7 +1,6 @@
 package it4bi.ufrt.ir.service.doc;
 
 import static org.junit.Assert.assertEquals;
-import it4bi.ufrt.ir.business.UserDatabase;
 import it4bi.ufrt.ir.service.users.User;
 import it4bi.ufrt.ir.service.users.UsersDAO;
 
@@ -21,20 +20,19 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class DocumentsDAO2Tester {
+public class DocumentsDao2Tester {
 
 	
 	public static void main(String[] args) throws SQLException {
 
 		ApplicationContext context = new ClassPathXmlApplicationContext("dataSources.xml");
 	 
-	        DocumentsDAO2 docsDAO = new DocumentsDAO2( (NamedParameterJdbcTemplate) context.getBean("appJdbcTemplate"));
+	        DocumentsDao docsDAO = new DocumentsDao( (NamedParameterJdbcTemplate) context.getBean("appJdbcTemplate"));
 	        UsersDAO usersDAO = new UsersDAO( (NamedParameterJdbcTemplate) context.getBean("appJdbcTemplate"));
 	        
-	        for(User user : UserDatabase.getUsers()) {
+	        /*for(User user : UserDatabase.getUsers()) {
 	        	usersDAO.insertUser(user);
-	        }
-	        
+	        }*/
 	        
 	        
 	        List<Tag> tags = new ArrayList<Tag>();
