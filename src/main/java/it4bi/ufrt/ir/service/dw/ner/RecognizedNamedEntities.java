@@ -42,4 +42,11 @@ public class RecognizedNamedEntities {
 		return new RecognizedNamedEntities(newMap);
 	}
 
+	@Override
+	public String toString() {
+		return "[" + namedEntitites + "]";
+	}
+
+	
+	
 }

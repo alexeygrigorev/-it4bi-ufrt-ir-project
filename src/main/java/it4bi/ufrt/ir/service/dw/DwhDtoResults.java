@@ -2,6 +2,8 @@ package it4bi.ufrt.ir.service.dw;
 
 import java.util.List;
 
+import com.google.common.collect.Ordering;
+
 /**
  * The result of matching user queries against the query templates. Also contains recommendations for an user
  * of other query templates, ones that are not matched directly, but can be potentially interesting. <br>
@@ -17,8 +19,12 @@ public class DwhDtoResults {
 	}
 
 	public DwhDtoResults(List<MatchedQueryTemplate> matched, List<MatchedQueryTemplate> recommended) {
-		this.matched = matched;
-		this.recommended = recommended;
+		this.matched = sort(matched);
+		this.recommended = sort(recommended);
+	}
+
+	private static List<MatchedQueryTemplate> sort(List<MatchedQueryTemplate> list) {
+		return Ordering.natural().sortedCopy(list);
 	}
 
 	public List<MatchedQueryTemplate> getMatched() {

@@ -39,4 +39,8 @@ public class UserQuery {
 		return tokens;
 	}
 
+	@Override
+	public String toString() {
+		return "UserQuery [query=" + query + ", namedEntities=" + namedEntities + ", tokens=" + tokens + "]";
+	}
 }

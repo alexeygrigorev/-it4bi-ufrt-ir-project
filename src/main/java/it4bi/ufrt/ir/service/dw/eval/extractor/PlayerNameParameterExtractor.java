@@ -5,8 +5,6 @@ import it4bi.ufrt.ir.service.dw.db.Person;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -15,16 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class PlayerNameParameterExtractor extends NameParameterExtractor  {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PlayerNameParameterExtractor.class);
-	
 	@Autowired
 	private DatawarehouseDao dao;
 	
 	@Override
 	public List<Person> candidates(String name) {
-		List<Person> allPlayers = dao.allPlayers();
-		LOGGER.debug("retrieving {} candidates for players", allPlayers.size());
-		return allPlayers;
+		return dao.allPlayers();
 	}
 
 }

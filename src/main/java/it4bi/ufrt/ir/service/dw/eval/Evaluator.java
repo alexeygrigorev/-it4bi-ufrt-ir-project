@@ -26,7 +26,7 @@ public class Evaluator {
 	}
 
 	public AllEvaluationResults evaluate(UserQuery query) {
-		LOGGER.debug("Evaluating query \"{}\"", query.getFreeTextQuery());
+		LOGGER.debug("Evaluating query \"{}\"", query);
 
 		GlobalEvaluationContext context = new GlobalEvaluationContext(query, extractorInstantiator);
 

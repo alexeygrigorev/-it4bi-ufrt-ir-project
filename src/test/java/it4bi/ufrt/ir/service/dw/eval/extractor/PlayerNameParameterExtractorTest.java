@@ -45,7 +45,7 @@ public class PlayerNameParameterExtractorTest {
 	public void testFindClosest_Beckham() {
 		runTest("David Beckham");
 	}
-
+	
 	private void runTest(String token) {
 		PlayerNameParameterExtractor extractor = extractorInstantiator.instantiate(EXTRACTOR_CLASS);
 		NamedEntity ne1 = new NamedEntity(token, NamedEntityClass.PERSON);

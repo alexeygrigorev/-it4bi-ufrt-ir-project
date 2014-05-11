@@ -35,7 +35,7 @@ public class Tokenizer {
 		stream.reset();
 		while (stream.incrementToken()) {
 			String term = stream.getAttribute(CharTermAttribute.class).toString();
-			tokens.add(term);
+			tokens.add(term.toLowerCase());
 		}
 		stream.end();
 

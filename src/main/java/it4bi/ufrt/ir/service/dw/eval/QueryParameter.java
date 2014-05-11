@@ -6,7 +6,6 @@ public class QueryParameter {
 
 	private final String name;
 	private final Class<? extends ParameterExtractor> extractorClass;
-	// TODO: not sure if needed
 	private final String parameterType;
 
 	public QueryParameter(String name, Class<? extends ParameterExtractor> extractorClass,
@@ -22,6 +21,10 @@ public class QueryParameter {
 
 	public Class<? extends ParameterExtractor> getExtractorClass() {
 		return extractorClass;
+	}
+
+	public String getParameterType() {
+		return parameterType;
 	}
 
 	@Override

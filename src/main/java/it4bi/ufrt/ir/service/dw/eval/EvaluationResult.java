@@ -3,10 +3,12 @@ package it4bi.ufrt.ir.service.dw.eval;
 import it4bi.ufrt.ir.service.dw.MatchedQueryTemplate;
 import it4bi.ufrt.ir.service.dw.UserQuery;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractionAttempt;
+import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntity;
 import it4bi.ufrt.ir.service.dw.ner.NamedEntityClass;
 import it4bi.ufrt.ir.service.dw.ner.RecognizedNamedEntities;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -15,13 +17,18 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.PeekingIterator;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 /**
- * The results of trying to apply a certain {@link QueryTemplate} to the user query in the free text form
+ * The results of trying to apply a certain {@link QueryTemplate} to the user query in the free text form.<br>
+ * <br>
+ * Also acts as a context of evaluating the query - in the sense that it keeps some data needed for processing
+ * it across several {@link ParameterExtractor} classes
  */
 public class EvaluationResult {
 
@@ -35,6 +42,11 @@ public class EvaluationResult {
 	private final Set<String> processedParameters = Sets.newHashSet();
 	private final Set<String> allParameters = Sets.newHashSet();
 
+	/**
+	 * keeps internal data needed for processing multiple values of the same parameter extractor
+	 */
+	private final Multimap<String, String> usedValues = LinkedHashMultimap.create();
+
 	public EvaluationResult(QueryTemplate queryTemplate, UserQuery userQuery) {
 		this.queryTemplate = queryTemplate;
 		this.userQuery = userQuery;
@@ -45,10 +57,39 @@ public class EvaluationResult {
 		}
 	}
 
+	/**
+	 * Marks the captured value as used - used for evaluating the same query across several extractors to
+	 * avoid extracting the same value twice
+	 * 
+	 * @param value
+	 * @param parameterType
+	 */
+	public void markValueUsed(String value, String parameterType) {
+		usedValues.put(parameterType, value);
+	}
+
+	/**
+	 * Checks if this value was marked as used (with {@link #markValueUsed(String, String)} method) prior to
+	 * the call of this method
+	 * 
+	 * @param value
+	 * @param parameterType
+	 * @return <code>true</code> if it's been used before, <code>false</code> otherwise
+	 */
+	public boolean isNotAlreadyUsed(String value, String parameterType) {
+		Collection<String> usedValuesOfTheType = usedValues.get(parameterType);
+		return !usedValuesOfTheType.contains(value);
+	}
+
 	public PeekingIterator<NamedEntity> namedEntitiesOf(NamedEntityClass neClass) {
 		return namedEntities.of(neClass);
 	}
 
+	/**
+	 * Records an attempt, and if it's a successful one, then populated the internal parameter storage
+	 * 
+	 * @param attempt to record
+	 */
 	public void record(ExtractionAttempt attempt) {
 		String name = attempt.getParameter().getName();
 		processedParameters.add(name); // TODO: needed?
@@ -60,10 +101,17 @@ public class EvaluationResult {
 		}
 	}
 
+	/**
+	 * @return <code>true</code> if all parameters of the underlying {@link QueryTemplate} are matched with
+	 *         something from the user query
+	 */
 	public boolean isSatisfied() {
 		return success && unsatisfiedParams() == 0;
 	}
 
+	/**
+	 * @return the number of parameters that weren't satisfied during the free text query parsing
+	 */
 	public int unsatisfiedParams() {
 		Set<String> foundParamsNames = foundParams.keySet();
 		SetView<String> diff = Sets.difference(allParameters, foundParamsNames);
@@ -71,7 +119,7 @@ public class EvaluationResult {
 	}
 
 	/**
-	 * @return
+	 * @return a dto object to be trasfered to the client side
 	 * @throws IllegalStateException if not all parameters were satisfied during the evaluation
 	 */
 	public MatchedQueryTemplate asDto() {
@@ -94,7 +142,7 @@ public class EvaluationResult {
 		return Sets.intersection(keywords, stemmedTokens);
 	}
 
-	public String parametrizeName(String name, Map<String, String> params) {
+	public static String parametrizeName(String name, Map<String, String> params) {
 		String[] searchList = new String[params.size()];
 		String[] replacementList = new String[params.size()];
 

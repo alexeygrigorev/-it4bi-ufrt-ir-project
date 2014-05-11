@@ -47,7 +47,7 @@ public class NamedEntity {
 
 	@Override
 	public String toString() {
-		return "NamedEntity [token=" + token + ", cls=" + cls + "]";
+		return "(" + token + " -> " + cls + ")";
 	}
 
 }

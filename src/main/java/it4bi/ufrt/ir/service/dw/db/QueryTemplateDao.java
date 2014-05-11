@@ -8,6 +8,7 @@ import it4bi.ufrt.ir.service.dw.nlp.Tokenizer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,7 +17,9 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
@@ -29,12 +32,18 @@ import com.google.common.collect.Multimap;
 @Repository
 public class QueryTemplateDao {
 
-	private static final String QUERY_TEMPLATE_PARAMETERS_QUERY = "SELECT qtp.template_id, qtp.parameter_name, "
-			+ "qtp.parameter_type, qp.java_class "
-			+ "FROM QueryTemplateParameter qtp, QueryParameter qp "
+	private static final String PARAMETERS = "SELECT qtp.template_id, qtp.parameter_name, "
+			+ "qtp.parameter_type, qp.java_class " + "FROM QueryTemplateParameter qtp, QueryParameter qp "
 			+ "WHERE qp.parameter_type = qtp.parameter_type";
 
-	private static final String QUERY_TEMPLATE_QUERY = "SELECT id, keywords, query, name FROM QueryTemplate;";
+	private static final String QUERY_TEMPLATE = "SELECT id, keywords, query, name FROM QueryTemplate;";
+
+	private static final String PARAMETERS_BY_ID = "SELECT qtp.template_id, qtp.parameter_name, "
+			+ "qtp.parameter_type, qp.java_class " + "FROM QueryTemplateParameter qtp, QueryParameter qp "
+			+ "WHERE qp.parameter_type = qtp.parameter_type and qtp.template_id = :id";
+
+	private static final String QUERY_TEMPLATE_BY_ID = "SELECT id, keywords, query, name FROM QueryTemplate "
+			+ "WHERE id = :id;";
 
 	@Autowired
 	@Qualifier("appJdbcTemplate")
@@ -43,15 +52,33 @@ public class QueryTemplateDao {
 	@Autowired
 	private Tokenizer tokenizer;
 
-	@Cacheable("templates")
-	public List<QueryTemplate> all() {
-		List<QueryTemplateParameter> parameters = jdbcTemplate.query(QUERY_TEMPLATE_PARAMETERS_QUERY,
+	@Cacheable(value = "template_by_id", key = "#root.args[0]")
+	public Optional<QueryTemplate> byId(int id) {
+		Map<String, ?> idParam = ImmutableMap.of("id", id);
+
+		List<QueryTemplateParameter> parameters = jdbcTemplate.query(PARAMETERS_BY_ID, idParam,
 				new QueryTemplateParametersMapper());
 
 		Multimap<Integer, QueryParameter> index = indexByTemplateId(parameters);
 
-		List<QueryTemplate> templates = jdbcTemplate.query(QUERY_TEMPLATE_QUERY, new QueryTemplateMapper(
-				index));
+		List<QueryTemplate> templates = jdbcTemplate.query(QUERY_TEMPLATE_BY_ID, idParam,
+				new QueryTemplateMapper(index));
+
+		if (templates.isEmpty()) {
+			return Optional.absent();
+		}
+
+		return Optional.of(templates.get(0));
+	}
+
+	@Cacheable("templates")
+	public List<QueryTemplate> all() {
+		List<QueryTemplateParameter> parameters = jdbcTemplate.query(PARAMETERS,
+				new QueryTemplateParametersMapper());
+
+		Multimap<Integer, QueryParameter> index = indexByTemplateId(parameters);
+
+		List<QueryTemplate> templates = jdbcTemplate.query(QUERY_TEMPLATE, new QueryTemplateMapper(index));
 
 		return templates;
 	}
