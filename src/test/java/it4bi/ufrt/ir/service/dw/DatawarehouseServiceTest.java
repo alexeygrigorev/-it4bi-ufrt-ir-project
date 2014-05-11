@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
-import it4bi.ufrt.ir.business.UserDatabase;
 import it4bi.ufrt.ir.service.users.User;
+import it4bi.ufrt.ir.service.users.UserSex;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,14 +20,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class DatawarehouseServiceTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatawarehouseServiceTest.class);
-	
+
+	User user = new User("Richard", "Kondor", "Italy", UserSex.MALE, "1995-05-28");
+
 	@Autowired
 	DatawarehouseService datawarehouseService;
-	
+
 	@Test
 	public void test() {
 		String freeTextQuery = "All standings of Russia";
-		User user = UserDatabase.getUsers()[0];
 		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
 		List<MatchedQueryTemplate> matched = res.getMatched();
 
