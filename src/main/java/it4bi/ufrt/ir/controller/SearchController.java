@@ -85,9 +85,7 @@ public class SearchController {
 	public List<DocumentSearchResultRow> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {				
 		LOGGER.debug("document search. UserID {}; Query: {}", userID, query);
 		
-		// Query auto-correction
-		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
-		String correctedQuery = (qr.getIsCorrected() ? qr.getCorrectedQuery() : query);
+		String correctedQuery = correctQuery(query);
 		
 		start_ms = System.currentTimeMillis();
 		
@@ -151,9 +149,7 @@ public class SearchController {
 	@Produces("application/json; charset=UTF-8")
 	public QueryAutoCorrectionResult autocorrection(@QueryParam("q") String query) {
 		LOGGER.debug("get autocorrection for: {}", query);				
-				
-		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
-		return qr;
+		return spellChecker.autoCorrectQuery(query, true, 3);
 	}
 
 	@GET
@@ -161,8 +157,14 @@ public class SearchController {
 	@Produces("application/json; charset=UTF-8")
 	public DwhDtoResults fifaDwh(@QueryParam("q") String query, @QueryParam("u") int userId) {
 		LOGGER.debug("dwh query \"{}\" for user {}", query, userId);
+		String correctedQuery = correctQuery(query);
 		User user = usersService.userById(userId);
-		return datawarehouseService.find(query, user);
+		return datawarehouseService.find(correctedQuery, user);
+	}
+
+	private String correctQuery(String query) {
+		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
+		return qr.getIsCorrected() ? qr.getCorrectedQuery() : query;
 	}
 
 }
