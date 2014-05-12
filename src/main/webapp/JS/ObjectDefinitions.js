@@ -199,3 +199,13 @@ function autocorrectionInfo(spec) {
 
     return self;
 }
+
+// DATA WAREHOUSE
+function dwPreprocessInfo(spec) {
+    var self = {};
+
+    self.name = spec.name;
+    self.originalResponse = spec.originalResponse;
+
+    return self;
+}

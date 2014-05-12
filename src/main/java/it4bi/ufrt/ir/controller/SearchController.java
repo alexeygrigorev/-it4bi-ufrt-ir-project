@@ -68,14 +68,16 @@ public class SearchController {
 	
 	private long start_ms, end_ms;
 	
-	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/rec?u=408311
+	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/recDoc?u=408311
 	@GET
-	@Path("/rec")
+	@Path("/recDoc")
 	@Produces("application/json; charset=UTF-8")
 	public List<RecommendedItem> recommendations(@QueryParam("u") int userID) {				
 		LOGGER.debug("get recommendations. UserID {}", userID);
 		
-		return documents.getRecommendations(userID);
+		List<RecommendedItem> recommendations = documents.getRecommendations(userID); 
+		
+		return recommendations;
 		
 	}
 	

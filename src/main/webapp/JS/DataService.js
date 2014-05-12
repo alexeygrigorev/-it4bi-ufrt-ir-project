@@ -64,6 +64,7 @@ function dataService() {
         });
     };
 
+    // Get the URL for document downloading
     self.getDownloadDocBaseURL = function () {
         var url = self.serverURL + "/rest/upload/get/";
         return url;
@@ -157,6 +158,40 @@ function dataService() {
 
         randIndex = Math.floor(Math.random() * logos.length);
         return logos[randIndex];
+    };
+
+    // Perform search on DATA WAREHOUSE
+    self.searchDW = function (query, userID, callback) {
+        var url = self.serverURL + "/rest/search/dwh?q=" + query + "&u=" + userID + "&stamp=" + new Date().getTime();;
+
+        $.get(url, function (data) {
+
+            // Map received fields to expected fields
+            entries = $.map(data.matched, function (d) {
+                return new dwPreprocessInfo({
+                    name: d.name,
+                    originalResponse: d
+                });
+            });
+
+            // Return results back to the caller
+            callback(entries);
+        });
+    };
+
+    // Execute DATA WAREHOUSE entry
+    self.executeDWEntry = function (dwEntryInfo, callback, error) {
+        var url = self.serverURL + "rest/dwh/execute";
+        
+        $.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: url,
+            data: JSON.stringify(dwEntryInfo.originalResponse),
+            success: callback,
+            error: error,
+            dataType: "json"
+        });
     };
 
     return self;

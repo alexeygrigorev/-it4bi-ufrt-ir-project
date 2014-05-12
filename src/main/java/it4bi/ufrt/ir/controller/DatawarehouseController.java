@@ -45,7 +45,8 @@ $.ajax({
 		 */
 		
 		LOGGER.debug("executing {}", matchedQueryTemplate);
-		return datawarehouseService.execute(matchedQueryTemplate);
+		ExecutedDwhQuery dwResult = datawarehouseService.execute(matchedQueryTemplate); 
+		return dwResult;
 	}
 
 }

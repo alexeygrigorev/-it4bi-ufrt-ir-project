@@ -13,6 +13,9 @@ public class ExecutedDwhQuery {
 	private List<List<String>> rows;
 	private String queryName;
 
+	public ExecutedDwhQuery() {
+	}
+	
 	public ExecutedDwhQuery(List<String> columnNames, List<List<String>> rows) {
 		this.columnNames = columnNames;
 		this.rows = rows;

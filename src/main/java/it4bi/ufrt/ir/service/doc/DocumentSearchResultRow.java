@@ -1,10 +1,12 @@
 package it4bi.ufrt.ir.service.doc;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class DocumentSearchResultRow {
 	
 	public DocumentSearchResultRow() {
+		this.tags = new ArrayList<Tag>();
 	}
 
 	public DocumentSearchResultRow(DocumentRecord docRecord, float score) {

@@ -2,6 +2,9 @@
 
 /* TODO: IMPLEMENT CHANGE OF SERVER URL FROM DEBUG INFORMATION */
 /* TODO: REMOVE SLEEPING */
+/* TODO: RECOMMENDATIONS */
+/* TODO: SHOW TAGS */
+/* TODO: SEARCH BY DW */
 
 //Here's a custom Knockout binding that makes elements shown/hidden via jQuery's methods
 ko.bindingHandlers.fadeVisible = {
@@ -285,7 +288,7 @@ function searchEngineViewModel() {
     };
 
     // Perform query from autocorrection region
-    self.performSearchFromAutocorrection = function () {        
+    self.performSearchFromAutocorrection = function () {
         self.searchQuery(self.searchQueryAutocorrectedSelect());
         self.performSearch();
     };
@@ -322,9 +325,13 @@ function searchEngineViewModel() {
         self.resultsDW.removeAll();
         self.searchDWinProgress(true);
 
-        setTimeout(function () {
+        dataServiceProvider.searchDW(query, userID, function (entries) {
+            // Need to insert objects into 'ko.observableArray' and not to substitute the array
+            $.each(entries, function (i, d) {
+                self.resultsDW.push(d);
+            });
             self.searchDWinProgress(false);
-        }, 2000);
+        });
     };
 
     // Search by WEB Facebook by given user
@@ -431,7 +438,7 @@ function searchEngineViewModel() {
 
         return neutral;
     });
-    
+
     // Like the document defined by 'this'. Knockout logic
     self.likeDoc = function () {
         dataServiceProvider.likeDOC(this.docID, self.loggedUser().id)
@@ -444,6 +451,20 @@ function searchEngineViewModel() {
         var URL = baseURL + this.docID + this.getMimeShort();
         var win = window.open(URL, '_blank');
         win.focus();
+    };
+
+    // Execute DW Entry
+    self.executeDWEntry = function () {
+
+        dataServiceProvider.executeDWEntry(this,
+            /* Success */
+            function (res) {
+                alert(res.queryName);
+            },
+            /* Error */
+            function () {
+                alert('DW Search Error');
+            });
     };
 
     return self;
