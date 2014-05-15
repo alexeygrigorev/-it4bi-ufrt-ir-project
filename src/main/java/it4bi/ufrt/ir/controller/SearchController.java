@@ -1,5 +1,6 @@
 package it4bi.ufrt.ir.controller;
 
+import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentSearchResultRow;
 import it4bi.ufrt.ir.service.doc.DocumentsDao;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
@@ -72,10 +73,10 @@ public class SearchController {
 	@GET
 	@Path("/recDoc")
 	@Produces("application/json; charset=UTF-8")
-	public List<RecommendedItem> recommendations(@QueryParam("u") int userID) {				
+	public List<DocumentRecord> recommendations(@QueryParam("u") int userID) {				
 		LOGGER.debug("get recommendations. UserID {}", userID);
 		
-		List<RecommendedItem> recommendations = documents.getRecommendations(userID); 
+		List<DocumentRecord> recommendations = documents.getRecommendations(userID); 
 		
 		return recommendations;
 		

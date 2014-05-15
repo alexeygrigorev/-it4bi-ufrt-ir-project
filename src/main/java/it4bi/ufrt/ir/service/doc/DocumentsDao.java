@@ -511,4 +511,29 @@ public class DocumentsDao {
 		
 		return docUserAssociationList;
 	}
+
+
+	public List<DocumentRecord> getAssociatedDocs(int userID) {
+		
+		List<Map<String, Object>> rows;
+		List<DocumentRecord> associatedDocs = new ArrayList<DocumentRecord>();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
+		
+		rows = this.jdbcTemplate.queryForList("select docs.docID, docs.docTitle, docs.uploaderID, docs.docMime from UserDocs userdocs, Docs docs where userdocs.docID = docs.docID and userdocs.userID = :userID", params);
+		
+		for(Map<String, Object> row : rows) {
+			Integer docID = (Integer) row.get("docID");
+			String docTitle = (String) row.get("docTitle");
+			Integer uploaderID = (Integer) row.get("uploaderID");
+			String mime = (String) row.get("mime");
+			
+			DocumentRecord docRec = new DocumentRecord(docTitle, uploaderID, mime);
+			docRec.setDocId(docID);
+			
+			associatedDocs.add(docRec);
+		}
+		
+		return associatedDocs;
+	}
 }

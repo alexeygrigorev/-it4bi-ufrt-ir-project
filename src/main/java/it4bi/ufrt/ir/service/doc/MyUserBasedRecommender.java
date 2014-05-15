@@ -20,9 +20,13 @@ import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(MyUserBasedRecommender.class);
+	
 	private UserSimilarity similarity;
 	private float sim_threshold;
 	private DataModel dataModel;
@@ -35,11 +39,12 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 		this.dataModel = dataModel;
 	}
 	
-	public List<RecommendedItem> recommend_custom(long userID) throws TasteException {
+	public List<DocumentRecord> recommend_custom(long userID) throws TasteException {
 		
 		FastIDSet userDocs = dataModel.getItemIDsFromUser(userID);
 		
 		List<RecommendedItem> recommendedDocs = new ArrayList<RecommendedItem>();
+		List<DocumentRecord> recommendedDocRecs = new ArrayList<DocumentRecord>();
 		List<Long> neighbourIDs = new ArrayList<Long>();
 		List<Double> neighbourDistances = new ArrayList<Double>();
 		Map<Long, Double> candidateDocs = new HashMap<Long, Double>();
@@ -49,6 +54,8 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 		int ctr = 0;
 		for(Long curNeighbour : neighbourIDs) {
 			LongPrimitiveIterator iter = ((RecommenderDataModel) this.dataModel).getAssociatedDocIDs(curNeighbour);
+			//List<DocumentRecord> iter = ((RecommenderDataModel) this.dataModel).getAssociatedDocs(curNeighbour)
+			
 			
 			double userSimilarity = neighbourDistances.get(ctr++);
 			while(iter.hasNext()) {
@@ -83,8 +90,17 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 			}
 		});
 		
+		for(RecommendedItem rec_doc : recommendedDocs) {
+			
+			LOGGER.debug("Recommender: Doc wth docID " + rec_doc.getItemID() + " is recommended with " + rec_doc.getValue()*100f + "% confidence");
+			
+			DocumentRecord docRec = ((RecommenderDataModel) this.dataModel).getDocumentByID(rec_doc.getItemID());
+			
+			recommendedDocRecs.add(docRec);
+		}
 		
-		return recommendedDocs;
+		
+		return recommendedDocRecs;
 	}
 	
 	public void setNeighbours(long userID, List<Long> neighbourIDs, List<Double> neighbourDistances) throws TasteException {

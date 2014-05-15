@@ -36,6 +36,10 @@ public class RecommenderDataModel implements JDBCDataModel {
 		return docsDao.getUserDocAffinity((int)userID, (int)docID);
 	}
 	
+	public List<DocumentRecord> getAssociatedDocs(long userID) {
+		return docsDao.getAssociatedDocs((int) userID); 
+	}
+	
 	public LongPrimitiveIterator getAssociatedDocIDs(long userID) throws TasteException {
 		
 		List<Long> associatedDocIDs = docsDao.getAssociateddocsIDs((int) userID);
@@ -200,6 +204,11 @@ public class RecommenderDataModel implements JDBCDataModel {
 	public FastByIDMap<FastIDSet> exportWithIDsOnly() throws TasteException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public DocumentRecord getDocumentByID(long docID) {
+		
+		return docsDao.getDocByID((int) docID);
 	}
 
 

@@ -218,19 +218,15 @@ public class DocumentsService {
 	}
 	
 	
-	 public List<RecommendedItem> getRecommendations(int userID) {
+	 public List<DocumentRecord> getRecommendations(int userID) {
 		 
-		 List<RecommendedItem> recommended = null;
+		 List<DocumentRecord> recommended = null;
 		 
 		 try {
 			recommended = ((MyUserBasedRecommender) recommender).recommend_custom(userID);
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
-		 
-		 for(RecommendedItem recommendedDoc : recommended) {
-			 LOGGER.debug("Recommender: Doc wth docID " + recommendedDoc.getItemID() + " is recommended with " + recommendedDoc.getValue()*100f + "% confidence");
-		 }
 		 
 		 
 		return recommended;
