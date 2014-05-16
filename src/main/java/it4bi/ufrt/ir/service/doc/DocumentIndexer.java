@@ -14,8 +14,11 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.util.Version;
+import org.jdom.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.FieldNamingPolicy;
 
 
 
@@ -61,7 +64,6 @@ public class DocumentIndexer {
    }
 
     
-    /** Adds a document (a hotel) to the index */ 
     public void indexDocument(DocumentRecord documentRecord) throws IOException {
     	 LOGGER.debug("Indexing document: " + documentRecord.getDocTitle());
     	 
@@ -76,6 +78,12 @@ public class DocumentIndexer {
          doc.add(new StoredField("uploaderId", documentRecord.getUploaderId()));
          doc.add(new TextField("title", documentRecord.getDocTitle(), Field.Store.YES));
          doc.add(new TextField("mime", documentRecord.getMime(), Field.Store.YES));
+         
+         for(Tag tag : documentRecord.getTags()) {
+        	 String tagText = tag.tag;
+        	 doc.add(new TextField("tag", tagText, Field.Store.YES));
+         }
+         
          //doc.add(new TextField("content", documentRecord.getFullText() , Field.Store.NO));
          doc.add(new Field("content", documentRecord.getFullText(), type));
          writer.addDocument(doc);

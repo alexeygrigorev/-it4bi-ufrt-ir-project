@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
@@ -169,7 +170,19 @@ public class DocumentsService {
 			int uploaderID = Integer.parseInt(doc.get("uploaderId"));
 			String docMime = doc.get("mime");
 			
-			DocumentRecord docRecord = new DocumentRecord(docID, docTitle, uploaderID, docMime); //documentsDAO.getDocByID(docID);
+			DocumentRecord docRecord = new DocumentRecord(docID, docTitle, uploaderID, docMime); //
+			
+			IndexableField fields[] = doc.getFields("tag");
+		
+			List<Tag> tags = new ArrayList<Tag>();
+			for(int ctr = 0; ctr < fields.length; ctr++) {
+				Tag cur_tag = new Tag(fields[ctr].stringValue());
+				tags.add(cur_tag);
+			}
+			
+			docRecord.setTags(tags);
+			
+			//DocumentRecord docRecord = documentsDAO.getDocByID(docID);
 			  
 			float raw_score = hits[i].score;
 			

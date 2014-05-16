@@ -188,9 +188,12 @@ public class UploadController {
 		//docsDAO.insertDocumentRecord(documentRecord);
 		documentsDAO.insertDocumentRecord(documentRecord);
 		
-		List<String> tagTexts = null;
-		
 		try {
+			List<Tag> tags = new ArrayList<Tag>();
+			
+			tags = documentRecord.extractTags(); 
+			documentRecord.setTags(tags);
+			
 			documentRecord.index(indexLocation);
 
 			MMapDirectory indexDir = null;
@@ -198,20 +201,21 @@ public class UploadController {
 			indexDir = new MMapDirectory(new File(indexLocation));
 
 			// Update Tags
-			tagTexts = extractTags(documentRecord, indexLocation);
+			//tagTexts = extractTags(documentRecord, indexLocation);
 			
 			indexDir.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-			List<Tag> tags = new ArrayList<Tag>();
+			/*List<Tag> tags = new ArrayList<Tag>();
 			// Obtain tags from the doc
 
 			for (String tagText : tagTexts) {
 				tags.add(new Tag(tagText));
 			}
 
-			documentRecord.setTags(tags);
+			documentRecord.setTags(tags);*/
+			
 			
 			start_ms = System.currentTimeMillis();
 			
@@ -223,7 +227,7 @@ public class UploadController {
 			LOGGER.debug("Benchmark: Insertion User-Document Association took: " + (end_ms - start_ms)/1000.0f + "ms");
 			start_ms = System.currentTimeMillis();
 			
-			documentsDAO.updateTags(tags, documentRecord.getDocId());
+			documentsDAO.updateTags(documentRecord.getTags(), documentRecord.getDocId());
 			
 			end_ms = System.currentTimeMillis();
 			
@@ -231,7 +235,7 @@ public class UploadController {
 			start_ms = System.currentTimeMillis();
 			
 			//docsDAO.updateTagScores(userID, tags, ownerScore);
-			documentsDAO.updateUserTagsScores(userID, tags, ownerScore);
+			documentsDAO.updateUserTagsScores(userID, documentRecord.getTags(), ownerScore);
 			
 			end_ms = System.currentTimeMillis();
 			
