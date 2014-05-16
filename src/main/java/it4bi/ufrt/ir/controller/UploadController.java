@@ -168,7 +168,7 @@ public class UploadController {
 			e1.printStackTrace();
 		}
 
-		ContentHandler contenthandler = new BodyContentHandler(500000);
+		ContentHandler contenthandler = new BodyContentHandler(Integer.MAX_VALUE);
 		Metadata metadata = new Metadata();
 		metadata.set(Metadata.RESOURCE_NAME_KEY, f.getName());
 		Parser parser = new AutoDetectParser();
