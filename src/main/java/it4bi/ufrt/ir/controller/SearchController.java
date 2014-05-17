@@ -61,6 +61,9 @@ public class SearchController {
 	@Value("${web.return.count}")
 	private int webReturnCount;
 	
+	@Value("${spellchecker.suggestionsCount}")
+	private int suggestionsCount;
+	
 	@Value("${web.semanticAnalysis}")
 	private boolean semanticAnalysis;
 	
@@ -152,7 +155,7 @@ public class SearchController {
 	@Produces("application/json; charset=UTF-8")
 	public QueryAutoCorrectionResult autocorrection(@QueryParam("q") String query) {
 		LOGGER.debug("get autocorrection for: {}", query);				
-		return spellChecker.autoCorrectQuery(query, true, 3);
+		return spellChecker.autoCorrectQuery(query, true, suggestionsCount);
 	}
 
 	@GET
@@ -166,7 +169,7 @@ public class SearchController {
 	}
 
 	private String correctQuery(String query) {
-		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, 3);
+		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, suggestionsCount);
 		return qr.getIsCorrected() ? qr.getCorrectedQuery() : query;
 	}
 

@@ -6,7 +6,7 @@ function dataService() {
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
      self.serverURL = window.location.href;
-    // self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
+    //self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
     self.getUsers = function (callback) {
