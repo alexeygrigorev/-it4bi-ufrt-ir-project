@@ -5,8 +5,8 @@ function dataService() {
     var self = {};
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
-    self.serverURL = window.location.href;
-    //self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
+     self.serverURL = window.location.href;
+    // self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
     self.getUsers = function (callback) {
@@ -119,7 +119,7 @@ function dataService() {
 
     // Get autocorrection for the query
     self.getAutocorrection = function (query, callback) {
-        var URL = self.serverURL + "/rest/search/autocorrection?q=" + query;
+        var URL = self.serverURL + "/rest/search/autocorrection?q=" + query + "&stamp=" + new Date().getTime();
 
         $.get(URL, function (data) {
             // Map received fields to expected fields
@@ -162,7 +162,7 @@ function dataService() {
 
     // Perform search on DATA WAREHOUSE
     self.searchDW = function (query, userID, callback) {
-        var url = self.serverURL + "/rest/search/dwh?q=" + query + "&u=" + userID + "&stamp=" + new Date().getTime();;
+        var url = self.serverURL + "/rest/search/dwh?q=" + query + "&u=" + userID + "&stamp=" + new Date().getTime();
 
         $.get(url, function (data) {
 
