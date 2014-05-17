@@ -49,6 +49,9 @@ public class FIFASpellChecker {
 
 	@Value("${spellchecker.dict.location.fifa}")
 	private String fifaDictSource;
+	
+	@Value("${spellchecker.ignoreList}")
+	private String ignoreListStr;
 
 	private SpellChecker spellChecker = null;
 	private SpellChecker fifaSpellChecker = null;
@@ -109,17 +112,37 @@ public class FIFASpellChecker {
 		String correctedQuery = searchQuery.toLowerCase();
 		boolean isCorrected = false;
 		List<SpellCheckerResult> wordCorrections = new ArrayList<SpellCheckerResult>();
+		String[] ignoreList = ignoreListStr.split(";");
 
 		SpellCheckerResult wr = null;
 		for (String tok : tokinz) {
+					
+			boolean isIgnored = false;
+			for (String ignored : ignoreList) {
+				if (ignored.equals(tok)){
+					isIgnored = true;
+				}
+			}
+			
+			if(isIgnored) {
+				continue;
+			}
 
 			wr = checkSpellingAndSuggest(tok, numberOfSuggestions, true);
+			
+			String newTokin = wr.getCorrectedWord();
+			String originalTokin = wr.getOriginalWord();
+			if(newTokin != null && Character.isUpperCase(originalTokin.charAt(0))){
+				char upperChar = Character.toUpperCase(newTokin.charAt(0));
+				String newCorrectedWord = upperChar + newTokin.substring(1);
+				wr.setCorrectedWord(newCorrectedWord);
+			}
+			
 			if (wr.isCorrected()) {
 				// System.out.println(wr.toString());
 				// for each corrected word, replace the misspelled one by the
 				// suggested one
-				correctedQuery = correctedQuery.replaceAll(wr.getOriginalWord()
-						.toLowerCase(), wr.getCorrectedWord().toLowerCase());
+				correctedQuery = correctedQuery.replaceAll(wr.getOriginalWord().toLowerCase(), wr.getCorrectedWord());
 				wordCorrections.add(wr);
 				isCorrected = true;
 			}
@@ -130,20 +153,28 @@ public class FIFASpellChecker {
 		if (suggest && isCorrected) {
 
 			ArrayList<String> mySuggestions = new ArrayList<String>();
-			mySuggestions.add(searchQuery.toLowerCase());
+			mySuggestions.add(searchQuery);
 
 			// Make all permutations
 			for (SpellCheckerResult r : wordCorrections) {
 				if (r.getSuggestions() == null)
 					continue;
 
+				String originalTokin = r.getOriginalWord();
+				
 				int size = mySuggestions.size();
 				for (int stri = 0; stri < size; stri++) {
 					for (int j2 = 0; j2 < r.getSuggestions().length; j2++) {
+																							
 						String str = mySuggestions.get(stri);
 						String suggestedWord = r.getSuggestions()[j2];
-						str = str.replaceAll(r.getOriginalWord().toLowerCase(),
-								suggestedWord.toLowerCase());
+						
+						if(suggestedWord != null && Character.isUpperCase(originalTokin.charAt(0))){
+							char upperChar = Character.toUpperCase(suggestedWord.charAt(0));
+							suggestedWord = upperChar + suggestedWord.substring(1);
+						}
+						
+						str = str.replaceAll(r.getOriginalWord(), suggestedWord);
 						mySuggestions.add(str);
 					}
 				}
@@ -157,7 +188,7 @@ public class FIFASpellChecker {
 				for (SpellCheckerResult r : wordCorrections) {
 					if(!r.isCorrected()) continue;
 					
-					if (correctedEntry.contains(r.getOriginalWord().toLowerCase())) {
+					if (correctedEntry.contains(r.getOriginalWord())) {
 						add = false;
 					}
 				}
@@ -216,6 +247,7 @@ public class FIFASpellChecker {
 
 		try {
 
+			String originalStr = word;
 			if (ingnoreCase)
 				word = word.toLowerCase();
 
@@ -245,7 +277,7 @@ public class FIFASpellChecker {
 			}
 
 			SpellCheckerResult r = new SpellCheckerResult();
-			r.setOriginalWord(word);
+			r.setOriginalWord(originalStr);
 			r.setFound(exist);
 			r.setCorrected(isCorrected);
 			r.setCorrectedWord(correction);

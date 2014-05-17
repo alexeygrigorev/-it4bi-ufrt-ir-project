@@ -209,3 +209,24 @@ function dwPreprocessInfo(spec) {
 
     return self;
 }
+
+// DATA WAREHOUSE EXECUTED
+function dwExecutedEntryInfo(spec) {
+    var self = {};
+
+    self.parseRows = function (rowsDelimeted) {
+        var returnRows = new Array();
+        for (var i = 0; i < rowsDelimeted.length; i++) {
+            var row = rowsDelimeted[i];
+            var columns = row.split(";");
+            returnRows[i] = columns;
+        }
+        return returnRows;
+    };
+
+    self.queryName = spec.queryName;
+    self.columnNames = spec.columnNames;
+    self.rows = self.parseRows(spec.rowsDelimeted);    
+
+    return self;
+}

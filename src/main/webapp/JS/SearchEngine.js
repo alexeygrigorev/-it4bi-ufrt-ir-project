@@ -30,6 +30,7 @@ function searchEngineViewModel() {
     self.backgroundColor = ko.observable('white');
     self.showSearchResults = ko.observable(false);
     self.searchDWinProgress = ko.observable(true);
+    self.searchDWEntryinProgress = ko.observable(true);
     self.searchDOCinProgress = ko.observable(true);
     self.searchWEBFacebookinProgress = ko.observable(true);
     self.searchWEBTwitterinProgress = ko.observable(true);
@@ -54,6 +55,7 @@ function searchEngineViewModel() {
     self.searchWEBVideos = ko.observable(false);
     self.resultsDOC = ko.observableArray([]);
     self.resultsDW = ko.observableArray([]);
+    self.resultsDWEntry = ko.observableArray();
     self.resultsWEBFacebook = ko.observableArray([]);
     self.resultsWEBTwitter = ko.observableArray([]);
     self.resultsWEBNews = ko.observableArray([]);
@@ -165,6 +167,11 @@ function searchEngineViewModel() {
     // Show search page
     self.showSearchPage = function () {
         self.mode('Search');
+    };
+
+    // Show DW executed results
+    self.showDWResultsPage = function () {
+        self.mode('DW Result');
     };
 
     // Show only results from search by ALL SOURCES
@@ -455,14 +462,26 @@ function searchEngineViewModel() {
 
     // Execute DW Entry
     self.executeDWEntry = function () {
+        self.showDWResultsPage();
 
+        self.searchDWEntryinProgress(true);
         dataServiceProvider.executeDWEntry(this,
             /* Success */
             function (res) {
-                alert(res.queryName);
+
+                executedEntry = new dwExecutedEntryInfo({
+                    queryName: res.queryName,
+                    columnNames: res.columnNames,
+                    rows: res.rows,
+                    rowsDelimeted: res.rows2
+                });
+
+                self.resultsDWEntry(executedEntry);
+                self.searchDWEntryinProgress(false);
             },
             /* Error */
             function () {
+                self.searchDWEntryinProgress(false);
                 alert('DW Search Error');
             });
     };
