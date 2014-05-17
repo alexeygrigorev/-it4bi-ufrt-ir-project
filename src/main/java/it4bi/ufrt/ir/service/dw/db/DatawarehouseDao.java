@@ -97,6 +97,7 @@ public class DatawarehouseDao {
 
 	public ExecutedDwhQuery execute(QueryTemplate queryTemplate, Map<String, String> parameters) {
 		String sql = queryTemplate.getSqlTemplate();
+		LOGGER.debug("executing query {} with parameters {}", sql, parameters);
 		return jdbcTemplate.execute(sql, parameters, new ExecutedDwhQueryCallback());
 	}
 

@@ -139,6 +139,44 @@ public class DatawarehouseServiceTest {
 		List<String> expectedColumns = Arrays.asList("Cup", "Date", "Team 1", "Team 2", "Score", "Stage");
 		assertEquals(expectedColumns, result.getColumnNames());
 	}
-	
 
+	@Test
+	public void template6() {
+		String freeTextQuery = "positions of teams coached by Diego Maradona";
+		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
+		List<MatchedQueryTemplate> matched = res.getMatched();
+
+		LOGGER.debug("Obtained result: {}", matched);
+
+		MatchedQueryTemplate first = matched.get(0);
+
+		assertEquals(6, first.getTemplateId());
+		assertEquals("Standings of teams coached by Diego MARADONA", first.getName());
+		assertEquals(2, first.getRelevance()); // "position", "coach" should match
+
+		ExecutedDwhQuery result = datawarehouseService.execute(first);
+		List<String> expectedColumns = Arrays.asList("Year", "Name", "Country", "Position", "Team Standing",
+				"Was Player");
+		assertEquals(expectedColumns, result.getColumnNames());
+	}
+
+	@Test
+	public void template7() {
+		String freeTextQuery = "matches of Diego Maradona as a coach";
+		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
+		List<MatchedQueryTemplate> matched = res.getMatched();
+
+		LOGGER.debug("Obtained result: {}", matched);
+
+		MatchedQueryTemplate first = matched.get(0);
+
+		assertEquals(7, first.getTemplateId());
+		assertEquals("Matches of teams coached by Diego MARADONA", first.getName());
+		assertEquals(2, first.getRelevance()); // "match", "coach" should match
+
+		ExecutedDwhQuery result = datawarehouseService.execute(first);
+		List<String> expectedColumns = Arrays.asList("Year", "Date", "Name", "Coached Team", "Opponent Team",
+				"Score", "Result");
+		assertEquals(expectedColumns, result.getColumnNames());
+	}
 }
