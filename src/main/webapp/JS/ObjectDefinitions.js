@@ -46,25 +46,51 @@ function docInfo(spec) {
 
     self.docID = spec.docID;
     self.docTitle = spec.docTitle;
+    self.docPath = spec.docPath;
     self.mime = spec.mime;
     self.tags = spec.tags;
     self.isOwner = spec.isOwner;
     self.isLiked = ko.observable(spec.isLiked);
 
     self.getMime = function () {
+        
+        if (self.mime == undefined) {
+            var ext = self.docPath.split('.').pop();
+
+            switch (ext.toLowerCase()) {
+                case 'pdf': return 'application/pdf'; break;
+                case 'docx': return 'application/docx'; break;
+                case 'txt': return 'text/plain'; break;
+                default: return 'undefined'; break;
+            }
+        }
+        
         switch (self.mime) {
             case 'application/pdf': return 'application/pdf'; break;
             case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': return 'application/docx'; break;
             case 'text/plain; charset=windows-1252': return 'text/plain'; break;
+            case 'text/plain; charset=ISO-8859-1': return 'text/plain'; break;                
             default: return self.mime; break;
         }
     }
 
     self.getMimeShort = function () {
+        if (self.mime == undefined) {
+            var ext = self.docPath.split('.').pop();
+
+            switch (ext.toLowerCase()) {
+                case 'pdf': return '.pdf'; break;
+                case 'docx': return '.docx'; break;
+                case 'txt': return '.txt'; break;
+                default: return ''; break;
+            }
+        }
+
         switch (self.mime) {
             case 'application/pdf': return '.pdf'; break;
             case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': return '.docx'; break;
             case 'text/plain; charset=windows-1252': return '.txt'; break;
+            case 'text/plain; charset=ISO-8859-1': return '.txt'; break;
             default: return ''; break;
         }
     }

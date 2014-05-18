@@ -165,6 +165,7 @@ html {
     text-align: center;
     font-family: "Lucida Sans Unicode";
     font-size: 13px;
+    font-weight: normal;
     color: #333;
     margin-top: 12px;
 }
@@ -303,3 +304,22 @@ html {
             text-decoration: none;
             font-style: italic;
         }
+
+#DWTable {
+    width: 800px; 
+    margin: 0 auto;
+    text-align: center;
+}
+
+#DWTable td {
+    border-color: #EAF2D3;
+}
+
+#DWTable th {
+    border-color: #EAF2D3;
+    background-color: #c0cba2;
+}
+
+#DWTable tr:nth-child(even) {
+    background-color: #EAF2D3;
+}

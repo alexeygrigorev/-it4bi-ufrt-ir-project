@@ -100,9 +100,12 @@
     </table>
     <!-- /ko -->
     <!-- ko if: mode() == 'DW Result' -->
-    <div class="alignCenter" >
-        <span data-bind="visible: !searchDWEntryinProgress(), text: resultsDWEntry().queryName"></span>
-        <table style="width: 750px; margin: 0 auto;" border="1" data-bind="visible: !searchDWEntryinProgress()">
+    <div class="alignCenter">
+        <div class="resultsGroupHeader" data-bind="visible: !searchDWEntryinProgress()">
+            <span class="showMore" style="float: left; margin-left: 15px; font-size: 14px" data-bind="click: showSearchPage">back</span>
+            <span data-bind="text: resultsDWEntry().queryName"></span>
+        </div>
+        <table id="DWTable" cellspacing="0" border="1" data-bind="visible: !searchDWEntryinProgress()">
             <thead>
                 <tr data-bind="foreach: resultsDWEntry().columnNames">
                     <th>
@@ -175,7 +178,7 @@
                             <table style="width: 100%" data-bind="visible: resultsDOC().length > 0">
                                 <tbody data-bind="foreach: resultsDOC">
                                     <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isDOCSearch()">
-                                        <td style="width: 60px">
+                                        <td style="width: 60px; vertical-align: top">
                                             <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: isOwner">My</span>
                                             <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: (isLiked() && !isOwner)">Liked</span>
                                             <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.likeDoc, visible: (!isLiked() && !isOwner)">Like!</a>
@@ -185,6 +188,11 @@
                                                 <span id="docTitle" data-bind="text: docTitle"></span>
                                                 <span style="float: right; font-style: italic; width: 120px" data-bind="text: getMime()"></span>
                                                 <label id="docDownload">(click to download)</label>
+                                            </div>
+                                            <div style="font-style: italic; text-align: right; color: green">
+                                                <span data-bind="foreach: $data.tags">
+                                                    <span data-bind="text: tag + ';'"></span>
+                                                </span>
                                             </div>
                                         </td>
                                     </tr>
@@ -196,6 +204,47 @@
                                         </th>
                                     </tr>
                                 </tfoot>
+                            </table>
+                            <!--
+
+                               DOCUMENT RECOMMENDATIONS
+
+                            -->
+                            <table style="width: 100%" data-bind="visible: resultsDOC().length > 0">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">
+                                            Recommended for you
+                                            <div class="alignCenter" data-bind="visible: searchDOCRecomendinProgress">
+                                                <img src="IMG/Loader.gif" alt="" />
+                                            </div>
+                                            <div class="noResultsGroupHeader" data-bind="visible: resultsDOCRecommendations().length == 0 && !searchDOCRecomendinProgress()">
+                                                No recommendations found
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: resultsDOCRecommendations">
+                                    <tr>
+                                        <td style="width: 60px; vertical-align: top">
+                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: isOwner">My</span>
+                                            <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: (isLiked() && !isOwner)">Liked</span>
+                                            <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.likeDoc, visible: (!isLiked() && !isOwner)">Like!</a>
+                                        </td>
+                                        <td>
+                                            <div class="documentEntry" data-bind="click: $parent.downloadDoc">
+                                                <span id="docTitle" data-bind="text: docTitle"></span>
+                                                <span style="float: right; font-style: italic; width: 120px" data-bind="text: getMime()"></span>
+                                                <label id="docDownload">(click to download)</label>
+                                            </div>
+                                            <div style="font-style: italic; text-align: right; color: green">
+                                                <span data-bind="foreach: $data.tags">
+                                                    <span data-bind="text: tag + ';'"></span>
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
                             <div class="alignCenter" data-bind="visible: searchDOCinProgress()">
                                 <img src="IMG/Loader.gif" alt="" />
@@ -215,9 +264,7 @@
                             <table style="width: 100%" data-bind="visible: resultsDW().length > 0">
                                 <tbody data-bind="foreach: resultsDW">
                                     <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isDWSearch()">
-                                        <td>
-                                            Status
-                                        </td>
+                                        <td style="width: 60px"></td>
                                         <td>
                                             <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.executeDWEntry, text: name"></a>
                                         </td>

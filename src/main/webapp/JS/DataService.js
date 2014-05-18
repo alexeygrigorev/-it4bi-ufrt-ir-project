@@ -5,8 +5,8 @@ function dataService() {
     var self = {};
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
-     self.serverURL = window.location.href;
-    //self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
+    // self.serverURL = window.location.href;
+    self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
     self.getUsers = function (callback) {
@@ -45,6 +45,28 @@ function dataService() {
                     mime: d.mime,
                     isOwner: d.owned,
                     isLiked: d.liked
+                });
+            });
+
+            // Return results back to the caller
+            callback(docs);
+        });
+    };
+
+    // Get document recommendations
+    self.getDOCRecommendations = function (userID, callback) {
+        // Stamp is added to avoid caching
+        var url = self.serverURL + "/rest/search/recDoc?u=" + userID + "&stamp=" + new Date().getTime();
+        $.get(url, function (data) {
+            // Map received fields to expected fields
+            docs = $.map(data, function (d) {
+                return new docInfo({
+                    docID: d.docId,
+                    docPath: d.docPath,
+                    docTitle: d.docTitle,
+                    tags: d.tags,
+                    uploaderId: d.uploaderId,
+                    mime: d.mime /* This is absent*/
                 });
             });
 

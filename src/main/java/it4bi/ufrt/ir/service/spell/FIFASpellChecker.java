@@ -109,7 +109,7 @@ public class FIFASpellChecker {
 			boolean suggest, int numberOfSuggestions) {
 
 		List<String> tokinz = tokenizeSentence(searchQuery);
-		String correctedQuery = searchQuery.toLowerCase();
+		String correctedQuery = searchQuery;
 		boolean isCorrected = false;
 		List<SpellCheckerResult> wordCorrections = new ArrayList<SpellCheckerResult>();
 		String[] ignoreList = ignoreListStr.split(";");
@@ -121,10 +121,11 @@ public class FIFASpellChecker {
 			for (String ignored : ignoreList) {
 				if (ignored.equals(tok)){
 					isIgnored = true;
+					break;
 				}
 			}
 			
-			if(isIgnored) {
+			if (isIgnored) {
 				continue;
 			}
 
@@ -142,7 +143,7 @@ public class FIFASpellChecker {
 				// System.out.println(wr.toString());
 				// for each corrected word, replace the misspelled one by the
 				// suggested one
-				correctedQuery = correctedQuery.replaceAll(wr.getOriginalWord().toLowerCase(), wr.getCorrectedWord());
+				correctedQuery = correctedQuery.replaceAll(wr.getOriginalWord(), wr.getCorrectedWord());
 				wordCorrections.add(wr);
 				isCorrected = true;
 			}

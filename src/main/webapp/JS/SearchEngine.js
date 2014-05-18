@@ -32,6 +32,7 @@ function searchEngineViewModel() {
     self.searchDWinProgress = ko.observable(true);
     self.searchDWEntryinProgress = ko.observable(true);
     self.searchDOCinProgress = ko.observable(true);
+    self.searchDOCRecomendinProgress = ko.observable(true);
     self.searchWEBFacebookinProgress = ko.observable(true);
     self.searchWEBTwitterinProgress = ko.observable(true);
     self.searchWEBNewsinProgress = ko.observable(true);
@@ -54,6 +55,7 @@ function searchEngineViewModel() {
     self.searchWEBNews = ko.observable(false);
     self.searchWEBVideos = ko.observable(false);
     self.resultsDOC = ko.observableArray([]);
+    self.resultsDOCRecommendations = ko.observableArray([]);
     self.resultsDW = ko.observableArray([]);
     self.resultsDWEntry = ko.observableArray();
     self.resultsWEBFacebook = ko.observableArray([]);
@@ -95,6 +97,7 @@ function searchEngineViewModel() {
     self.userChanged = function () {
         self.showSearchResults(false);
         self.resultsDOC([]);
+        self.resultsDOCRecommendations([]);
         self.resultsDW([]);
         self.resultsWEBFacebook([]);
         self.resultsWEBTwitter([]);
@@ -314,9 +317,11 @@ function searchEngineViewModel() {
         self.searchQueryAutocorrected('');
     };
 
-    // Search by DOCUMENTS by given user
+    // Search by DOCUMENTS by given user and RECOMMENDATIONS
     self.performSearchDOC = function (query, userID) {
         self.resultsDOC.removeAll();
+        self.resultsDOCRecommendations.removeAll();
+
         self.searchDOCinProgress(true);
         dataServiceProvider.searchDOC(query, userID, function (documents) {
             // Need to insert objects into 'ko.observableArray' and not to substitute the array
@@ -324,6 +329,23 @@ function searchEngineViewModel() {
                 self.resultsDOC.push(d);
             });
             self.searchDOCinProgress(false);
+        });
+
+        self.searchDOCRecomendinProgress(true);
+        dataServiceProvider.getDOCRecommendations(userID, function (documents) {
+            // Need to insert objects into 'ko.observableArray' and not to substitute the array
+
+            $.each(documents, function (i, d) {
+                // To avoid duplicates
+                var match = ko.utils.arrayFirst(self.resultsDOCRecommendations(), function (item) {
+                    return d.docID === item.docID;
+                });
+
+                if (!match) {
+                    self.resultsDOCRecommendations.push(d);
+                }
+            });
+            self.searchDOCRecomendinProgress(false);
         });
     };
 
