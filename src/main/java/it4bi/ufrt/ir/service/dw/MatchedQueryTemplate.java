@@ -22,7 +22,8 @@ public class MatchedQueryTemplate implements Comparable<MatchedQueryTemplate> {
 	private int templateId;
 	private Map<String, String> parameters = Maps.newHashMap();
 	private String name;
-	private int relevance;
+	private double relevance;
+	private double additionalRelevance = 0;
 
 	public MatchedQueryTemplate() {
 	}
@@ -58,12 +59,28 @@ public class MatchedQueryTemplate implements Comparable<MatchedQueryTemplate> {
 		this.name = name;
 	}
 
-	public int getRelevance() {
+	public double getRelevance() {
 		return relevance;
 	}
 
-	public void setRelevance(int relevance) {
+	public void setRelevance(double relevance) {
 		this.relevance = relevance;
+	}
+
+	public double getAdditionalRelevance() {
+		return additionalRelevance;
+	}
+
+	public void addRelevance(double add) {
+		this.additionalRelevance = this.additionalRelevance + add;
+	}
+
+	public void setAdditionalRelevance(double additionalRelevance) {
+		this.additionalRelevance = additionalRelevance;
+	}
+
+	public double getTotalRelevance() {
+		return relevance + additionalRelevance;
 	}
 
 	@Override
@@ -71,13 +88,14 @@ public class MatchedQueryTemplate implements Comparable<MatchedQueryTemplate> {
 		Validate.notNull(o);
 		return ComparisonChain.start()
 				.compare(parameters.size(), o.parameters.size(), Collections.reverseOrder())
-				.compare(relevance, o.relevance, Collections.reverseOrder()).result();
+				.compare(getTotalRelevance(), o.getTotalRelevance(), Collections.reverseOrder()).result();
 	}
 
 	@Override
 	public String toString() {
 		return "MatchedQueryTemplate [templateId=" + templateId + ", parameters=" + parameters + ", name="
-				+ name + ", relevance=" + relevance + "]";
+				+ name + ", relevance=" + relevance + ", additionalRelevance=" + additionalRelevance
+				+ ", getTotalRelevance()=" + getTotalRelevance() + "]";
 	}
 
 }

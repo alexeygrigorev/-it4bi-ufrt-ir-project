@@ -41,6 +41,8 @@ public class EvaluationResult {
 	private final Map<String, String> foundParams = Maps.newHashMap();
 	private final Set<String> processedParameters = Sets.newHashSet();
 	private final Set<String> allParameters = Sets.newHashSet();
+	
+	private double additionalScore = 0.0;
 
 	/**
 	 * keeps internal data needed for processing multiple values of the same parameter extractor
@@ -96,6 +98,7 @@ public class EvaluationResult {
 
 		if (attempt.isSuccessful()) {
 			foundParams.put(name, attempt.getValue());
+			additionalScore = additionalScore + attempt.getScore();
 		} else {
 			success = false;
 		}
@@ -126,9 +129,12 @@ public class EvaluationResult {
 		Validate.validState(isSatisfied(), "all parameters must be satisfied");
 
 		int relevance = calcRelevance();
-
+		
 		String name = parametrizeName(queryTemplate.getName(), foundParams);
-		return new MatchedQueryTemplate(queryTemplate.getId(), foundParams, name, relevance);
+		MatchedQueryTemplate res = new MatchedQueryTemplate(queryTemplate.getId(), foundParams, name, relevance);
+		res.addRelevance(additionalScore);
+
+		return res;
 	}
 
 	private int calcRelevance() {

@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +22,8 @@ import com.google.common.base.Optional;
 @Component
 public class DatawarehouseService {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(DatawarehouseService.class);
+	
 	private final QueryPreprocessor queryPreprocessor;
 	private final Evaluator evaluator;
 
@@ -36,12 +40,18 @@ public class DatawarehouseService {
 	}
 
 	public DwhDtoResults find(String freeTextQuery, User user) {
+		LOGGER.debug("query {} for user {}", freeTextQuery, user);
+		
 		UserQuery query = queryPreprocessor.preprocess(freeTextQuery);
 		AllEvaluationResults results = evaluator.evaluate(query);
 		List<MatchedQueryTemplate> matched = results.getMatchedTemplates();
 
 		List<MatchedQueryTemplate> recommended = Collections.emptyList();
-		return new DwhDtoResults(matched, recommended);
+		DwhDtoResults dwhDtoResults = new DwhDtoResults(matched, recommended);
+		
+		LOGGER.debug("result of {} is {}", freeTextQuery, dwhDtoResults);
+
+		return dwhDtoResults;
 	}
 
 	public ExecutedDwhQuery execute(MatchedQueryTemplate template) {

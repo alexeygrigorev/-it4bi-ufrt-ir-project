@@ -43,4 +43,9 @@ public class DwhDtoResults {
 		this.recommended = recommended;
 	}
 
+	@Override
+	public String toString() {
+		return "DwhDtoResults [matched=" + matched + ", recommended=" + recommended + "]";
+	}
+
 }

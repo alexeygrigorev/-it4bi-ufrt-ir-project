@@ -6,21 +6,23 @@ import it4bi.ufrt.ir.service.dw.eval.QueryParameter;
 
 /**
  * Holds the results of attempting to extract a parameter of some {@link ParameterExtractor}. Can be
- * successful or not.
+ * successful or not.<br>
  * 
  * @see ParameterExtractor
  * @see QueryParameter
  */
 public class ExtractionAttempt {
 
-	private boolean successful = false;
-	private QueryParameter parameter;
-	private String value;
+	private final boolean successful;
+	private final QueryParameter parameter;
+	private final String value;
+	private final double score;
 
-	private ExtractionAttempt(boolean successful, QueryParameter parameter, String value) {
+	private ExtractionAttempt(boolean successful, QueryParameter parameter, String value, double score) {
 		this.successful = successful;
 		this.parameter = parameter;
 		this.value = value;
+		this.score = score;
 	}
 
 	/**
@@ -28,7 +30,7 @@ public class ExtractionAttempt {
 	 * @return a non-successful extraction attempt
 	 */
 	public static ExtractionAttempt notSuccessful(QueryParameter parameter) {
-		return new ExtractionAttempt(false, parameter, null);
+		return new ExtractionAttempt(false, parameter, null, 0.0);
 	}
 
 	/**
@@ -37,7 +39,16 @@ public class ExtractionAttempt {
 	 * @return a successful extraction attempt
 	 */
 	public static ExtractionAttempt successful(QueryParameter parameter, String value) {
-		return new ExtractionAttempt(true, parameter, value);
+		return new ExtractionAttempt(true, parameter, value, 1.0);
+	}
+
+	/**
+	 * @param parameter that was extracted
+	 * @param value the extracted value for this parameter
+	 * @return a successful extraction attempt
+	 */
+	public static ExtractionAttempt successful(QueryParameter parameter, String value, double confidence) {
+		return new ExtractionAttempt(true, parameter, value, confidence);
 	}
 
 	/**
@@ -52,6 +63,10 @@ public class ExtractionAttempt {
 	 */
 	public QueryParameter getParameter() {
 		return parameter;
+	}
+
+	public double getScore() {
+		return score;
 	}
 
 	/**

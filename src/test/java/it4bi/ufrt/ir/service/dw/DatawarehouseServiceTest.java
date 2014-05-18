@@ -39,7 +39,7 @@ public class DatawarehouseServiceTest {
 
 		assertEquals(1, first.getTemplateId());
 		assertEquals("Standings of Russian Federation by cups", first.getName());
-		assertEquals(1, first.getRelevance()); // "standings" should match
+		assertEquals(2.0, first.getTotalRelevance(), 0.01); // "standings" should match
 	}
 
 	@Test
@@ -54,7 +54,7 @@ public class DatawarehouseServiceTest {
 
 		assertEquals(2, first.getTemplateId());
 		assertEquals("Matches of France vs Brazil", first.getName());
-		assertEquals(1, first.getRelevance()); // "Matches" should match
+		assertEquals(3.0, first.getTotalRelevance(), 0.001); // "Matches" should match
 	}
 
 	@Test
@@ -93,11 +93,11 @@ public class DatawarehouseServiceTest {
 
 		assertEquals(3, first.getTemplateId());
 		assertEquals("Participation of Cristiano Ronaldo per cup", first.getName());
-		assertEquals(2, first.getRelevance()); // "Matches" and "cup" should match
+		assertEquals(3.0, first.getTotalRelevance(), 0.001); // "Matches" and "cup" should match
 
 		ExecutedDwhQuery result = datawarehouseService.execute(first);
 		List<String> expectedColumns = Arrays.asList("Player Name", "Cup", "Country", "Age",
-				"Matches Played", "Minutes Played", "Position");
+				"Matches Played", "Minutes Played", "Position", "Coach");
 		assertEquals(expectedColumns, result.getColumnNames());
 	}
 
@@ -113,7 +113,7 @@ public class DatawarehouseServiceTest {
 
 		assertEquals(4, first.getTemplateId());
 		assertEquals("All matches of referee Charles Corver", first.getName());
-		assertEquals(1, first.getRelevance()); // "referee" should match
+		assertEquals(2.0, first.getTotalRelevance(), 0.001); // "referee" should match
 
 		ExecutedDwhQuery result = datawarehouseService.execute(first);
 		List<String> expectedColumns = Arrays.asList("Cup", "Date", "Name", "Nationality", "Match", "Stage",
@@ -133,10 +133,11 @@ public class DatawarehouseServiceTest {
 
 		assertEquals(5, first.getTemplateId());
 		assertEquals("All matches of cup 1998", first.getName());
-		assertEquals(3, first.getRelevance()); // "all", "matches" and "year" should match
+		assertEquals(4.0, first.getTotalRelevance(), 0.001); // "all", "matches" and "year" should match
 
 		ExecutedDwhQuery result = datawarehouseService.execute(first);
-		List<String> expectedColumns = Arrays.asList("Cup", "Date", "Team 1", "Team 2", "Score", "Stage");
+		List<String> expectedColumns = Arrays.asList("Cup", "Date", "Team 1", "Team 2", "Score", "Stage",
+				"Team 1 Coach", "Team 2 Coach");
 		assertEquals(expectedColumns, result.getColumnNames());
 	}
 
@@ -152,7 +153,7 @@ public class DatawarehouseServiceTest {
 
 		assertEquals(6, first.getTemplateId());
 		assertEquals("Standings of teams coached by Diego MARADONA", first.getName());
-		assertEquals(2, first.getRelevance()); // "position", "coach" should match
+		assertEquals(3.0, first.getTotalRelevance(), 0.001); // "position", "coach" should match
 
 		ExecutedDwhQuery result = datawarehouseService.execute(first);
 		List<String> expectedColumns = Arrays.asList("Year", "Name", "Country", "Position", "Team Standing",
@@ -172,11 +173,92 @@ public class DatawarehouseServiceTest {
 
 		assertEquals(7, first.getTemplateId());
 		assertEquals("Matches of teams coached by Diego MARADONA", first.getName());
-		assertEquals(2, first.getRelevance()); // "match", "coach" should match
+		assertEquals(3.0, first.getTotalRelevance(), 0.001); // "match", "coach" should match
 
 		ExecutedDwhQuery result = datawarehouseService.execute(first);
 		List<String> expectedColumns = Arrays.asList("Year", "Date", "Name", "Coached Team", "Opponent Team",
 				"Score", "Result");
+		assertEquals(expectedColumns, result.getColumnNames());
+	}
+
+	@Test
+	public void template9() {
+		String freeTextQuery = "goals scored by Igor Chislenko";
+		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
+		List<MatchedQueryTemplate> matched = res.getMatched();
+
+		LOGGER.debug("Obtained result: {}", matched);
+
+		MatchedQueryTemplate first = matched.get(0);
+
+		assertEquals(9, first.getTemplateId());
+		assertEquals("Goals of Igor Chislenko", first.getName());
+		assertEquals(3.0, first.getTotalRelevance(), 0.001); // "goal", "score" should match
+
+		ExecutedDwhQuery result = datawarehouseService.execute(first);
+		List<String> expectedColumns = Arrays.asList("Date", "Time", "Team", "Opponent Team", "Player Name",
+				"Assisted by", "Goal Type", "Main Referee", "Interval", "Sub Interval");
+		assertEquals(expectedColumns, result.getColumnNames());
+	}
+
+	@Test
+	public void template10() {
+		String freeTextQuery = "cards received by Diego Maradona";
+		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
+		List<MatchedQueryTemplate> matched = res.getMatched();
+
+		LOGGER.debug("Obtained result: {}", matched);
+
+		MatchedQueryTemplate first = matched.get(0);
+
+		assertEquals(10, first.getTemplateId());
+		assertEquals("Cards of Diego Maradona", first.getName());
+		assertEquals(1.0, first.getRelevance(), 0.001); // "card" should match
+		assertEquals(2.0, first.getTotalRelevance(), 0.001); // card + Diego Maradonna
+
+		ExecutedDwhQuery result = datawarehouseService.execute(first);
+		List<String> expectedColumns = Arrays.asList("Date", "Time", "Player Name", "Card Type", "Team",
+				"Opponent Team", "Referee", "Interval", "Sub Interval");
+		assertEquals(expectedColumns, result.getColumnNames());
+	}
+
+	@Test
+	public void template11() {
+		String freeTextQuery = "cards received by team of England";
+		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
+		List<MatchedQueryTemplate> matched = res.getMatched();
+
+		LOGGER.debug("Obtained result: {}", matched);
+
+		MatchedQueryTemplate first = matched.get(0);
+
+		assertEquals(11, first.getTemplateId());
+		assertEquals("Cards of team England", first.getName());
+		assertEquals(2.0, first.getRelevance(), 0.001); // "card", "team" should match
+
+		ExecutedDwhQuery result = datawarehouseService.execute(first);
+		List<String> expectedColumns = Arrays.asList("Date", "Time", "Player Name", "Card Type", "Team",
+				"Opponent Team", "Referee", "Interval", "Sub Interval");
+		assertEquals(expectedColumns, result.getColumnNames());
+	}
+
+	@Test
+	public void template12() {
+		String freeTextQuery = "cards issued by referee Ali Hussein Kandil";
+		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
+		List<MatchedQueryTemplate> matched = res.getMatched();
+
+		LOGGER.debug("Obtained result: {}", matched);
+
+		MatchedQueryTemplate first = matched.get(0);
+
+		assertEquals(12, first.getTemplateId());
+		assertEquals("Cards issued by referee Ali Hussein Kandil", first.getName());
+		assertEquals(2.0, first.getRelevance(), 0.001); // "card", "referee" should match
+
+		ExecutedDwhQuery result = datawarehouseService.execute(first);
+		List<String> expectedColumns = Arrays.asList("Date", "Time", "Player Name", "Card Type", "Team",
+				"Opponent Team", "Referee", "Interval", "Sub Interval");
 		assertEquals(expectedColumns, result.getColumnNames());
 	}
 }

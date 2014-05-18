@@ -17,9 +17,9 @@ import com.google.common.collect.ComparisonChain;
 
 /**
  * Class that knows how to extract a certain type of {@link Person} given some list of people. It traverses
- * the list and uses some similarity (see {@link Person#sameName(String)}) measure to locate the most similar entity from the given list. Typically
- * the lists are from the data warehouse. There are several implemetations, each of which knows how to extract
- * some specific type of person
+ * the list and uses some similarity (see {@link Person#sameName(String)}) measure to locate the most similar
+ * entity from the given list. Typically the lists are from the data warehouse. There are several
+ * implementations, each of which knows how to extract some specific type of person
  * 
  * @see Person
  * @see PlayerNameParameterExtractor
@@ -34,9 +34,12 @@ public abstract class NameParameterExtractor implements ParameterExtractor {
 		while (it.hasNext()) {
 			NamedEntity next = it.next();
 			List<Person> candidates = candidates(next.getToken());
-			Optional<Person> closest = findClosest(next.getToken(), candidates);
+			Optional<ScoredPerson> closest = findClosest(next.getToken(), candidates);
 			if (closest.isPresent()) {
-				return ExtractionAttempt.successful(parameter, closest.get().getFullName());
+				ScoredPerson scoredPerson = closest.get();
+				String value = scoredPerson.getPerson().getFullName();
+				double score = scoredPerson.getRelevance();
+				return ExtractionAttempt.successful(parameter, value, score);
 			}
 		}
 
@@ -45,33 +48,41 @@ public abstract class NameParameterExtractor implements ParameterExtractor {
 
 	public abstract List<Person> candidates(String name);
 
-	public static Optional<Person> findClosest(String name, List<Person> candidates) {
-		PriorityQueue<RevevantPerson> matches = new PriorityQueue<>();
+	public static Optional<ScoredPerson> findClosest(String name, List<Person> candidates) {
+		PriorityQueue<ScoredPerson> matches = new PriorityQueue<>();
 		for (Person person : candidates) {
 			double relevance = person.sameName(name);
 			if (relevance > 0.0) {
-				matches.add(new RevevantPerson(relevance, person));
+				matches.add(new ScoredPerson(relevance, person));
 			}
 		}
 
 		if (matches.isEmpty()) {
 			return Optional.absent();
 		} else {
-			return Optional.of(matches.poll().person);
+			return Optional.of(matches.poll());
 		}
 	}
 
-	private static class RevevantPerson implements Comparable<RevevantPerson> {
-		private double relevance;
-		private Person person;
+	public static class ScoredPerson implements Comparable<ScoredPerson> {
+		private final double relevance;
+		private final Person person;
 
-		public RevevantPerson(double relevance, Person person) {
+		public ScoredPerson(double relevance, Person person) {
 			this.relevance = relevance;
 			this.person = person;
 		}
 
+		public double getRelevance() {
+			return relevance;
+		}
+
+		public Person getPerson() {
+			return person;
+		}
+
 		@Override
-		public int compareTo(RevevantPerson o) {
+		public int compareTo(ScoredPerson o) {
 			return ComparisonChain.start().compare(relevance, o.relevance, Collections.reverseOrder())
 					.compare(person.getFullName(), person.getFullName()).result();
 		}
