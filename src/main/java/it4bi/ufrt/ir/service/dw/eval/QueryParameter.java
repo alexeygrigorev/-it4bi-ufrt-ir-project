@@ -1,5 +1,8 @@
 package it4bi.ufrt.ir.service.dw.eval;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import it4bi.ufrt.ir.service.dw.eval.extractor.ParameterExtractor;
 
 public class QueryParameter {
@@ -33,4 +36,13 @@ public class QueryParameter {
 				+ parameterType + "]";
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return EqualsBuilder.reflectionEquals(this, obj);
+	}
+
+	@Override
+	public int hashCode() {
+		return HashCodeBuilder.reflectionHashCode(this);
+	}
 }

@@ -31,5 +31,24 @@ public class AllEvaluationResults {
 		return matchedTemplates;
 	}
 
+	public List<EvaluationResult> getSuccessful() {
+		return successful;
+	}
+	
+	public List<EvaluationResult> getNotSuccessful() {
+		return notSuccessful;
+	}
+
+	public List<EvaluationResult> almostSuccessful() {
+		List<EvaluationResult> result = Lists.newArrayList();
+
+		for (EvaluationResult er : notSuccessful) {
+			if (er.unsatisfiedParamsCount() == 1) {
+				result.add(er);
+			}
+		}
+
+		return result;
+	}
 
 }

@@ -44,6 +44,8 @@ $.ajax({
 });
 		 */
 		
+		// TODO: user!
+
 		LOGGER.debug("executing {}", matchedQueryTemplate);
 		ExecutedDwhQuery dwResult = datawarehouseService.execute(matchedQueryTemplate); 
 		return dwResult;

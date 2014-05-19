@@ -1,13 +1,13 @@
 package it4bi.ufrt.ir.service.dw;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import it4bi.ufrt.ir.service.users.User;
+import it4bi.ufrt.ir.service.users.UsersService;
 
 import java.util.Arrays;
 import java.util.List;
 
-import it4bi.ufrt.ir.service.users.User;
-import it4bi.ufrt.ir.service.users.UserSex;
-
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -22,10 +22,18 @@ public class DatawarehouseServiceTest {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DatawarehouseServiceTest.class);
 
-	User user = new User("Richard", "Kondor", "Italy", UserSex.MALE, "1995-05-28");
+	User user;
 
 	@Autowired
 	DatawarehouseService datawarehouseService;
+
+	@Autowired
+	UsersService usersService;
+	
+	@Before
+	public void setUp() {
+		user = usersService.getUsers().get(0);
+	}
 
 	@Test
 	public void template1() {
@@ -41,7 +49,7 @@ public class DatawarehouseServiceTest {
 		assertEquals("Standings of Russian Federation by cups", first.getName());
 		assertEquals(2.0, first.getTotalRelevance(), 0.01); // "standings" should match
 	}
-
+	
 	@Test
 	public void template2() {
 		String freeTextQuery = "Matches of France and Brazil";
@@ -57,6 +65,21 @@ public class DatawarehouseServiceTest {
 		assertEquals(3.0, first.getTotalRelevance(), 0.001); // "Matches" should match
 	}
 
+	@Test
+	public void template2_recommend() {
+		String freeTextQuery = "All standings of France";
+		DwhDtoResults res = datawarehouseService.find(freeTextQuery, user);
+		List<MatchedQueryTemplate> recommended = res.getRecommended();
+
+		LOGGER.debug("Obtained result: {}", recommended);
+
+		MatchedQueryTemplate first = recommended.get(0);
+
+		assertEquals(2, first.getTemplateId());
+		assertEquals("Matches of France vs Brazil", first.getName());
+	}
+
+	
 	@Test
 	public void execute_template2() {
 		String freeTextQuery = "Matches of France and Brazil";
