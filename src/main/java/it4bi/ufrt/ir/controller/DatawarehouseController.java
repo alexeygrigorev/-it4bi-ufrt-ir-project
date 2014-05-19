@@ -3,6 +3,8 @@ package it4bi.ufrt.ir.controller;
 import it4bi.ufrt.ir.service.dw.DatawarehouseService;
 import it4bi.ufrt.ir.service.dw.ExecutedDwhQuery;
 import it4bi.ufrt.ir.service.dw.MatchedQueryTemplate;
+import it4bi.ufrt.ir.service.users.User;
+import it4bi.ufrt.ir.service.users.UsersService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -22,33 +24,52 @@ public class DatawarehouseController {
 
 	@Autowired
 	private DatawarehouseService datawarehouseService;
+	
+	@Autowired
+	private UsersService userService;
 
 	@POST
 	@Path("/execute")
 	@Consumes("application/json; charset=UTF-8")
 	@Produces("application/json; charset=UTF-8")
 	public ExecutedDwhQuery execute(MatchedQueryTemplate matchedQueryTemplate) {
-		/* communication pattern (TODO: Remove after implementing on the client)
-var url = serverURL + "rest/search/dwh?q=Russia&u=408305";
-a = $.get(url);
-...
-
-var q = a.responseJSON.matched[0];
-var url2 = serverURL + "rest/dwh/execute";
-$.ajax({
-    type: "POST",
-    contentType: "application/json; charset=utf-8",
-    url: url2,
-    data: JSON.stringify(q),
-    dataType: "json"
-});
-		 */
-		
-		// TODO: user!
-
 		LOGGER.debug("executing {}", matchedQueryTemplate);
-		ExecutedDwhQuery dwResult = datawarehouseService.execute(matchedQueryTemplate); 
+		ExecutedDwhQuery dwResult = datawarehouseService.execute(matchedQueryTemplate);
 		return dwResult;
+	}
+
+	@POST
+	@Path("/executeUser")
+	@Consumes("application/json; charset=UTF-8")
+	@Produces("application/json; charset=UTF-8")
+	public ExecutedDwhQuery executePersonalized(TemplateAndUser param) {
+		LOGGER.debug("executing {} for user {}", param.getMatchedQueryTemplate(), param.getUserId());
+		User user = userService.userById(param.getUserId());
+		ExecutedDwhQuery dwResult = datawarehouseService.execute(param.getMatchedQueryTemplate(), user);
+		return dwResult;
+	}
+
+	public static class TemplateAndUser {
+
+		private MatchedQueryTemplate matchedQueryTemplate;
+		private int userId;
+
+		public MatchedQueryTemplate getMatchedQueryTemplate() {
+			return matchedQueryTemplate;
+		}
+
+		public void setMatchedQueryTemplate(MatchedQueryTemplate matchedQueryTemplate) {
+			this.matchedQueryTemplate = matchedQueryTemplate;
+		}
+
+		public int getUserId() {
+			return userId;
+		}
+
+		public void setUserId(int userId) {
+			this.userId = userId;
+		}
+
 	}
 
 }

@@ -11,5 +11,6 @@
 	<context:component-scan base-package="it4bi.ufrt.ir.service.users" />   
 	<import resource="classpath:cacheContext.xml" />
 	<import resource="classpath:dataSources.xml" />
+	<import resource="classpath:executorsContext.xml" />
 
 </beans>

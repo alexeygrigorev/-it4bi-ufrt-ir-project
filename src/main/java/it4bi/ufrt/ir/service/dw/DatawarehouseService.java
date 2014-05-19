@@ -48,11 +48,11 @@ public class DatawarehouseService {
 		UserQuery query = queryPreprocessor.preprocess(freeTextQuery);
 		AllEvaluationResults results = evaluator.evaluate(query);
 		List<MatchedQueryTemplate> matched = results.getMatchedTemplates();
-		queryRecommender.captureParameters(user, results);
 
 		List<MatchedQueryTemplate> recommended = queryRecommender.recommend(query, user, results);
 		DwhDtoResults dwhDtoResults = new DwhDtoResults(matched, recommended);
 
+		queryRecommender.captureParametersForQuery(user, results);
 		LOGGER.debug("result of {} is {}", freeTextQuery, dwhDtoResults);
 		return dwhDtoResults;
 	}
@@ -63,6 +63,16 @@ public class DatawarehouseService {
 		Validate.isTrue(query.isPresent(), "unexisting query template with id=%d", templateId);
 		ExecutedDwhQuery res = datawarehouseDao.execute(query.get(), template.getParameters());
 		res.setQueryName(template.getName());
+		return res;
+	}
+
+	public ExecutedDwhQuery execute(MatchedQueryTemplate template, User user) {
+		int templateId = template.getTemplateId();
+		Optional<QueryTemplate> query = queryTemplateDao.byId(templateId);
+		Validate.isTrue(query.isPresent(), "unexisting query template with id=%d", templateId);
+		ExecutedDwhQuery res = datawarehouseDao.execute(query.get(), template.getParameters());
+		res.setQueryName(template.getName());
+		queryRecommender.captureParametersForClick(user, query.get(), template);
 		return res;
 	}
 
