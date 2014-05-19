@@ -8,7 +8,8 @@ import it4bi.ufrt.ir.service.dw.eval.QueryParameter;
 import it4bi.ufrt.ir.service.dw.eval.extractor.ExtractionAttempt;
 import it4bi.ufrt.ir.service.users.User;
 
-import java.util.Collection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SingleColumnRowMapper;
+import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +32,6 @@ import com.google.common.collect.Multimap;
 public class QueryRecommender {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(QueryRecommender.class);
-	private static final RowMapper<String> STRING_MAPPER = new SingleColumnRowMapper<String>(String.class);
 
 	private static final String UPDATE_PARAM_COUNT_QUERY = "if not exists "
 			+ "(SELECT * FROM ParameterStatistics WHERE "
@@ -78,16 +77,17 @@ public class QueryRecommender {
 	}
 
 	public List<MatchedQueryTemplate> recommend(UserQuery query, User user, AllEvaluationResults results) {
-		
-		
-		
+		List<EvaluationResult> unsatisfied = results.almostSuccessful();
+		QueryBuilder.Result res = new QueryBuilder(unsatisfied, user.getID()).build();
+
+		jdbcTemplate.query(res.query(), new TemplateEnricherCallback(res));
+
+		List<EvaluationResult> enriched = res.getResults();
 		List<MatchedQueryTemplate> result = Lists.newArrayList();
 
-		List<EvaluationResult> notSuccessful = results.almostSuccessful();
-		for (EvaluationResult er : notSuccessful) {
-			EvaluationResult withRecommendation = recommend(user, er);
-			if (withRecommendation.isSatisfied()) {
-				result.add(withRecommendation.asDto());
+		for (EvaluationResult er : enriched) {
+			if (er.isSatisfied()) {
+				result.add(er.asDto());
 			}
 		}
 
@@ -95,63 +95,25 @@ public class QueryRecommender {
 		return result;
 	}
 
-	
-	public List<MatchedQueryTemplate> recommend2(UserQuery query, User user, AllEvaluationResults results) {
-		List<MatchedQueryTemplate> result = Lists.newArrayList();
+	public class TemplateEnricherCallback implements RowCallbackHandler {
 
-		List<EvaluationResult> notSuccessful = results.almostSuccessful();
+		private QueryBuilder.Result res;
 
-		for (EvaluationResult er : notSuccessful) {
-			EvaluationResult withRecommendation = recommend(user, er);
-			if (withRecommendation.isSatisfied()) {
-				result.add(withRecommendation.asDto());
-			}
+		public TemplateEnricherCallback(QueryBuilder.Result res) {
+			this.res = res;
 		}
 
-		Collections.sort(result);
-		return result;
-	}
+		@Override
+		public void processRow(ResultSet rs) throws SQLException {
+			int evalResIdx = rs.getInt(1);
+			int paramIdx = rs.getInt(2);
+			String value = rs.getString(3);
 
-	private EvaluationResult recommend(User user, EvaluationResult er) {
-		EvaluationResult copy = er.recommendationCopy();
-
-		String sql = "select top 1 parameter_value from ParameterStatistics "
-				+ "where user_id = :user and parameter_name = :paramName and "
-				+ "parameter_value not in (:usedValues) order by [count] desc";
-		String sqlEmpty = "select top 1 parameter_value from ParameterStatistics "
-				+ "where user_id = :user and parameter_name = :paramName " + "order by [count] desc";
-
-		List<QueryParameter> params = copy.unsatisfiedParams();
-
-		for (QueryParameter param : params) {
-			String parameterType = param.getParameterType();
-			Collection<String> usedValues = copy.getUsedValues(parameterType);
-
-			Map<String, ?> paramMap;
-			String sqlToRun;
-			if (usedValues.isEmpty()) {
-				paramMap = ImmutableMap.of("user", user.getID(), "paramName", parameterType);
-				sqlToRun = sqlEmpty;
-			} else {
-				paramMap = ImmutableMap.of("user", user.getID(), "paramName", parameterType, "usedValues",
-						usedValues);
-				sqlToRun = sql;
-			}
-
-			List<String> res = jdbcTemplate.query(sqlToRun, paramMap, STRING_MAPPER);
-			LOGGER.debug("for query parameter {} looking up a suggestion with params={}, obtained {}", param,
-					paramMap, res);
-
-			if (!res.isEmpty()) {
-				String suggestion = res.get(0);
-				ExtractionAttempt attempt = ExtractionAttempt.successful(param, suggestion);
-				copy.record(attempt);
-				LOGGER.debug("using {} to enrich {}", suggestion, copy);
-			}
+			QueryParameter queryParameter = res.getParam(paramIdx);
+			ExtractionAttempt attempt = ExtractionAttempt.successful(queryParameter, value);
+			EvaluationResult er = res.getResult(evalResIdx);
+			er.record(attempt);
 		}
-
-		LOGGER.debug("the template {} is enriched: {}", copy.getQueryTemplate(), copy.isSatisfied());
-		return copy;
 	}
 
 }
