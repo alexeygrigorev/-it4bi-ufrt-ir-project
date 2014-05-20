@@ -31,8 +31,7 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 	private float sim_threshold;
 	private DataModel dataModel;
 	
-	public MyUserBasedRecommender(DataModel dataModel,
-			UserNeighborhood neighborhood, UserSimilarity similarity, float threshold) {
+	public MyUserBasedRecommender(DataModel dataModel, UserNeighborhood neighborhood, UserSimilarity similarity, float threshold) {
 		super(dataModel, neighborhood, similarity);
 		this.sim_threshold = threshold;
 		this.similarity = similarity;
@@ -41,7 +40,7 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 	
 	public List<DocumentRecord> recommend_custom(long userID) throws TasteException {
 		
-		FastIDSet userDocs = dataModel.getItemIDsFromUser(userID);
+		//FastIDSet userDocs = dataModel.getItemIDsFromUser(userID);
 		
 		List<RecommendedItem> recommendedDocs = new ArrayList<RecommendedItem>();
 		List<DocumentRecord> recommendedDocRecs = new ArrayList<DocumentRecord>();

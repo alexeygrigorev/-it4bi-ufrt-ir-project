@@ -22,15 +22,22 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.util.Version;
 import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.eval.RecommenderBuilder;
+import org.apache.mahout.cf.taste.eval.RecommenderEvaluator;
+import org.apache.mahout.cf.taste.impl.eval.AverageAbsoluteDifferenceRecommenderEvaluator;
+import org.apache.mahout.cf.taste.impl.eval.RMSRecommenderEvaluator;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.JDBCDataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.recommender.UserBasedRecommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
+import org.apache.mahout.common.RandomUtils;
 /*
 import org.apache.mahout.cf.taste.common.Refreshable;
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -56,6 +63,30 @@ import org.springframework.stereotype.Component;
 
 import edu.stanford.nlp.util.ArrayMap;
 
+
+class MyRecommenderBuilder implements RecommenderBuilder {
+
+	private UserSimilarity similarity;
+	private UserNeighborhood neighborhood;
+	 
+	public MyRecommenderBuilder(JDBCDataModel dataModel) {
+		 try {
+				//similarity = new PearsonCorrelationSimilarity(datamodel);
+				similarity = new EuclideanDistanceSimilarity(dataModel);
+			} catch (TasteException e) {
+				e.printStackTrace();
+			}
+			 neighborhood = new ThresholdUserNeighborhood(0.0001, similarity, dataModel);
+			 
+	}
+	 
+	@Override
+	public Recommender buildRecommender(DataModel dataModel) throws TasteException {
+		return new MyUserBasedRecommender(dataModel, neighborhood, similarity, 0.0001f);
+	}
+	 
+ }
+
 @Component
 public class DocumentsService {
 
@@ -68,8 +99,7 @@ public class DocumentsService {
 	
 	private JDBCDataModel datamodel;
 	private UserBasedRecommender recommender;
-	private UserSimilarity similarity;
-	private UserNeighborhood neighborhood;
+	private MyRecommenderBuilder recommenderBuilder;
 	
 	
 	
@@ -85,17 +115,23 @@ public class DocumentsService {
 		 this.documentsDAO = documentsDAO;
 		 
 		 datamodel = new RecommenderDataModel(documentsDAO);
-		 try {
-			//similarity = new PearsonCorrelationSimilarity(datamodel);
-			similarity = new EuclideanDistanceSimilarity(datamodel);
-		} catch (TasteException e) {
-			e.printStackTrace();
-		}
-		 neighborhood = new ThresholdUserNeighborhood(0.0001, similarity, datamodel);
-		 recommender = new MyUserBasedRecommender(datamodel, neighborhood, similarity, 0.0001f);
+		 recommender = (UserBasedRecommender) new MyRecommenderBuilder(datamodel);
 		 
      }
 	 
+	
+	 
+	 public void evaluateRecommender() throws TasteException {
+		 
+		 UserBasedRecommender test_recommender;
+		 RandomUtils.useTestSeed();
+		 
+		 RecommenderEvaluator evaluator = new AverageAbsoluteDifferenceRecommenderEvaluator(); 
+		 RecommenderEvaluator rmse = new RMSRecommenderEvaluator(); 
+		 
+		 double score = evaluator.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0); 
+		 System.out.println(score); 
+	 }
 	 
 	 
 	 private ScoreDoc[] hits = null;
@@ -246,12 +282,6 @@ public class DocumentsService {
 		 
 	 }
 
-
-	private void updateRecommendedDocIDs(List<Long> recommendedDocIDs,
-			int userID2, Long neigbouringUser) {
-		// TODO Auto-generated method stub
-		
-	}
 	 
 	 
 	/*public void rebuildDocsIndex() throws Exception {
