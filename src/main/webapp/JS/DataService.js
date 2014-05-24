@@ -5,7 +5,7 @@ function dataService() {
     var self = {};
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
-     self.serverURL = window.location.href;
+    self.serverURL = window.location.href;
     // self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
@@ -197,7 +197,6 @@ function dataService() {
         var url = self.serverURL + "/rest/search/dwh?q=" + query + "&u=" + userID + "&stamp=" + new Date().getTime();
 
         $.get(url, function (data) {
-
             // Map received fields to expected fields. MATCHED RESULTS
             entriesMatched = $.map(data.matched, function (d) {
                 return new dwPreprocessMatchedInfo({
@@ -205,10 +204,10 @@ function dataService() {
                     originalResponse: d
                 });
             });
-
+          
             // Map received fields to expected fields. RECOMMENDED RESULTS
             entriesRecommended = $.map(data.recommended, function (d) {
-                return new dwPreprocessMatchedInfo({
+                return new dwPreprocessRecommendedInfo({
                     name: d.name,
                     originalResponse: d
                 });

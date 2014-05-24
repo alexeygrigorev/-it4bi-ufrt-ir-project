@@ -440,6 +440,10 @@ function searchEngineViewModel() {
             $.each(entries.matched, function (i, d) {
                 self.resultsDWMatched.push(d);
             });
+
+            $.each(entries.recommended, function (i, d) {
+                self.resultsDWRecommended.push(d);
+            });
             self.searchDWinProgress(false);
         });
     };
