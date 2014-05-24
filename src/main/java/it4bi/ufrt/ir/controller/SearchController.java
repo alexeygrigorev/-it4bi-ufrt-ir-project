@@ -165,12 +165,12 @@ public class SearchController {
 		LOGGER.debug("dwh query \"{}\" for user {}", query, userId);
 		String correctedQuery = correctQuery(query);
 		User user = usersService.userById(userId);
-		return datawarehouseService.find(correctedQuery, user);
+		DwhDtoResults res = datawarehouseService.find(correctedQuery, user); 
+		return res;
 	}
 
 	private String correctQuery(String query) {
 		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, suggestionsCount);
 		return qr.getIsCorrected() ? qr.getCorrectedQuery() : query;
 	}
-
 }

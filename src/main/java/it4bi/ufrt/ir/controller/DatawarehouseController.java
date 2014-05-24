@@ -28,15 +28,15 @@ public class DatawarehouseController {
 	@Autowired
 	private UsersService userService;
 
-	@POST
-	@Path("/execute")
-	@Consumes("application/json; charset=UTF-8")
-	@Produces("application/json; charset=UTF-8")
-	public ExecutedDwhQuery execute(MatchedQueryTemplate matchedQueryTemplate) {
-		LOGGER.debug("executing {}", matchedQueryTemplate);
-		ExecutedDwhQuery dwResult = datawarehouseService.execute(matchedQueryTemplate);
-		return dwResult;
-	}
+//	@POST
+//	@Path("/execute")
+//	@Consumes("application/json; charset=UTF-8")
+//	@Produces("application/json; charset=UTF-8")
+//	public ExecutedDwhQuery execute(MatchedQueryTemplate matchedQueryTemplate) {
+//		LOGGER.debug("executing {}", matchedQueryTemplate);
+//		ExecutedDwhQuery dwResult = datawarehouseService.execute(matchedQueryTemplate);
+//		return dwResult;
+//	}
 
 	@POST
 	@Path("/executeUser")

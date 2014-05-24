@@ -31,6 +31,16 @@ function dataService() {
         });
     };
 
+    // Get AUTOCOMPLETION list
+    self.getAutocompletionList = function (callback) {
+        var URL = self.serverURL + "/rest/info/autocompletionList";
+
+        $.get(URL, function (data) {
+            // Return data back to the caller
+            callback(data);
+        });
+    };
+
     // Perform search on DOCUMENTS
     self.searchDOC = function (query, userID, callback) {
         // Stamp is added to avoid caching
@@ -188,28 +198,42 @@ function dataService() {
 
         $.get(url, function (data) {
 
-            // Map received fields to expected fields
-            entries = $.map(data.matched, function (d) {
-                return new dwPreprocessInfo({
+            // Map received fields to expected fields. MATCHED RESULTS
+            entriesMatched = $.map(data.matched, function (d) {
+                return new dwPreprocessMatchedInfo({
                     name: d.name,
                     originalResponse: d
                 });
             });
 
+            // Map received fields to expected fields. RECOMMENDED RESULTS
+            entriesRecommended = $.map(data.recommended, function (d) {
+                return new dwPreprocessMatchedInfo({
+                    name: d.name,
+                    originalResponse: d
+                });
+            });
+
+            var results = new dwPreprocessInfo({
+                matched: entriesMatched,
+                recommended: entriesRecommended
+            });
+
             // Return results back to the caller
-            callback(entries);
+            callback(results);
         });
     };
 
     // Execute DATA WAREHOUSE entry
-    self.executeDWEntry = function (dwEntryInfo, callback, error) {
-        var url = self.serverURL + "rest/dwh/execute";
+    self.executeDWEntry = function (dwEntryInfo, userID, callback, error) {
+        var url = self.serverURL + "rest/dwh/executeUser";
+        var d = '{"matchedQueryTemplate":' + JSON.stringify(dwEntryInfo.originalResponse) + ', "userId":' + userID + '}';
         
         $.ajax({
             type: "POST",
             contentType: "application/json; charset=utf-8",
             url: url,
-            data: JSON.stringify(dwEntryInfo.originalResponse),
+            data: d,
             success: callback,
             error: error,
             dataType: "json"
