@@ -105,7 +105,8 @@ public class QueryBuilder {
 	}
 
 	public static String quote(String q) {
-		return "'" + q + "'";
+		String escaped = q.replace("'", "''");
+		return "'" + escaped + "'";
 	}
 
 }
