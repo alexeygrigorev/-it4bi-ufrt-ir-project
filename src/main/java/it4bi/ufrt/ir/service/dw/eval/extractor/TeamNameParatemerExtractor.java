@@ -9,6 +9,8 @@ import it4bi.ufrt.ir.service.dw.ner.NamedEntityClass;
 
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.base.Optional;
@@ -17,6 +19,8 @@ import com.google.common.base.Optional;
  * Extractor that knows how to extract country names from free text
  */
 public class TeamNameParatemerExtractor implements ParameterExtractor {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(TeamNameParatemerExtractor.class);
 
 	private final DatawarehouseDao dao;
 
@@ -32,8 +36,10 @@ public class TeamNameParatemerExtractor implements ParameterExtractor {
 		while (it.hasNext()) {
 			NamedEntity location = it.next();
 			Optional<String> canonicalCountry = dao.canonicalCountry(location.getToken());
+			LOGGER.debug("canonical name for {} is {}", location.getToken(), canonicalCountry);
 
 			if (!canonicalCountry.isPresent()) {
+				LOGGER.debug("no canonical country is found for {}", location.getToken());
 				continue;
 			}
 

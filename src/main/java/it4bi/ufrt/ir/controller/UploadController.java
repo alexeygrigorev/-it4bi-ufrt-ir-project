@@ -18,8 +18,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Timer;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -54,8 +52,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-
-import com.googlecode.mp4parser.h264.Debug;
 
 @Component
 @Path("/upload")
