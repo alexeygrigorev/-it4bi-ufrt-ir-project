@@ -21,7 +21,6 @@ Croatia
 Cuba
 Czech Republic
 Czechoslovakia
-Democratic People's Republic of Korea
 Denmark
 Dutch East Indies
 East Germany
@@ -45,7 +44,6 @@ Israel
 Italy
 Jamaica
 Japan
-Korea
 Kuwait
 Mauritius
 Mexico
@@ -60,8 +58,7 @@ Peru
 Poland
 Portugal
 Rd Congo
-Republic Of Ireland
-Republic of Korea
+Republic of Ireland
 Romania
 Russia
 Russian Federation
@@ -72,6 +69,7 @@ Serbia
 Slovakia
 Slovenia
 South Africa
+South Korea
 Soviet Union
 Spain
 Sweden
