@@ -12,5 +12,6 @@
 
 	<import resource="classpath:dataSources.xml" />
 	<import resource="classpath:cacheContext.xml" />
+	<import resource="classpath:executorsContext.xml" />
 
  </beans>

@@ -3,8 +3,10 @@
     <title>Football Search Engine</title>
     <link href="CSS/Styles.css" rel="stylesheet" />
     <link href="CSS/uploadfile.css" rel="stylesheet" />
-    <script src="Vendor/knockout-3.1.0.js"></script>
+    <link href="CSS/jquery-ui-1.10.4.css" rel="stylesheet" />
     <script src="Vendor/jquery-2.1.0.js"></script>
+    <script src="Vendor/jquery-ui-1.10.4.js"></script>
+    <script src="Vendor/knockout-3.1.0.js"></script>
     <script src="Vendor/jquery.uploadfile.js"></script>
     <script src="JS/ObjectDefinitions.js"></script>
     <script src="JS/DataService.js"></script>
@@ -131,7 +133,7 @@
         <table id="searchTable">
             <tr>
                 <td id="searchLabel"><img id="searchLogo" data-bind="attr: { src: logo }, click: initializeLogo" /></td>
-                <td><input class="highlightedTextBox" style="width: 450px" type="text" data-bind="value: searchQuery, valueUpdate: 'afterkeydown'" /></td>
+                <td><input id="searchTextBox" class="highlightedTextBox" style="width: 450px" type="text" data-bind="value: searchQuery, valueUpdate: 'afterkeydown'" /></td>
                 <td><input class="highlightedButton" style="width: 100px" type="button" value="GO" data-bind="click: performSearch"></td>
             </tr>
             <tr data-bind="visible: searchQueryAutocorrected().isCorrected ? true : false">
@@ -210,6 +212,12 @@
                                DOCUMENT RECOMMENDATIONS
 
                             -->
+                            <div class="alignCenter" data-bind="visible: searchDOCinProgress()">
+                                <img src="IMG/Loader.gif" alt="" />
+                            </div>
+                            <div class="noResultsGroupHeader" data-bind="visible: (resultsDOC().length == 0 && !searchDOCinProgress())">
+                                Search by Documents returned no results
+                            </div>
                             <table style="width: 100%" data-bind="visible: resultsDOC().length > 0">
                                 <thead>
                                     <tr>
@@ -246,12 +254,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <div class="alignCenter" data-bind="visible: searchDOCinProgress()">
-                                <img src="IMG/Loader.gif" alt="" />
-                            </div>
-                            <div class="noResultsGroupHeader" data-bind="visible: (resultsDOC().length == 0 && !searchDOCinProgress())">
-                                Search by Documents returned no results
-                            </div>
                         </div>
                         <!--
 
@@ -261,8 +263,8 @@
                         <div class="resultsDIV" data-bind="fadeVisible: searchDW()">
                             <hr />
                             <div class="resultsGroupHeader">Data Warehouse</div>
-                            <table style="width: 100%" data-bind="visible: resultsDW().length > 0">
-                                <tbody data-bind="foreach: resultsDW">
+                            <table style="width: 100%" data-bind="visible: resultsDWMatched().length > 0">
+                                <tbody data-bind="foreach: resultsDWMatched">
                                     <tr data-bind="visible: ($index() < $parent.displayLimit && $parent.isALLSearch()) || $parent.isDWSearch()">
                                         <td style="width: 60px"></td>
                                         <td>
@@ -281,9 +283,34 @@
                             <div class="alignCenter" data-bind="visible: searchDWinProgress()">
                                 <img src="IMG/Loader.gif" alt="" />
                             </div>
-                            <div class="noResultsGroupHeader" data-bind="visible: (resultsDW().length == 0 && !searchDWinProgress())">
+                            <div class="noResultsGroupHeader" data-bind="visible: (resultsDWMatched().length == 0 && !searchDWinProgress())">
                                 Search by Data Warehouse returned no results
                             </div>
+                            <!--
+
+                               DATA WAREHOUSE RECOMMENDATIONS
+
+                            -->
+                            <table style="width: 100%" data-bind="visible: resultsDWMatched().length > 0">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">
+                                            Recommended for you
+                                            <div class="noResultsGroupHeader" data-bind="visible: resultsDWRecommended().length == 0">
+                                                No recommendations found
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: resultsDWRecommended">
+                                    <tr>
+                                        <td style="width: 60px"></td>
+                                        <td>
+                                            <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.executeDWEntry, text: name"></a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                         <!--
 

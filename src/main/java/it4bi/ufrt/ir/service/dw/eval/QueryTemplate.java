@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import com.google.common.collect.Sets;
@@ -71,8 +72,9 @@ public class QueryTemplate {
 
 	@Override
 	public String toString() {
-		return "QueryTemplate [id=" + id + ", keywords=" + keywords + ", sqlTemplate=" + sqlTemplate
-				+ ", name=" + name + ", parameters=" + parameters + "]";
+		return "QueryTemplate [id=" + id + ", keywords=" + keywords + ", sqlTemplate="
+				+ StringUtils.abbreviate(sqlTemplate, 20) + ", name=" + name + ", parameters=" + parameters
+				+ "]";
 	}
 
 }

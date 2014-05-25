@@ -15,7 +15,7 @@ public class TokenizerTest {
 
 		List<String> result = tokenizer.tokenizeAndStem("Also, ex-Golden Stater from Oxnard. "
 				+ "He can't be contending ...");
-		List<String> expected = Arrays.asList("Also", "ex", "Golden", "Stater", "from", "Oxnard", "He",
+		List<String> expected = Arrays.asList("also", "ex", "golden", "stater", "from", "oxnard", "he",
 				"can't", "be", "contend");
 		assertEquals(expected, result);
 	}

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 
 import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.PeekingIterator;
@@ -66,7 +67,7 @@ public class EvaluationResult {
 	 * @param value
 	 * @param parameterType
 	 */
-	public void markValueUsed(String value, String parameterType) {
+	private void markValueUsed(String value, String parameterType) {
 		usedValues.put(parameterType, value);
 	}
 
@@ -83,6 +84,14 @@ public class EvaluationResult {
 		return !usedValuesOfTheType.contains(value);
 	}
 
+	public Multimap<String, String> getUsedValues() {
+		return usedValues;
+	}
+	
+	public Collection<String> getUsedValues(String parameterType) {
+		return usedValues.get(parameterType);
+	}
+
 	public PeekingIterator<NamedEntity> namedEntitiesOf(NamedEntityClass neClass) {
 		return namedEntities.of(neClass);
 	}
@@ -94,11 +103,13 @@ public class EvaluationResult {
 	 */
 	public void record(ExtractionAttempt attempt) {
 		String name = attempt.getParameter().getName();
-		processedParameters.add(name); // TODO: needed?
+		processedParameters.add(name);
 
 		if (attempt.isSuccessful()) {
 			foundParams.put(name, attempt.getValue());
 			additionalScore = additionalScore + attempt.getScore();
+			String parameterType = attempt.getParameter().getParameterType();
+			markValueUsed(attempt.getValue(), parameterType);
 		} else {
 			success = false;
 		}
@@ -109,16 +120,34 @@ public class EvaluationResult {
 	 *         something from the user query
 	 */
 	public boolean isSatisfied() {
-		return success && unsatisfiedParams() == 0;
+		return success && unsatisfiedParamsCount() == 0;
 	}
 
 	/**
 	 * @return the number of parameters that weren't satisfied during the free text query parsing
 	 */
-	public int unsatisfiedParams() {
-		Set<String> foundParamsNames = foundParams.keySet();
-		SetView<String> diff = Sets.difference(allParameters, foundParamsNames);
+	public int unsatisfiedParamsCount() {
+		Set<String> diff = unsatisfiedParamNames();
 		return diff.size();
+	}
+
+	public Set<String> unsatisfiedParamNames() {
+		Set<String> foundParamsNames = foundParams.keySet();
+		return Sets.difference(allParameters, foundParamsNames);
+	}
+	
+	public List<QueryParameter> unsatisfiedParams() {
+		Set<String> names = unsatisfiedParamNames();
+		List<QueryParameter> parameters = queryTemplate.getParameters();
+
+		List<QueryParameter> result = Lists.newArrayList();
+		for (QueryParameter qp : parameters) {
+			if (names.contains(qp.getName())) {
+				result.add(qp);
+			}
+		}
+		
+		return result;
 	}
 
 	/**
@@ -168,6 +197,15 @@ public class EvaluationResult {
 
 	public Map<String, String> getFoundParams() {
 		return foundParams;
+	}
+
+	public EvaluationResult recommendationCopy() {
+		EvaluationResult copy = new EvaluationResult(queryTemplate, userQuery);
+		copy.usedValues.putAll(usedValues);
+		copy.foundParams.putAll(foundParams);
+		copy.additionalScore = additionalScore;
+		copy.success = true;
+		return copy;
 	}
 
 }

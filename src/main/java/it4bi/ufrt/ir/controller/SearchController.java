@@ -26,7 +26,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,12 +164,12 @@ public class SearchController {
 		LOGGER.debug("dwh query \"{}\" for user {}", query, userId);
 		String correctedQuery = correctQuery(query);
 		User user = usersService.userById(userId);
-		return datawarehouseService.find(correctedQuery, user);
+		DwhDtoResults res = datawarehouseService.find(correctedQuery, user); 
+		return res;
 	}
 
 	private String correctQuery(String query) {
 		QueryAutoCorrectionResult qr = spellChecker.autoCorrectQuery(query, true, suggestionsCount);
 		return qr.getIsCorrected() ? qr.getCorrectedQuery() : query;
 	}
-
 }

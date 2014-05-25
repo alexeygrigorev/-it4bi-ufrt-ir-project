@@ -1,11 +1,16 @@
 package it4bi.ufrt.ir.controller;
 
+import it4bi.ufrt.ir.service.autocomplete.AutocompleteEntry;
+import it4bi.ufrt.ir.service.autocomplete.AutocompleteService;
 import it4bi.ufrt.ir.service.users.User;
 import it4bi.ufrt.ir.service.users.UsersService;
+
 import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,9 @@ public class InfoController {
 
 	@Autowired
 	private UsersService users;
+	
+	@Autowired
+	private AutocompleteService autocompletion;	
 		
 	@GET
 	@Path("/users")
@@ -26,5 +34,12 @@ public class InfoController {
 	public List<User> users() {
 		LOGGER.debug("return all registered users form the database");
 		return users.getUsers();
+	}
+	
+	@GET
+	@Path("/autocompletionList")
+	@Produces("application/json; charset=UTF-8")
+	public List<AutocompleteEntry> autocompleteList() {
+		return autocompletion.getList();
 	}
 }

@@ -1,0 +1,541 @@
+A.Asmussen
+A.Eriksson
+Abdel-Magid Hassan
+Abdulrahman Al-Zaid
+Abel Aguilar Elizalde
+Aboudou Aderodjou
+Abraham Gonzalez
+Abraham Klein
+Achmat Salie
+Adolf Prokop
+Alan Snoddy
+Albert Dorogy
+Albert Dusch
+Alberto Gama Malcher
+Alberto Morin
+Alberto Tejada Noriega
+Alberto Undiano
+Alberto Warken
+Albino Carraro
+Alessandro Stagnoli
+Alexey Spirin
+Alexis Ponnet
+Alfonso Gonzalez Archundia
+Alfred Birlem
+Ali Al Traifi
+Ali Bennaceur
+Ali Bujsaim
+Ali Hussein Kandil
+Ali Tomusange Ali
+Almeida Rego
+Alois Beranek
+Alojzy Jarguz
+Altemir Hausmann
+Amelio Andino
+Anatoly Ivanov
+Anders Frisk
+Andre Daina
+Andrei Radulescu
+Angel Franco Martinez
+Angel Norberto Coerezza
+Angel Sanchez
+Anibal Tejeda
+Antoine Blavier
+Antonio Lopez Nieto
+Antonio Marquez Ramirez
+Antonio Saldanha Ribeiro
+Antonio Sbardella
+An-Yan Lim Kee Chong
+Arie van Gemert
+Aristeu Tavares
+Aristidis Chris Soldatos
+Armando Marques
+Armando Perez Hoyos
+Arminio Victorian Sanchez
+Arnaldo Coelho
+Arnaldo Pinto
+Aron Schmidhuber
+Arthur Ellis
+Arturo Andres Ithurralde
+Arturo Angeles
+Arturo Brizio Carter
+Arturo Maldonado Yamasaki
+Arturo Yamasaki
+Augusto Lamo Castillo
+Aurelio Angonese
+Awmi Hassouneh
+Ayrton de Moraes
+Bakhadyr Kochkarov
+Bechir Hassani
+Belaid Lacarne
+Ben Wilson
+Benito Archundia
+Benjamin Dwomoh
+Bernd Heynemann
+Berny Ulloa Morera
+Bertil Loow
+Bertino Miranda
+Bill Ling
+Bo Karlsson
+Bob Davidson
+Bob Valentine
+Bobby Mitchell
+Bogdan Dotchev
+Bomer Fierro Chavez
+Branko Tesanic
+Brian Hall
+Brighton Mudzamiri
+Bruno Galler
+Byron Moreno Ruales
+Carl Jorgensen
+Carl-Johan Meyer Christensen
+Carlo Longhi
+Carlos A. Silva Valente
+Carlos Amarilla
+Carlos Batres
+Carlos Esposito
+Carlos Maciel
+Carlos Matos
+Carlos Pastrana
+Carlos Robles
+Carlos Simon
+Celestin Ntagungira
+Celestino Galvan Soto
+Cesar Guerrero Orozco
+Cesare Jonni
+Charles Corver
+Chris Bambridge
+Christian Schraer
+Claudio Rossi
+Claudio Vicuna
+Clive Thomas
+Clive White
+Coffi Codjia
+Concetto Lo Bello
+Cristiano Copelli
+Curtis Charles
+Dae-Young Kim
+Damar Matovinovic
+Dario Garcia
+Darren Cann
+David Socha
+Davoud Fanaei
+Diego de Leo
+Dimitar Rumenchev
+Dogan Babacan
+Domenico Ramicone
+Domingo Lombardi
+Douglas Michael James
+Drago Horvat
+Dramane Dante
+Duk-Ryong Choi
+Dusan Maksimovic
+Ebrahim Al Doy
+Eddie Foley
+Eddy Maillet
+Edgardo Codesal Mendez
+Edison Perez Nunez
+Ednilson Corona
+Edward Faultless
+Edward Lennie
+Edwin Picon-Ackong
+Egon Bereuter
+Eisa Ghuloum
+El Jilali Mohamed Rharib
+Elias Jacome Guerrero
+Elias Salinas Rostran
+Elise Doriri
+Emanuel Zammit
+Emil Schmetzer
+Emilio Soriano Aladren
+Enock Molefe
+Enrique Labo Ravoredo
+Epifanio Gonzalez Chavez
+Eric Dansault
+Eric Poulat
+Eric Seipelt
+Erich Linemayr
+Erich Schneider
+Erich Steiner
+Erik Fredriksson
+Ernesto Carlos Taibi
+Ernesto Filippi Cavani
+Esfandiar Baharmast
+Essam Abd El Fatah
+Esteban Marino
+Eugene Brazzale
+Evarist Menkouande
+Evgueni Volnin
+Evzen Amler
+Fabio Baldas
+Falla Ndoye
+Fallaj Al-Shanar Khuzam
+Farouk Bouzo
+Felipe Ramos Rizo
+Ferdinand Biwersi
+Ferdinand Marschall
+Ferenc Szekely
+Fermin Martinez
+Fernandes Joaquim Campos
+Fernando Tamayo
+Fernando Tresaco Garcia
+Francesco Buragina
+Francesco Mattea
+Francis Rion
+Francisco Mateucci
+Francisco Mondria
+Francisco Oscar Lamolina
+Frank De Bleeckere
+Franz Wohrer
+Frederic Arnault
+Gabor Eros
+Gabriel Gonzalez
+Gamal Ghandour
+Gaston Castro
+Gebre Yesus Tesfaye
+Generoso Dattilo
+Gennaro Mazzei
+George Courtney
+George McCabe
+George Reader
+George Smith
+Georges Capdeville
+Gerhard Schulemburg
+Gilberto Aristizabal
+Gilles Veissicre
+Giovanni Galeati
+Giovanni Scarpi
+Glenn Turner
+Gordon Peter Dunster
+Gottfried Dienst
+Govinahsamy Suppiah
+Graham Poll
+Guillermo Velasquez
+Gunter Benko
+Gyula Emsberger
+Hae-Yong Park
+Haidar Koleit
+Halim Abdul Hamid
+Hans Wuthrich
+Hans-Joachim Weyland
+Hassan Kamranifar
+Hector Baldassi
+Hector Ortiz
+Hector Vergara
+Hedi Seoudi
+Heiner Muller
+Heinz Aldinger
+Helmut Kohl
+Helmut Krug
+Henning Lund Srrensen
+Henri Chrisophe
+Henry Landauer
+Hernan Arce Silva
+Hernan Maidana
+Horacio Elizondo
+Horge Paulo Oliveira Gomes
+Horst Brummeier
+Howard Webb
+Hugh Dallas
+Hugh Phillips
+Humberto Clavijo
+Hussain Ghadanfari
+Ian McLeod
+Idriss Traore
+Igor Sramka
+Inacio Candido
+Ioan Igna
+Istvan Zsolt
+Ivan Eklind
+Jaap Pool
+Jacek Pociegiel
+Jack Mowat
+Jack Taylor
+Jacques Poudevigne
+Jafar Namdar
+Jamal Al-Sharif
+James Finney
+Jan Dolstra
+Jan Hendrik Hintz
+Jan Keizer
+Jan Wegereef
+Jan-Hendrik Salver
+Jassim Mandi Abdulrahman
+Javier Castrilli
+Jean Dubach
+Jean Fidele Diramba
+Jean Langenus
+Jens Larsen
+Jeong Hae-Sang
+Jerome Damon
+Jesus Diaz
+Joel Quiniou
+John Adair
+John Gordon
+John Thomas
+John Toro Rendon
+John Van Moorsel
+Jorge Arango
+Jorge Diaz Galvez
+Jorge Larrionda
+Jorge Oliveira
+Jorge Rattalino
+Jose Antonio Garrido
+Jose Cardinal
+Jose Da Costa
+Jose Etzel Filho
+Jose Garcia Carrion
+Jose Joaquin Torres Cadena
+Jose Luis Camargo
+Jose Luis Martinez Bazan
+Jose Macias
+Jose Maria Codesal
+Jose Maria Garcia-Aranda
+Jose Navia
+Jose Ortiz de Mendibil
+Jose Ramirez
+Jose Ramiz Wright
+Juan Brozzi
+Juan Carlos Loustau
+Juan Carlos Yuste Jimenez
+Juan Daniel Cardellino
+Juan Gardeazabal
+Juan Gardeazabal Garay
+Juan Silvagno Cavanna
+Karel Van Der Meer
+Karol Galba
+Karoly Palotai
+Keith Dunstan
+Ken Aston
+Ken Dagnall
+Kevin Howley
+Khalil Al-Ghamdi
+Kim Milton Nielsen
+Klaus Ohmsen
+Komaleeswaran Sankar
+Koman Coulibaly
+Konstantin Zecevic
+Kurt Rothlisberger
+Kurt Tschenscher
+Kyros Vassaras
+Lajos Nemeth
+Laszlo Vagner
+Laurens van Ravens
+Laurent Franken
+Laurent Rausis
+Laurent Ugo
+Leif Lindberg
+Lencie Fred
+Leo Callaghan
+Leo Horn
+Leo Lemesic
+Leonel Leal
+Leslie Mottram
+Lionel Dagorne
+Louis Baert
+Lu Jun
+Lubos Michel
+Luc Adelin Matthys
+Lucien Bouchardeau
+Lucien Leclercq
+Lucien Van Nuffel
+Luigi Agnolin
+Luis Barrancos
+Luis Medina Cantalejo
+Luis Paulino Siles
+Luis Pestarino
+Luis Torres Zuniga
+M.Braun
+M.Conrie
+M.Kirst
+M.Lutz
+Maciej Wierzbowski
+Malcolm Moffat
+Mamadou Ndoye
+Manuel Asensi
+Manuel Bernal
+Manuel Diaz Vega
+Marc Batta
+Marc van den Broeck
+Marcel van Langenhove
+Marcio Rezende Freitas
+Marco Rodriguez
+Mario Gardelli
+Mario Rubio Vazquez
+Mario Sanchez Yanten
+Mario van der Ende
+Mario Viana
+Mark Shield
+Mark Warren
+Markus Merk
+Martin Balko
+Martin Macko
+Marvin Torrentera
+Masayoshi Okada
+Massimo Busacca
+Mat Lazim Awang Hamat
+Matthias Arnet
+Maurice Guigue
+Mauricio Espinosa
+Menachem Ashkenazi
+Merere Gonzales
+Mervyn Griffiths
+Michael Hester
+Michael Mullarkey
+Michael Ragoonath
+Michal Listkiewicz
+Michel Vautrot
+Miguel Comesana
+Miguel Giacomuzzi
+Mikael Everstig
+Mikael Nilsson
+Mike Pickel
+Miroslav Stupar
+Mohamed Al-Musawi
+Mohamed Guezzaz
+Mohamed Hansal
+Mohamed Mansri
+Mohammed Saeed
+Mourad Daami
+Mustafa Kamel
+Nadj Jouini
+Naji Jouini
+Nathan Gibson
+Nicolae Grigorescu
+Nicolai Rainea
+Nikolai Latychev
+Nikolai Levnikov
+Nikolay Golubev
+Nimal Wickeramatunge
+Olegario Benquerenca
+Omar Delgado
+Oscar Julian Ruiz Acosta
+Oscar Ruiz
+Owen Powell
+Pablo Fandino
+Pablo Pozo
+Pablo Sanchez Ibanez
+Paolo Calcagno
+Paolo Casarin
+Patricio Basualto
+Patrick Partridge
+Paul Durkin
+Paul Smith
+Paul Van Hertzka
+Paul Wyssling
+Paulo Jorge Alves
+Pavel Kazakov
+Pedro Medina Hernandez
+Peter Hermans
+Peter Mikkelsen
+Peter Prendergast
+Philip Don
+Philip Sharp
+Pierluigi Collina
+Pierluigi Magni
+Pierluigi Pairetto
+Pierre Schwinte
+Pirom Un-Prasert
+Prachya Permpanich
+Rafael Hormazabal Diaz
+Rafael Ilyasov
+Raimundo Calix Garcia
+Ramesh Ramdhan
+Ramon Azon Roma
+Ramon Barreto
+Ravshan Irmatov
+Raymon Wyssling
+Raymond Vincenti
+Redouane Achik
+Reg Leafe
+Renato Marsiglia
+Rene Mercet
+Rene Ortube
+Ricardo Casas
+Ricardo Hormazabal Diaz
+Ricardo Vallarino
+Richard Lorenc
+Rinaldo Barlassina
+Robert Davidson
+Robert Wurtz
+Roberto Braatz
+Roberto Goicoechea
+Roberto Rosetti
+Rodolfo Otero
+Rodrigo Badilla Sequeira
+Roger Machin
+Roland van Nylen
+Roman Slysko
+Romualdo Arppi Filho
+Romulo Mendez Molina
+Rosario Lo Bello
+Roy Pearson
+Rudi Glockner
+Rudi Scheurer
+Rudolf Kreitlein
+Rudolf Scheurer
+Rune Pedersen
+Ryszard Wojcik
+Saad Mane
+Said Belqola
+Saleh Al-Marzouqi
+Salvador Gonzales Bustamente
+Sandor Marton
+Sandor Puhl
+Sergio Gonella
+Seyoum Tarekegn
+Shamsul Maidin
+Shizuo Takada
+Sigfried Kirschen
+Stefano Ayroldi
+Sten Ahlner
+Stephane Lannoy
+Sun Cham Tan
+Taoufik Adjengui
+Tapio Yli-Karro
+Terje Hauge
+Tevita Makasini
+Thomas Balway
+Tibor Vamos
+Tofik Bakhramov
+Tony Boskovic
+Toru Kamikawa
+Toru Sagara
+Tullio Lanese
+Ubaldo Aquino
+Ulf Eriksson
+Ulrico Saucedo
+Urs Meier
+Valentin Ivanov
+Valeri Butenko
+Vasa Stefanovic
+Venancio Concepcio Zarate
+Vicente Llobregat
+Victoriano Giraldez Carrasco
+Viktor Kassai
+Vincent Mauro
+Vincent Texier
+Vincenzo Orlandini
+Visva Nathan Krishnan
+Vital Loraux
+Vitor Melo Pereira
+Vladimir Fernandez
+Vojtech Christov
+Volker Roth
+Wagih Farag
+Walter Eschweiler
+Walter Rial
+Walter Vromans
+Werner Winsemann
+William Clements
+William Crawford
+William Mattus Vega
+Wolfgang Stark
+Yoshikazu Hiroshima
+Yoshiyuki Maruyama
+Young-Hyun Jeon
+Yousif Abdullah Al-Ghattan
+Yuichi Nishimura
+Yuri Dupanov
+Yusef Mohammed El Ghoul
+Zoran Petrovic

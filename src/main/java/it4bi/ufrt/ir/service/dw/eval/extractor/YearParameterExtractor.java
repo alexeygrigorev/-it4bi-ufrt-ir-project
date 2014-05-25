@@ -30,7 +30,6 @@ public class YearParameterExtractor implements ParameterExtractor {
 
 			LOGGER.debug("value {} is a valid year", token);
 			if (result.isNotAlreadyUsed(token, parameterType)) {
-				result.markValueUsed(token, parameterType);
 				LOGGER.debug("value {} hasn't been used yet - binding it to :{}", token,
 						parameter.getName());
 				return ExtractionAttempt.successful(parameter, token);

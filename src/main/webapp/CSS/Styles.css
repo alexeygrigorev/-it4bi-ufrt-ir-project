@@ -306,20 +306,39 @@ html {
         }
 
 #DWTable {
-    width: 800px; 
+    width: 850px;
     margin: 0 auto;
     text-align: center;
 }
 
-#DWTable td {
-    border-color: #EAF2D3;
+    #DWTable td {
+        border-color: #EAF2D3;
+    }
+
+    #DWTable th {
+        border-color: #EAF2D3;
+        background-color: #c0cba2;
+    }
+
+    #DWTable tr:nth-child(even) {
+        background-color: #EAF2D3;
+    }
+
+.ui-autocomplete {
+    max-height: 500px;
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
 }
 
-#DWTable th {
-    border-color: #EAF2D3;
-    background-color: #c0cba2;
+.ui-autocomplete-category {
+    font-weight: bold;
+    padding: .2em .4em;
+    margin: .8em 0 .2em;
+    line-height: 1.5;
 }
 
-#DWTable tr:nth-child(even) {
-    background-color: #EAF2D3;
+ul.ui-autocomplete.ui-menu {
+    width: 400px;
+    font-size: 12pt;
 }

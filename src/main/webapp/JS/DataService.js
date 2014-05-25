@@ -5,8 +5,8 @@ function dataService() {
     var self = {};
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
-    // self.serverURL = window.location.href;
-    self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
+    self.serverURL = window.location.href;
+    // self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
     self.getUsers = function (callback) {
@@ -28,6 +28,16 @@ function dataService() {
 
             // Return users back to the caller
             callback(users);
+        });
+    };
+
+    // Get AUTOCOMPLETION list
+    self.getAutocompletionList = function (callback) {
+        var URL = self.serverURL + "/rest/info/autocompletionList";
+
+        $.get(URL, function (data) {
+            // Return data back to the caller
+            callback(data);
         });
     };
 
@@ -187,29 +197,42 @@ function dataService() {
         var url = self.serverURL + "/rest/search/dwh?q=" + query + "&u=" + userID + "&stamp=" + new Date().getTime();
 
         $.get(url, function (data) {
-
-            // Map received fields to expected fields
-            entries = $.map(data.matched, function (d) {
-                return new dwPreprocessInfo({
+            // Map received fields to expected fields. MATCHED RESULTS
+            entriesMatched = $.map(data.matched, function (d) {
+                return new dwPreprocessMatchedInfo({
+                    name: d.name,
+                    originalResponse: d
+                });
+            });
+          
+            // Map received fields to expected fields. RECOMMENDED RESULTS
+            entriesRecommended = $.map(data.recommended, function (d) {
+                return new dwPreprocessRecommendedInfo({
                     name: d.name,
                     originalResponse: d
                 });
             });
 
+            var results = new dwPreprocessInfo({
+                matched: entriesMatched,
+                recommended: entriesRecommended
+            });
+
             // Return results back to the caller
-            callback(entries);
+            callback(results);
         });
     };
 
     // Execute DATA WAREHOUSE entry
-    self.executeDWEntry = function (dwEntryInfo, callback, error) {
-        var url = self.serverURL + "rest/dwh/execute";
+    self.executeDWEntry = function (dwEntryInfo, userID, callback, error) {
+        var url = self.serverURL + "rest/dwh/executeUser";
+        var d = '{"matchedQueryTemplate":' + JSON.stringify(dwEntryInfo.originalResponse) + ', "userId":' + userID + '}';
         
         $.ajax({
             type: "POST",
             contentType: "application/json; charset=utf-8",
             url: url,
-            data: JSON.stringify(dwEntryInfo.originalResponse),
+            data: d,
             success: callback,
             error: error,
             dataType: "json"

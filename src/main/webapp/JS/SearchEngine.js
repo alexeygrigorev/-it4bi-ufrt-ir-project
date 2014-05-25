@@ -1,10 +1,6 @@
 ﻿var dataServiceProvider = dataService();
 
 /* TODO: IMPLEMENT CHANGE OF SERVER URL FROM DEBUG INFORMATION */
-/* TODO: REMOVE SLEEPING */
-/* TODO: RECOMMENDATIONS */
-/* TODO: SHOW TAGS */
-/* TODO: SEARCH BY DW */
 
 //Here's a custom Knockout binding that makes elements shown/hidden via jQuery's methods
 ko.bindingHandlers.fadeVisible = {
@@ -18,6 +14,20 @@ ko.bindingHandlers.fadeVisible = {
         ko.unwrap(value) ? $(element).fadeIn() : $(element).hide();
     }
 };
+
+$.widget("custom.catcomplete", $.ui.autocomplete, {
+    _renderMenu: function (ul, items) {
+        var that = this,
+          currentCategory = "";
+        $.each(items, function (index, item) {
+            if (item.category != currentCategory) {
+                ul.append("<li class='ui-autocomplete-category'>" + item.category + "</li>");
+                currentCategory = item.category;
+            }
+            that._renderItemData(ul, item);
+        });
+    }
+});
 
 function searchEngineViewModel() {
 
@@ -37,6 +47,7 @@ function searchEngineViewModel() {
     self.searchWEBTwitterinProgress = ko.observable(true);
     self.searchWEBNewsinProgress = ko.observable(true);
     self.searchWEBVideosinProgress = ko.observable(true);
+    self.autocompleteList = [];
     self.displayLimit = 5;
     // Features
     self.users = ko.observableArray([]);
@@ -56,7 +67,8 @@ function searchEngineViewModel() {
     self.searchWEBVideos = ko.observable(false);
     self.resultsDOC = ko.observableArray([]);
     self.resultsDOCRecommendations = ko.observableArray([]);
-    self.resultsDW = ko.observableArray([]);
+    self.resultsDWMatched = ko.observableArray([]);
+    self.resultsDWRecommended = ko.observableArray([]);
     self.resultsDWEntry = ko.observableArray();
     self.resultsWEBFacebook = ko.observableArray([]);
     self.resultsWEBTwitter = ko.observableArray([]);
@@ -77,6 +89,68 @@ function searchEngineViewModel() {
         if (self.searchWEBTwitter()) return self.searchWEBTwitterinProgress;
         if (self.searchWEBNews()) return self.searchWEBNewsinProgress;
         if (self.searchWEBVideos()) return self.searchWEBVideosinProgress;
+    };    
+
+    // Initialize AUTOCOMPLETION
+    self.initializeAutocompletion = function () {
+        var minimumLength = 3;
+
+        $(function () {
+
+            function split(val) {
+                return val.split(/ \s*/);
+            }
+            function extractLast(term) {
+                return split(term).pop();
+            }
+
+            $("#searchTextBox")
+              // don't navigate away from the field on tab when selecting an item
+              .bind("keydown", function (event) {
+                  if (event.keyCode === $.ui.keyCode.TAB &&
+                      $(this).data("ui-autocomplete").menu.active) {
+                      event.preventDefault();
+                  }
+              })
+              .catcomplete({
+                  minLength: minimumLength,
+                  source: function (request, response) {
+                      // delegate back to autocomplete, but extract the last term
+                      var t = extractLast(request.term);
+                      if (t.length < minimumLength) {
+                          return false;
+                      }
+
+                      response($.ui.autocomplete.filter(self.autocompleteList, t));
+                  },
+                  focus: function () {
+                      // prevent value inserted on focus
+                      return false;
+                  },
+                  select: function (event, ui) {
+                      var terms = split(this.value);
+                      // remove the current input
+                      terms.pop();
+                      // add the selected item
+                      terms.push(ui.item.value);
+                      // add placeholder to get the comma-and-space at the end
+                      terms.push("");
+                      this.value = terms.join(" ");
+                      return false;
+                  }
+              });
+        });
+    };
+
+    // Load AUTOCOMPLETION list
+    self.loadAutocompleteList = function () {
+
+        // Set up AUTOCOMPLETE
+        dataServiceProvider.getAutocompletionList(function (data) {
+
+            self.autocompleteList = data;
+            self.initializeAutocompletion();
+        });
     };
 
     self.initialize = function () {
@@ -91,6 +165,8 @@ function searchEngineViewModel() {
                 self.users.push(u);
             });
         });
+
+        self.loadAutocompleteList();
     };
 
     // On user chane reset all data
@@ -98,7 +174,8 @@ function searchEngineViewModel() {
         self.showSearchResults(false);
         self.resultsDOC([]);
         self.resultsDOCRecommendations([]);
-        self.resultsDW([]);
+        self.resultsDWMatched([]);
+        self.resultsDWRecommended([]);
         self.resultsWEBFacebook([]);
         self.resultsWEBTwitter([]);
         self.resultsWEBNews([]);
@@ -169,7 +246,10 @@ function searchEngineViewModel() {
 
     // Show search page
     self.showSearchPage = function () {
-        self.mode('Search');
+        if (self.mode() != 'Search') {
+            self.mode('Search');
+            self.initializeAutocompletion();
+        }
     };
 
     // Show DW executed results
@@ -351,13 +431,18 @@ function searchEngineViewModel() {
 
     // Search by DATA WAREHOUSE by given user
     self.performSearchDW = function (query, userID) {
-        self.resultsDW.removeAll();
+        self.resultsDWMatched.removeAll();
+        self.resultsDWRecommended.removeAll();
         self.searchDWinProgress(true);
 
         dataServiceProvider.searchDW(query, userID, function (entries) {
             // Need to insert objects into 'ko.observableArray' and not to substitute the array
-            $.each(entries, function (i, d) {
-                self.resultsDW.push(d);
+            $.each(entries.matched, function (i, d) {
+                self.resultsDWMatched.push(d);
+            });
+
+            $.each(entries.recommended, function (i, d) {
+                self.resultsDWRecommended.push(d);
             });
             self.searchDWinProgress(false);
         });
@@ -487,7 +572,8 @@ function searchEngineViewModel() {
         self.showDWResultsPage();
 
         self.searchDWEntryinProgress(true);
-        dataServiceProvider.executeDWEntry(this,
+        userID = self.loggedUser().id;
+        dataServiceProvider.executeDWEntry(this, userID,
             /* Success */
             function (res) {
 

@@ -226,12 +226,32 @@ function autocorrectionInfo(spec) {
     return self;
 }
 
-// DATA WAREHOUSE
-function dwPreprocessInfo(spec) {
+// DATA WAREHOUSE - MATCHED
+function dwPreprocessMatchedInfo(spec) {
     var self = {};
 
     self.name = spec.name;
     self.originalResponse = spec.originalResponse;
+
+    return self;
+}
+
+// DATA WAREHOUSE - RECOMMENDED
+function dwPreprocessRecommendedInfo(spec) {
+    var self = {};
+
+    self.name = spec.name;
+    self.originalResponse = spec.originalResponse;
+
+    return self;
+}
+
+// DATA WAREHOUSE - COMBINED RESULTS
+function dwPreprocessInfo(spec) {
+    var self = {};
+
+    self.matched = spec.matched;
+    self.recommended = spec.recommended;
 
     return self;
 }
