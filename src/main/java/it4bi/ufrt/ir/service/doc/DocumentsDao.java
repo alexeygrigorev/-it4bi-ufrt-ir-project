@@ -64,6 +64,7 @@ public class DocumentsDao {
 			docRecord.setDocId(rs.getInt("docID"));
 			docRecord.setDocPath(rs.getString("docPath"));
 			docRecord.setDocTitle(rs.getString("docTitle"));
+			docRecord.setMime(rs.getString("mime"));
 			
 			List<Tag> tags = getTagsByDocID(docID);
 			
