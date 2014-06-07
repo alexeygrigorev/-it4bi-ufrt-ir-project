@@ -1,9 +1,10 @@
 package it4bi.ufrt.ir.controller;
 
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
-import it4bi.ufrt.ir.service.doc.DocumentSearchResultRow;
+import it4bi.ufrt.ir.service.doc.DocumentRecordResultRow;
 import it4bi.ufrt.ir.service.doc.DocumentsDao;
 import it4bi.ufrt.ir.service.doc.DocumentsService;
+import it4bi.ufrt.ir.service.doc.SimilarityMeasureEnum;
 import it4bi.ufrt.ir.service.doc.Tag;
 import it4bi.ufrt.ir.service.dw.DatawarehouseService;
 import it4bi.ufrt.ir.service.dw.DwhDtoResults;
@@ -26,6 +27,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.apache.mahout.cf.taste.common.TasteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,14 +73,75 @@ public class SearchController {
 	
 	private long start_ms, end_ms;
 	
+	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/benchmarkRecDoc?
+	@GET
+	@Path("/benchmarkRecDoc")
+	@Produces("application/json; charset=UTF-8")
+	public void benchmark_docRecommender() {				
+		LOGGER.debug("document recommender benchmark is starting...");
+		double threshold_steps[] = {0.001,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
+		SimilarityMeasureEnum sim_steps[] = {SimilarityMeasureEnum.EuclideanDistance,SimilarityMeasureEnum.LogLikelihoodSimilarity,SimilarityMeasureEnum.PearsonCorrelation,SimilarityMeasureEnum.SpearmanCorrelation,SimilarityMeasureEnum.TanimotoCoefficient};
+		
+		for(int ctr = 0; ctr < threshold_steps.length; ctr++) {
+			for(int ctr2 = 0; ctr2 < sim_steps.length; ctr2++) {
+				Double cur_threshold = threshold_steps[ctr];
+				SimilarityMeasureEnum cur_sim = sim_steps[ctr2];
+				this.documents.reconfigureRecommender(cur_threshold, cur_sim);
+				try {
+					LOGGER.debug("Benchmarking DocRecommender: " + "Threshold=" + cur_threshold.toString() + " SimMeasure: " + cur_sim.toString());
+					this.documents.evaluateRecommender();
+				} catch (TasteException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	
+	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/evalRecDoc?u=408311
+	@GET
+	@Path("/configureRecDoc")
+	@Produces("application/json; charset=UTF-8")
+	public void configure_docRecommender(@QueryParam("simType") int sim_type, @QueryParam("threshold") double threshold) {				
+		LOGGER.debug("configuring recommender...");
+		
+		SimilarityMeasureEnum similarityMeasureSelection = null;
+		
+		if(sim_type == 1) similarityMeasureSelection = SimilarityMeasureEnum.EuclideanDistance;
+		else if(sim_type == 2) similarityMeasureSelection = SimilarityMeasureEnum.LogLikelihoodSimilarity;
+		else if(sim_type == 3) similarityMeasureSelection = SimilarityMeasureEnum.PearsonCorrelation;
+		else if(sim_type == 4) similarityMeasureSelection = SimilarityMeasureEnum.SpearmanCorrelation;
+		else if(sim_type == 5) similarityMeasureSelection = SimilarityMeasureEnum.TanimotoCoefficient;
+		
+		this.documents.reconfigureRecommender(threshold, similarityMeasureSelection);
+	}
+	
+	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/evalRecDoc?u=408311
+	@GET
+	@Path("/evalRecDoc")
+	@Produces("application/json; charset=UTF-8")
+	public Double evaluate_docRecommender(@QueryParam("u") int userID) {				
+		LOGGER.debug("evaluating recommender. UserID {}", userID);
+		
+		Double score = null;
+		try {
+			score = documents.evaluateRecommender();
+		} catch (TasteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return score;
+	}
+	
 	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/recDoc?u=408311
 	@GET
 	@Path("/recDoc")
 	@Produces("application/json; charset=UTF-8")
-	public List<DocumentRecord> recommendations(@QueryParam("u") int userID) {				
+	public List<DocumentRecordResultRow> recommendations(@QueryParam("u") int userID) {				
 		LOGGER.debug("get recommendations. UserID {}", userID);
 		
-		List<DocumentRecord> recommendations = documents.getRecommendations(userID); 
+		List<DocumentRecordResultRow> recommendations = documents.getRecommendations(userID); 
 		
 		return recommendations;
 		
@@ -87,7 +150,7 @@ public class SearchController {
 	@GET
 	@Path("/doc")
 	@Produces("application/json; charset=UTF-8")
-	public List<DocumentSearchResultRow> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {				
+	public List<DocumentRecordResultRow> documents(@QueryParam("q") String query, @QueryParam("u") int userID) {				
 		LOGGER.debug("document search. UserID {}; Query: {}", userID, query);
 		
 		String correctedQuery = correctQuery(query);
@@ -95,7 +158,7 @@ public class SearchController {
 		start_ms = System.currentTimeMillis();
 		
 		// Document search
-		List<DocumentSearchResultRow> resultSet = documents.find(correctedQuery, userID);
+		List<DocumentRecordResultRow> resultSet = documents.find(correctedQuery, userID);
 		
 		//update user profile based on the search terms
 		String delims = " ,";
