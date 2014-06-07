@@ -424,7 +424,7 @@ function searchEngineViewModel() {
                 if (!match) {
                     self.resultsDOCRecommendations.push(d);
                 }
-            });
+            });            
             self.searchDOCRecomendinProgress(false);
         });
     };

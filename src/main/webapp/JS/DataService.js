@@ -5,7 +5,7 @@ function dataService() {
     var self = {};
 
     // Get correct Server URL like http://localhost:8080/it4bi-ufrt-ir-project/
-    self.serverURL = window.location.href;
+     self.serverURL = window.location.href;
     // self.serverURL = "http://localhost:8080/it4bi-ufrt-ir-project/";
 
     // Get all registered USERS
@@ -54,7 +54,8 @@ function dataService() {
                     tags: d.tags,
                     mime: d.mime,
                     isOwner: d.owned,
-                    isLiked: d.liked
+                    isLiked: d.liked,
+                    score: d.score
                 });
             });
 
@@ -76,6 +77,7 @@ function dataService() {
                     docTitle: d.docTitle,
                     tags: d.tags,
                     uploaderId: d.uploaderId,
+                    score: d.score,
                     mime: d.mime /* This is absent*/
                 });
             });

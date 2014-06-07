@@ -50,11 +50,17 @@ function docInfo(spec) {
     self.mime = spec.mime;
     self.tags = spec.tags;
     self.isOwner = spec.isOwner;
+    self.score = spec.score;
     self.isLiked = ko.observable(spec.isLiked);
 
     self.getMime = function () {
         
         if (self.mime == undefined) {
+
+            if (self.docPath == undefined) {
+                return 
+            }
+
             var ext = self.docPath.split('.').pop();
 
             switch (ext.toLowerCase()) {

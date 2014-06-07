@@ -160,38 +160,44 @@ public class SearchController {
 		// Document search
 		List<DocumentRecordResultRow> resultSet = documents.find(correctedQuery, userID);
 		
-		//update user profile based on the search terms
-		String delims = " ,";
-		String[] tokens = correctedQuery.split(delims);
+		try
+		{
+			//update user profile based on the search terms
+			String delims = " ,";
+			String[] tokens = correctedQuery.split(delims);
 		
-		List<Tag> tagList = new ArrayList<Tag>();
+			List<Tag> tagList = new ArrayList<Tag>();
 		
-		end_ms = System.currentTimeMillis();
+			end_ms = System.currentTimeMillis();
 		
-		LOGGER.debug("Benchmark: Retrieving Result set took: " + (end_ms - start_ms)/1000.0f + "ms");
-		start_ms = System.currentTimeMillis();
+			LOGGER.debug("Benchmark: Retrieving Result set took: " + (end_ms - start_ms)/1000.0f + "ms");
+			start_ms = System.currentTimeMillis();
 		
-		for(int ctr = 0; ctr < tokens.length; ctr++) {
-			//Tag tag = docsDAO.getTag(tokens[ctr]);
-			Tag tag = documentsDAO.getTagByTagText(tokens[ctr]);
-			if(tag != null) {
-				tagList.add(tag);
+			for(int ctr = 0; ctr < tokens.length; ctr++) {
+				//Tag tag = docsDAO.getTag(tokens[ctr]);
+				Tag tag = documentsDAO.getTagByTagText(tokens[ctr]);
+				if(tag != null) {
+					tagList.add(tag);
+				}
 			}
+		
+			end_ms = System.currentTimeMillis();
+		
+			LOGGER.debug("Benchmark: Retrieving TagIDs from search-terms took: " + (end_ms - start_ms)/1000.0f + "ms");
+			start_ms = System.currentTimeMillis();
+		
+			if(!tagList.isEmpty()) {
+				//docsDAO.updateTagScores(userID, tagList, queryScore);
+				documentsDAO.updateUserTagsScores(userID, tagList, queryScore);
+			}
+		
+			end_ms = System.currentTimeMillis();
+		
+			LOGGER.debug("Benchmark: Updating User-Tag Scores took: " + (end_ms - start_ms)/1000.0f + "ms");
 		}
-		
-		end_ms = System.currentTimeMillis();
-		
-		LOGGER.debug("Benchmark: Retrieving TagIDs from search-terms took: " + (end_ms - start_ms)/1000.0f + "ms");
-		start_ms = System.currentTimeMillis();
-		
-		if(!tagList.isEmpty()) {
-			//docsDAO.updateTagScores(userID, tagList, queryScore);
-			documentsDAO.updateUserTagsScores(userID, tagList, queryScore);
+		catch(Exception ex) {
+			
 		}
-		
-		end_ms = System.currentTimeMillis();
-		
-		LOGGER.debug("Benchmark: Updating User-Tag Scores took: " + (end_ms - start_ms)/1000.0f + "ms");
 		
 		return resultSet;
 	}	

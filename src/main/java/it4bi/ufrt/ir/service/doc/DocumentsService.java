@@ -266,7 +266,7 @@ public class DocumentsService {
 			
 			if(docRecord.getUploaderId() == userID){
 				score = score + score/10;
-			}	
+			}					
 			
 			DocumentRecordResultRow resultRow = new DocumentRecordResultRow(docRecord, score);
 
