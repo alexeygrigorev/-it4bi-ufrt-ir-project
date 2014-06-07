@@ -3,13 +3,13 @@ package it4bi.ufrt.ir.service.doc;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DocumentSearchResultRow {
+public class DocumentRecordResultRow {
 	
-	public DocumentSearchResultRow() {
+	public DocumentRecordResultRow() {
 		this.tags = new ArrayList<Tag>();
 	}
 
-	public DocumentSearchResultRow(DocumentRecord docRecord, float score) {
+	public DocumentRecordResultRow(DocumentRecord docRecord, float score) {
 		this.docId = docRecord.getDocId();
 		this.docTitle = docRecord.getDocTitle();
 		this.mime = docRecord.getMime();

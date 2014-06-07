@@ -29,7 +29,10 @@ import org.apache.mahout.cf.taste.impl.eval.RMSRecommenderEvaluator;
 import org.apache.mahout.cf.taste.impl.neighborhood.ThresholdUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.EuclideanDistanceSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.SpearmanCorrelationSimilarity;
+import org.apache.mahout.cf.taste.impl.similarity.TanimotoCoefficientSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.model.JDBCDataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
@@ -68,18 +71,26 @@ class MyRecommenderBuilder implements RecommenderBuilder {
 
 	private UserSimilarity similarity;
 	private UserNeighborhood neighborhood;
+	private JDBCDataModel dataModel;
 	 
-	public MyRecommenderBuilder(JDBCDataModel dataModel) {
+	public MyRecommenderBuilder(double threshold, SimilarityMeasureEnum simMeasure, JDBCDataModel dataModel) {
+		
+		this.dataModel = dataModel;
 		 try {
-				//similarity = new PearsonCorrelationSimilarity(datamodel);
-				similarity = new EuclideanDistanceSimilarity(dataModel);
-			} catch (TasteException e) {
-				e.printStackTrace();
-			}
-			 neighborhood = new ThresholdUserNeighborhood(0.0001, similarity, dataModel);
+			 if(simMeasure.equals(SimilarityMeasureEnum.EuclideanDistance)) similarity = new EuclideanDistanceSimilarity(dataModel);
+			 else if(simMeasure.equals(SimilarityMeasureEnum.LogLikelihoodSimilarity)) similarity = new LogLikelihoodSimilarity(dataModel);
+			 else if(simMeasure.equals(SimilarityMeasureEnum.PearsonCorrelation)) similarity = new PearsonCorrelationSimilarity(dataModel);
+			 else if(simMeasure.equals(SimilarityMeasureEnum.SpearmanCorrelation)) similarity = new SpearmanCorrelationSimilarity(dataModel);
+			 else if(simMeasure.equals(SimilarityMeasureEnum.TanimotoCoefficient)) similarity = new TanimotoCoefficientSimilarity(dataModel);
+		} 
+		catch (TasteException e) {
+			 e.printStackTrace();
+		}
+		 
+		 neighborhood = new ThresholdUserNeighborhood(threshold, similarity, dataModel);
 			 
 	}
-	 
+
 	@Override
 	public Recommender buildRecommender(DataModel dataModel) throws TasteException {
 		return new MyUserBasedRecommender(dataModel, neighborhood, similarity, 0.0001f);
@@ -95,14 +106,12 @@ public class DocumentsService {
 	public DocumentsDao documentsDAO;
 	
 	//Recommendation Stuff
-	
-	
 	private JDBCDataModel datamodel;
 	private UserBasedRecommender recommender;
-	private MyRecommenderBuilder recommenderBuilder;
+	public MyRecommenderBuilder recommenderBuilder;
 	
-	
-	
+	@Value("${documents.recommender.neigbourhood_threshold}")
+	private double threshold;
 	
 	@Value("${documents.index}")
 	private String indexLocation;
@@ -110,18 +119,43 @@ public class DocumentsService {
 	@Value("${documents.resultranking.personalization}")
 	private float personalizationCoef;
 	
-	 @Autowired
+	 public MyRecommenderBuilder getRecommenderBuilder() {
+		return recommenderBuilder;
+	}
+
+
+
+	public void reconfigureRecommender(double threshold, SimilarityMeasureEnum sim) {
+		
+		try {
+			recommenderBuilder = new MyRecommenderBuilder(threshold, sim, datamodel);
+			recommender = (UserBasedRecommender) recommenderBuilder.buildRecommender(datamodel);
+		} 
+		catch (TasteException e) {
+			 e.printStackTrace();
+		}
+		
+	}
+
+	@Autowired
      public DocumentsService(DocumentsDao documentsDAO) {
 		 this.documentsDAO = documentsDAO;
 		 
 		 datamodel = new RecommenderDataModel(documentsDAO);
-		 recommender = (UserBasedRecommender) new MyRecommenderBuilder(datamodel);
+		 
+		 
+		 try {
+			 recommenderBuilder = new MyRecommenderBuilder(threshold, SimilarityMeasureEnum.EuclideanDistance, datamodel);
+			 recommender = (UserBasedRecommender) recommenderBuilder.buildRecommender(datamodel);
+		} catch (TasteException e) {
+			e.printStackTrace();
+		}
 		 
      }
 	 
 	
 	 
-	 public void evaluateRecommender() throws TasteException {
+	 public double evaluateRecommender() throws TasteException {
 		 
 		 UserBasedRecommender test_recommender;
 		 RandomUtils.useTestSeed();
@@ -129,21 +163,22 @@ public class DocumentsService {
 		 RecommenderEvaluator evaluator = new AverageAbsoluteDifferenceRecommenderEvaluator(); 
 		 RecommenderEvaluator rmse = new RMSRecommenderEvaluator(); 
 		 
-		 double score = evaluator.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0); 
-		 System.out.println(score); 
+		 //return evaluator.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0);
+		 return rmse.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0);
+		 
 	 }
 	 
 	 
 	 private ScoreDoc[] hits = null;
-	 private List<DocumentSearchResultRow> resultSet = null;
+	 private List<DocumentRecordResultRow> resultSet = null;
 	 private List<DocUserAssociation> associationSummaryList = null;
 	 private Integer userId = 0;
 	 
 	 
 	
-	 public List<DocumentSearchResultRow> find(String query, int userID) {
+	 public List<DocumentRecordResultRow> find(String query, int userID) {
 		 this.userId = userID;
-		 resultSet = new ArrayList<DocumentSearchResultRow>();		 
+		 resultSet = new ArrayList<DocumentRecordResultRow>();		 
 		 
         // check for existence 
         File directoryLocation = new File(indexLocation);
@@ -230,7 +265,7 @@ public class DocumentsService {
 			float score = (1-personalizationCoef)*raw_score + personalizationCoef*personalization_score;
 			
 			
-			DocumentSearchResultRow resultRow = new DocumentSearchResultRow(docRecord, score);
+			DocumentRecordResultRow resultRow = new DocumentRecordResultRow(docRecord, score);
 			//DOCUSER_ASSOC_TYPE assocType = documentsDAO.getUserDocAssociation(docID, userID);
 			DOCUSER_ASSOC_TYPE assocType = associationSummaryList.get(i).assocType;
 			
@@ -255,9 +290,9 @@ public class DocumentsService {
 		}*/
 		
 		// Sort documents by score DESCENDING
-		Collections.sort(resultSet,  new Comparator<DocumentSearchResultRow>() {
+		Collections.sort(resultSet,  new Comparator<DocumentRecordResultRow>() {
 			
-			public int compare(DocumentSearchResultRow d1, DocumentSearchResultRow d2) {
+			public int compare(DocumentRecordResultRow d1, DocumentRecordResultRow d2) {
 	        	if (d1.getScore() == d2.getScore()) return 0;
 	        	return (d2.getScore() < d1.getScore()) ? -1 : 1; 	        	
 	        }
@@ -267,16 +302,15 @@ public class DocumentsService {
 	}
 	
 	
-	 public List<DocumentRecord> getRecommendations(int userID) {
+	 public List<DocumentRecordResultRow> getRecommendations(int userID) {
 		 
-		 List<DocumentRecord> recommended = null;
+		 List<DocumentRecordResultRow> recommended = null;
 		 
 		 try {
 			recommended = ((MyUserBasedRecommender) recommender).recommend_custom(userID);
 		} catch (TasteException e) {
 			e.printStackTrace();
 		}
-		 
 		 
 		return recommended;
 		 

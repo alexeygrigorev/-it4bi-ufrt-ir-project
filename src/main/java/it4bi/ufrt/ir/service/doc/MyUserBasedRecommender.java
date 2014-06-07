@@ -38,12 +38,12 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 		this.dataModel = dataModel;
 	}
 	
-	public List<DocumentRecord> recommend_custom(long userID) throws TasteException {
+	public List<DocumentRecordResultRow> recommend_custom(long userID) throws TasteException {
 		
 		//FastIDSet userDocs = dataModel.getItemIDsFromUser(userID);
 		
 		List<RecommendedItem> recommendedDocs = new ArrayList<RecommendedItem>();
-		List<DocumentRecord> recommendedDocRecs = new ArrayList<DocumentRecord>();
+		List<DocumentRecordResultRow> recommendedDocRows = new ArrayList<DocumentRecordResultRow>();
 		List<Long> neighbourIDs = new ArrayList<Long>();
 		List<Double> neighbourDistances = new ArrayList<Double>();
 		Map<Long, Double> candidateDocs = new HashMap<Long, Double>();
@@ -94,12 +94,12 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 			LOGGER.debug("Recommender: Doc wth docID " + rec_doc.getItemID() + " is recommended with " + rec_doc.getValue()*100f + "% confidence");
 			
 			DocumentRecord docRec = ((RecommenderDataModel) this.dataModel).getDocumentByID(rec_doc.getItemID());
+			DocumentRecordResultRow row = new DocumentRecordResultRow(docRec, rec_doc.getValue());
 			
-			recommendedDocRecs.add(docRec);
+			recommendedDocRows.add(row);
 		}
 		
-		
-		return recommendedDocRecs;
+		return recommendedDocRows;
 	}
 	
 	public void setNeighbours(long userID, List<Long> neighbourIDs, List<Double> neighbourDistances) throws TasteException {
