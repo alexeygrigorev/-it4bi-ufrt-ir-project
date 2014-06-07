@@ -13,6 +13,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.mahout.clustering.spectral.AffinityMatrixInputJob;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -27,7 +28,8 @@ public class DocumentsDao {
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	
 
-	
+	@Value("${documents.score.maxScore}")
+	private float maxScore;
 	
 	@Autowired
 	public DocumentsDao(@Qualifier("appJdbcTemplate") NamedParameterJdbcTemplate jdbcTemplate) {
@@ -355,7 +357,7 @@ public class DocumentsDao {
 		Float affinity = this.jdbcTemplate.queryForObject("select avg(score) from Documents doc, DocTags doctags, UserTags usertags where doc.docID = :docID and doc.docID = doctags.docID and doctags.tagID = usertags.tagID and usertags.userID = :userID", params, Float.class);
 		
 		if(affinity == null) affinity = 0f;
-		return affinity/5f;
+		return affinity/maxScore;
 		
 	}
 
@@ -495,7 +497,7 @@ public class DocumentsDao {
 					String aff_string = rs.getString("affinity");
 					Float affinity = null;
 					if(aff_string == null) affinity = 0f;
-					else affinity = Float.parseFloat(rs.getString("affinity"));
+					else affinity = Float.parseFloat(rs.getString("affinity"))/maxScore;
 					String assoc_type_string = rs.getString("assoc_type");
 					DOCUSER_ASSOC_TYPE assoc_type = null;
 					if(assoc_type_string.equals("Likes")) assoc_type = DOCUSER_ASSOC_TYPE.LIKES;
