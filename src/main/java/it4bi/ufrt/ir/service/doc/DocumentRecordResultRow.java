@@ -68,6 +68,10 @@ public class DocumentRecordResultRow {
 	public float getScore() {
 		return score;
 	}
+	
+	public void setScore(float score) {
+		this.score = score;
+	}
 
 	private int docId;
 	private String docTitle;
