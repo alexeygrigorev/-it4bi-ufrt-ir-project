@@ -193,8 +193,11 @@ public class DocumentsService {
 			float personalization_score = associationSummaryList.get(i).affinity;
 			float score = (1-personalizationCoef)*raw_score + personalizationCoef*personalization_score;
 			
+			if(docRecord.getUploaderId() == userID){
+				score = score + score/10;
+			}	
 			
-			DocumentSearchResultRow resultRow = new DocumentSearchResultRow(docRecord, score);
+			DocumentSearchResultRow resultRow = new DocmumentSearchResultRow(docRecord, score);
 			//DOCUSER_ASSOC_TYPE assocType = documentsDAO.getUserDocAssociation(docID, userID);
 			DOCUSER_ASSOC_TYPE assocType = associationSummaryList.get(i).assocType;
 			
