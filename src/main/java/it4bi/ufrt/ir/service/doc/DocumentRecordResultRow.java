@@ -48,7 +48,7 @@ public class DocumentRecordResultRow {
 
 	public void setLiked(boolean isLiked) {
 		this.isLiked = isLiked;
-		this.score = this.score + this.score/15;
+		//this.score = this.score + this.score/15;
 	}
 
 	public boolean isOwned() {

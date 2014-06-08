@@ -291,9 +291,9 @@ public class DocumentsService {
 			float personalization_score = associationSummaryList.get(i).affinity;
 			float score = (1-personalizationCoef)*raw_score + personalizationCoef*personalization_score;
 			
-			if(docRecord.getUploaderId() == userID){
+			/*if(docRecord.getUploaderId() == userID){
 				score = score + score/10;
-			}					
+			}*/					
 			
 			DocumentRecordResultRow resultRow = new DocumentRecordResultRow(docRecord, score);
 
