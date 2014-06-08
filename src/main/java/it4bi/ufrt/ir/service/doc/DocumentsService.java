@@ -62,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import edu.stanford.nlp.util.ArrayMap;
@@ -137,6 +138,10 @@ public class DocumentsService {
 		
 	}
 
+	public DocumentsService() {
+		LOGGER.info("Initialisation du controleur linkedIn.");
+	}
+	
 	@Autowired
      public DocumentsService(DocumentsDao documentsDAO) {
 		 this.documentsDAO = documentsDAO;
@@ -305,7 +310,28 @@ public class DocumentsService {
 		return resultSet;
 	}
 	
-	
+	 @Async
+	 public void updateRecommendations(int userID) {
+		 
+		 LOGGER.info("Aysnchronous Recommendation Update is Running...");
+		 
+		 documentsDAO.deleteDocRecommendationEntriesByUserID(userID);
+		 
+		 List<DocumentRecordResultRow> recommended = null;
+		 
+		 try {
+			recommended = ((MyUserBasedRecommender) recommender).recommend_custom(userID);
+		 } 
+		 catch (TasteException e) {
+			e.printStackTrace();
+		 }
+		 
+		 for(DocumentRecordResultRow each : recommended) {
+				documentsDAO.insertDocRecommendationEntry(userID, each.getDocId(), each.getScore());
+		}
+		 
+	 }
+	 
 	 public List<DocumentRecordResultRow> getRecommendations(int userID) {
 		 
 		 List<DocumentRecordResultRow> recommended = null;

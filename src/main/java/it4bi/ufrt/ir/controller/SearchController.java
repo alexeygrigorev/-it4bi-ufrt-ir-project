@@ -141,10 +141,20 @@ public class SearchController {
 	public List<DocumentRecordResultRow> recommendations(@QueryParam("u") int userID) {				
 		LOGGER.debug("get recommendations. UserID {}", userID);
 		
-		List<DocumentRecordResultRow> recommendations = documents.getRecommendations(userID); 
+		List<DocumentRecordResultRow> recommendations = documentsDAO.getRecommendations(userID);
+		if(recommendations.size() != 0) {
+			documents.updateRecommendations(userID);
+			return recommendations;
+			// and in another thread calculate the new recommenations
+		}
+		else {
+			recommendations = documents.getRecommendations(userID);
+			for(DocumentRecordResultRow each : recommendations) {
+				documentsDAO.insertDocRecommendationEntry(userID, each.getDocId(), each.getScore());
+			}
+		} 
 		
 		return recommendations;
-		
 	}
 	
 	@GET

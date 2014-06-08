@@ -15,6 +15,7 @@ public class DocumentRecordResultRow {
 		this.mime = docRecord.getMime();
 		this.tags = docRecord.getTags();
 		this.score = score;
+		this.updated = System.currentTimeMillis();
 	}
 
 	public int getDocId() {
@@ -81,4 +82,5 @@ public class DocumentRecordResultRow {
 	private String mime;
 	private List<Tag> tags;
 	private float score;
+	public long updated;
 }

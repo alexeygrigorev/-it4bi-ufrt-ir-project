@@ -4,6 +4,7 @@ package it4bi.ufrt.ir.service.doc;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,6 +165,8 @@ public class DocumentsDao {
 		if(assocType.equals(DOCUSER_ASSOC_TYPE.LIKES)) {
 			parameters.put("isLiked", new Boolean(true));
 			parameters.put("isOwned", new Boolean(false));
+			
+			deleteDocRecommendationEntry(docID, userID);
 		}
 		else if(assocType.equals(DOCUSER_ASSOC_TYPE.OWNS)) {
 			parameters.put("isLiked", new Boolean(false));
@@ -173,6 +176,61 @@ public class DocumentsDao {
 		this.jdbcTemplate.update(
 				"insert into UserDocs values (:docID, :userID, :isOwned, :isLiked)", parameters);
 		
+	}
+	
+	public void insertDocRecommendationEntry(int userID, int docID, float score) {
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("userID", userID);
+		parameters.put("docID", docID);
+		parameters.put("score", score);
+		parameters.put("updatedOn", new Date(System.currentTimeMillis()));
+		
+		this.jdbcTemplate.update("insert into UserRecommendations (userID, docID, score, updatedOn) values (:userID, :docID, :score, :updatedOn)", parameters);
+	}
+	
+	public void deleteDocRecommendationEntriesByUserID(int userID) {
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("userID", userID);
+		
+		this.jdbcTemplate.update("delete from UserRecommendations where userID = :userID", parameters);
+	}
+	
+	public void deleteDocRecommendationEntry(int docID, int userID) {
+		Map<String, Object> parameters = new HashMap<String, Object>();
+		parameters.put("userID", userID);
+		parameters.put("docID", docID);
+		
+		
+		this.jdbcTemplate.update("delete from UserRecommendations where docID = :docID, userID = :userID, :userID", parameters);
+	}
+	
+	public List<DocumentRecordResultRow> getRecommendations(int userID) {
+		
+		List<Map<String, Object>> rows;
+		List<DocumentRecordResultRow> recommendations = new ArrayList<DocumentRecordResultRow>();
+		Map<String, Object> params = new HashMap<String, Object>();
+		params.put("userID", userID);
+		
+		rows = this.jdbcTemplate.queryForList("select D.*, UR.score from UserRecommendations UR, Documents D where UR.userID = :userID and UR.docID = D.docID", params);
+		
+		for(Map<String, Object> row : rows) {
+			Integer docID = (Integer) row.get("docID");
+			String docTitle = (String) row.get("docTitle");
+			Integer uploaderID = (Integer) row.get("uploaderID");
+			String mime = (String) row.get("mime");
+			Float score = ((Double) row.get("score")).floatValue();
+			
+			DocumentRecord docRec = new DocumentRecord(docTitle, uploaderID, mime);
+			
+			docRec.setDocId(docID);
+			
+			List<Tag> tags = getTagsByDocID(docID);
+			docRec.setTags(tags);
+			
+			recommendations.add(new DocumentRecordResultRow(docRec,score));
+		}
+		
+		return recommendations;
 	}
 	
 	public void insertDocumentRecord(DocumentRecord documentRecord) {
@@ -194,6 +252,8 @@ public class DocumentsDao {
 		
 	}
 
+	
+	
 	public DocumentRecord getDocByID(int docID) {
 		
 		Map<String, Object> parameters = new HashMap<String, Object>();
