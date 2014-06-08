@@ -2,6 +2,7 @@ package it4bi.ufrt.ir.controller;
 
 import it4bi.ufrt.ir.service.doc.DOCUSER_ASSOC_TYPE;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
+import it4bi.ufrt.ir.service.doc.DocumentSearchEngine;
 import it4bi.ufrt.ir.service.doc.DocumentsDao;
 import it4bi.ufrt.ir.service.doc.Tag;
 
@@ -18,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -31,12 +33,14 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.store.MMapDirectory;
+import org.apache.lucene.util.Version;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -187,19 +191,30 @@ public class UploadController {
 		try {
 			List<Tag> tags = new ArrayList<Tag>();
 			
-			tags = documentRecord.extractTags(); 
+			tags = documentRecord.extractTags();
+			
+			documentRecord.getFullText();
+			
 			documentRecord.setTags(tags);
 			
 			documentRecord.index(indexLocation);
-
-			MMapDirectory indexDir = null;
 			
-			indexDir = new MMapDirectory(new File(indexLocation));
-
-			// Update Tags
-			//tagTexts = extractTags(documentRecord, indexLocation);
+			//experimental section (to replace tag extraction)
 			
-			indexDir.close();
+			/*
+			DocumentSearchEngine searcher = new DocumentSearchEngine(new MMapDirectory(new File(indexLocation)), new EnglishAnalyzer(Version.LUCENE_47));
+			
+			LOGGER.debug("Benchmark: Extraction Test is starting");
+			start_ms = System.currentTimeMillis();
+			for(int ctr = 0; ctr < 5000; ctr++) {
+				searcher.performSearch("test" + ctr);
+			}
+			end_ms = System.currentTimeMillis();
+			LOGGER.debug("Benchmark: Extraction Test results: " + (end_ms-start_ms)/1000f + "sec");
+			
+			*/
+
+			//experimental section ends
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -5,6 +5,7 @@ import it4bi.ufrt.ir.controller.UploadController;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -13,7 +14,11 @@ import java.util.Vector;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.FieldType;
@@ -35,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 public class DocumentRecord {
-
+	
 	private static final int tagsPerDoc = 4; // THIS SHOULD BE FROM custom.properties
 	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentRecord.class);
 	
@@ -89,7 +94,10 @@ public class DocumentRecord {
 		if(docPath == null) throw new Exception("Null DocPath Exception");
 		
 		// configure index properties
-        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_47); 
+		
+		final CharArraySet stopSet = new CharArraySet(Version.LUCENE_47, DocumentsService.extensive_domain_specific_stopWords, false);
+		
+        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_47, stopSet); 
         Directory indexDir = new RAMDirectory();
       	
         DocumentIndexer indexer = new DocumentIndexer(indexDir, analyzer);
