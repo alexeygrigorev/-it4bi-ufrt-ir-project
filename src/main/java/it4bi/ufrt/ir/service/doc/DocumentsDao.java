@@ -201,7 +201,7 @@ public class DocumentsDao {
 		parameters.put("docID", docID);
 		
 		
-		this.jdbcTemplate.update("delete from UserRecommendations where docID = :docID, userID = :userID, :userID", parameters);
+		this.jdbcTemplate.update("delete from UserRecommendations where docID = :docID and userID = :userID", parameters);
 	}
 	
 	public List<DocumentRecordResultRow> getRecommendations(int userID) {
