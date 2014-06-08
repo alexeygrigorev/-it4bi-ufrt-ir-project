@@ -38,6 +38,7 @@
         <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyProfile">My Profile</a>
         <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showMyFiles">My Files</a>
         <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showUploadFile">Upload File</a>
+        <a class="menuBorderButtonRight" href="javascript:void(0)" data-bind="click: showDocRecommendations">Document Recommendations</a>
     </div>
     <div style="height: 40px;"></div>
 
@@ -82,6 +83,53 @@
     <div>
         My Files
     </div>
+    <!-- /ko -->
+    <!-- ko if: mode() == 'DocRecommendations' -->
+    <table id="searchTable">
+        <tr>
+            <td colspan="3">
+                <div class="resultsDIV">
+                    <table style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th colspan="2">
+                                    Recommended for you
+                                    <div class="alignCenter" data-bind="visible: searchDOCRecomendinProgress">
+                                        <img src="IMG/Loader.gif" alt="" />
+                                    </div>
+                                    <div class="noResultsGroupHeader" data-bind="visible: resultsDOCRecommendations().length == 0 && !searchDOCRecomendinProgress()">
+                                        No recommendations found
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody data-bind="foreach: resultsDOCRecommendations">
+                            <tr>
+                                <td style="width: 60px; vertical-align: top">
+                                    <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: isOwner">My</span>
+                                    <span style="font-family: 'Lucida Sans Unicode'; font-size: 14px; color: green" data-bind="visible: (isLiked() && !isOwner)">Liked</span>
+                                    <a class="searchGroupLinkButton" href="javascript:void(0)" data-bind="click: $parent.likeDoc, visible: (!isLiked() && !isOwner)">Like!</a>
+                                </td>
+                                <td>
+                                    <div class="documentEntry" data-bind="click: $parent.downloadDoc">
+                                        <span id="docTitle" data-bind="text: docTitle"></span>
+                                        <span style="float: right; font-style: italic; width: 120px" data-bind="text: getMime()"></span>
+                                        <label id="docDownload">(click to download)</label>
+                                    </div>
+                                    <div style="font-style: italic; text-align: right; color: green">
+                                        <span style="float: left" data-bind="text: 'Match score: ' + getScore()"></span>
+                                        <span data-bind="foreach: $data.tags">
+                                            <span data-bind="text: tag + ';'"></span>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
     <!-- /ko -->
     <!-- ko if: mode() == 'UploadFile' -->
     <table class="profileTable">
@@ -192,7 +240,7 @@
                                                 <label id="docDownload">(click to download)</label>
                                             </div>
                                             <div style="font-style: italic; text-align: right; color: green">
-                                                <span style="float: left" data-bind="text: 'Score: ' + score"></span>
+                                                <span style="float: left" data-bind="text: 'Match score: ' + getScore()"></span>
                                                 <span data-bind="foreach: $data.tags">
                                                     <span data-bind="text: tag + ';'"></span>
                                                 </span>
@@ -247,7 +295,7 @@
                                                 <label id="docDownload">(click to download)</label>
                                             </div>
                                             <div style="font-style: italic; text-align: right; color: green">
-                                                <span style="float: left" data-bind="text: 'Score: ' + score"></span>
+                                                <span style="float: left" data-bind="text: 'Match score: ' + getScore()"></span>
                                                 <span data-bind="foreach: $data.tags">
                                                     <span data-bind="text: tag + ';'"></span>
                                                 </span>

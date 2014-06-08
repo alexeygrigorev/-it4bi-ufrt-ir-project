@@ -594,5 +594,37 @@ function searchEngineViewModel() {
             });
     };
 
+    // Search by DOCUMENTS by given user and RECOMMENDATIONS
+    self.getDOCRecommendations = function () {
+        self.resultsDOCRecommendations.removeAll();
+        self.searchDOCinProgress(false);
+        
+        // Dummy doc
+        //d = new docInfo({docID: 0, docTitle: 'Dummy doc', tags: [], mime: 'txt', isOwner: false, isLiked: false, score: -1});    
+        //self.resultsDOC.push(d);        
+
+        userID = self.loggedUser().id;
+        self.searchDOCRecomendinProgress(true);
+        dataServiceProvider.getDOCRecommendations(userID, function (documents) {
+            // Need to insert objects into 'ko.observableArray' and not to substitute the array            
+            $.each(documents, function (i, d) {
+                // To avoid duplicates
+                var match = ko.utils.arrayFirst(self.resultsDOCRecommendations(), function (item) {
+                    return d.docID === item.docID;
+                });
+
+                if (!match) {
+                    self.resultsDOCRecommendations.push(d);
+                }
+            });
+            self.searchDOCRecomendinProgress(false);
+        });
+    };
+
+    self.showDocRecommendations = function () {
+        self.mode('DocRecommendations');
+        self.getDOCRecommendations();
+    };
+
     return self;
 }

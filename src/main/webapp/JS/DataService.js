@@ -68,6 +68,7 @@ function dataService() {
     self.getDOCRecommendations = function (userID, callback) {
         // Stamp is added to avoid caching
         var url = self.serverURL + "/rest/search/recDoc?u=" + userID + "&stamp=" + new Date().getTime();
+
         $.get(url, function (data) {
             // Map received fields to expected fields
             docs = $.map(data, function (d) {

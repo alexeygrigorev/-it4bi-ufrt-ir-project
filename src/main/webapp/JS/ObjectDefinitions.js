@@ -103,6 +103,12 @@ function docInfo(spec) {
         }
     }
 
+    self.getScore = function () {
+
+        var newScore = self.score * 100;        
+        return newScore.toFixed(2) + '%';
+    }
+
     return self;
 }
 
