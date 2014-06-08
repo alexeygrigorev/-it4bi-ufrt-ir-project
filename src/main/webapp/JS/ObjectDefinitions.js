@@ -75,7 +75,8 @@ function docInfo(spec) {
             case 'application/pdf': return 'application/pdf'; break;
             case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': return 'application/docx'; break;
             case 'text/plain; charset=windows-1252': return 'text/plain'; break;
-            case 'text/plain; charset=ISO-8859-1': return 'text/plain'; break;                
+            case 'text/plain; charset=ISO-8859-1': return 'text/plain'; break;
+            case 'text/plain; charset=GB18030': return 'text/plain'; break;                
             default: return self.mime; break;
         }
     }
@@ -97,6 +98,7 @@ function docInfo(spec) {
             case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': return '.docx'; break;
             case 'text/plain; charset=windows-1252': return '.txt'; break;
             case 'text/plain; charset=ISO-8859-1': return '.txt'; break;
+            case 'text/plain; charset=GB18030': return '.txt'; break;
             default: return ''; break;
         }
     }
