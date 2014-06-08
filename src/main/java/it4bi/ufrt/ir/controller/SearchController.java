@@ -1,5 +1,6 @@
 package it4bi.ufrt.ir.controller;
 
+import it4bi.ufrt.ir.service.doc.CSVFileWriter;
 import it4bi.ufrt.ir.service.doc.DocumentRecord;
 import it4bi.ufrt.ir.service.doc.DocumentRecordResultRow;
 import it4bi.ufrt.ir.service.doc.DocumentsDao;
@@ -9,6 +10,7 @@ import it4bi.ufrt.ir.service.doc.Tag;
 import it4bi.ufrt.ir.service.dw.DatawarehouseService;
 import it4bi.ufrt.ir.service.dw.DwhDtoResults;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import it4bi.ufrt.ir.service.spell.FIFASpellChecker;
@@ -71,6 +73,9 @@ public class SearchController {
 	@Value("${documents.score.query}")
 	private float queryScore;
 	
+	@Value("${documents.recommender.benchmark.outputFileLocation}")
+	private String benchmarkResultsFile;
+	
 	private long start_ms, end_ms;
 	
 	//http://localhost:8080/it4bi-ufrt-ir-project/rest/search/benchmarkRecDoc?
@@ -82,6 +87,17 @@ public class SearchController {
 		double threshold_steps[] = {0.001,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
 		SimilarityMeasureEnum sim_steps[] = {SimilarityMeasureEnum.EuclideanDistance,SimilarityMeasureEnum.LogLikelihoodSimilarity,SimilarityMeasureEnum.PearsonCorrelation,SimilarityMeasureEnum.SpearmanCorrelation,SimilarityMeasureEnum.TanimotoCoefficient};
 		
+		String [] headers = new String [] {"threshold", "similarity_measure", "score"};
+		
+		CSVFileWriter benchmarkFile = null;
+		try {
+			benchmarkFile = new CSVFileWriter(benchmarkResultsFile, headers);
+		} 
+		catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+			return;
+		}
+		
 		for(int ctr = 0; ctr < threshold_steps.length; ctr++) {
 			for(int ctr2 = 0; ctr2 < sim_steps.length; ctr2++) {
 				Double cur_threshold = threshold_steps[ctr];
@@ -89,7 +105,8 @@ public class SearchController {
 				this.documents.reconfigureRecommender(cur_threshold, cur_sim);
 				try {
 					LOGGER.debug("Benchmarking DocRecommender: " + "Threshold=" + cur_threshold.toString() + " SimMeasure: " + cur_sim.toString());
-					this.documents.evaluateRecommender();
+					double score = documents.evaluateRecommender();
+					benchmarkFile.appendRow(new String [] {cur_threshold.toString(), cur_sim.toString(), String.valueOf(score)});
 				} catch (TasteException e) {
 					e.printStackTrace();
 				}

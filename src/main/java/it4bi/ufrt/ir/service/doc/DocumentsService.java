@@ -4,6 +4,7 @@ package it4bi.ufrt.ir.service.doc;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,6 +15,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.queryparser.classic.ParseException;
@@ -104,6 +106,24 @@ public class DocumentsService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DocumentsService.class);
 	
+	public static final List<String> extensive_domain_specific_stopWords = Arrays.asList(
+			   "a", "an", "and", "are", "as", "at", "be", "but", "by",
+			   "for", "if", "in", "into", "is", "it",
+			   "no", "not", "of", "on", "or", "such",
+			   "that", "the", "their", "then", "there", "these",
+			   "they", "this", "to", "was", "will", "with", 
+			   "match", "cup", "tournament", "football", "sport", "sports", "soccer", "world", "game", "against", "group", "national", "nation", "play", "plays", "played", "from", "1", "2", "3", "4", "team", "after", "second", "first", "goal", "player", "players", "scored", "minute", "minutes"
+			 );
+	
+	public static final List<String> domain_specific_stopWords = Arrays.asList(
+			   "a", "an", "and", "are", "as", "at", "be", "but", "by",
+			   "for", "if", "in", "into", "is", "it",
+			   "no", "not", "of", "on", "or", "such",
+			   "that", "the", "their", "then", "there", "these",
+			   "they", "this", "to", "was", "will", "with", 
+			   "match", "cup", "tournament", "football", "sport", "sports", "soccer", "world", "game", "against", "group", "national", "nation", "play", "plays"
+			 );
+	
 	public DocumentsDao documentsDAO;
 	
 	//Recommendation Stuff
@@ -193,7 +213,9 @@ public class DocumentsService {
         }
                  
 		// configure index properties
-        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_47);  
+        final CharArraySet stopSet = new CharArraySet(Version.LUCENE_47, DocumentsService.domain_specific_stopWords, false);
+		
+        EnglishAnalyzer analyzer = new EnglishAnalyzer(Version.LUCENE_47, stopSet);   
         Directory indexDir = null;
         
 		try {
