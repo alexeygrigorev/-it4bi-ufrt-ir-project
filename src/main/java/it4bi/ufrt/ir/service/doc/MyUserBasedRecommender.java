@@ -63,8 +63,9 @@ public class MyUserBasedRecommender extends GenericUserBasedRecommender{
 				double value = userSimilarity*((RecommenderDataModel) this.dataModel).getUserDocAffinity(curNeighbour, key);
 				if(!candidateDocs.containsKey(key)) candidateDocs.put(key, value);
 				else {
-					double current_value = candidateDocs.get(key); 
-					candidateDocs.put(key, value + current_value);
+					double current_value = candidateDocs.get(key);
+					
+					candidateDocs.put(key, value + current_value > 1.0 ? 1.0 : value + current_value);
 				}
 			}
 		}

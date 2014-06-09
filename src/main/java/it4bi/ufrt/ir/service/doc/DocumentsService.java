@@ -188,8 +188,8 @@ public class DocumentsService {
 		 RecommenderEvaluator evaluator = new AverageAbsoluteDifferenceRecommenderEvaluator(); 
 		 RecommenderEvaluator rmse = new RMSRecommenderEvaluator(); 
 		 
-		 //return evaluator.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0);
-		 return rmse.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0);
+		 return evaluator.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0);
+		 //return rmse.evaluate(recommenderBuilder, null, datamodel, 0.7, 1.0);
 		 
 	 }
 	 

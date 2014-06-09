@@ -84,14 +84,14 @@ public class SearchController {
 	@Produces("application/json; charset=UTF-8")
 	public void benchmark_docRecommender() {				
 		LOGGER.debug("document recommender benchmark is starting...");
-		double threshold_steps[] = {0.001,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9};
+		double threshold_steps[] = {0.6,0.7,0.8,0.9};
 		SimilarityMeasureEnum sim_steps[] = {SimilarityMeasureEnum.EuclideanDistance,SimilarityMeasureEnum.LogLikelihoodSimilarity,SimilarityMeasureEnum.PearsonCorrelation,SimilarityMeasureEnum.SpearmanCorrelation,SimilarityMeasureEnum.TanimotoCoefficient};
 		
 		String [] headers = new String [] {"threshold", "similarity_measure", "score"};
 		
 		CSVFileWriter benchmarkFile = null;
 		try {
-			benchmarkFile = new CSVFileWriter(benchmarkResultsFile, headers);
+			benchmarkFile = new CSVFileWriter("./output.csv", headers);
 		} 
 		catch (FileNotFoundException e1) {
 			e1.printStackTrace();
@@ -109,6 +109,10 @@ public class SearchController {
 					benchmarkFile.appendRow(new String [] {cur_threshold.toString(), cur_sim.toString(), String.valueOf(score)});
 				} catch (TasteException e) {
 					e.printStackTrace();
+				}
+				catch (org.springframework.jdbc.CannotGetJdbcConnectionException e2) {
+					ctr2--;
+					continue;
 				}
 			}
 		}
